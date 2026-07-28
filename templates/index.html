@@ -96,11 +96,10 @@
 
 <body class="bg-sky text-[#f2eefb] font-sans min-h-screen antialiased selection:bg-gold/30">
 
-  <!-- Starfield -->
+  <!-- Starfield Background -->
   <div id="starfield" aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 overflow-hidden"></div>
 
   <div class="relative z-10">
-
     <!-- Header -->
     <header class="sticky top-0 z-30">
       <div class="glass border-x-0 border-t-0">
@@ -120,7 +119,7 @@
       </div>
     </header>
 
-    <!-- Hero -->
+    <!-- Hero Section -->
     <section class="mx-auto max-w-6xl px-5 pt-16 pb-10 text-center md:pt-24">
       <div class="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-purple-soft/25 bg-navy-light/60 px-4 py-1.5 text-xs font-semibold text-purple-soft">
         <span class="h-1.5 w-1.5 rounded-full bg-gold animate-twinkle"></span>
@@ -139,7 +138,7 @@
       </div>
     </section>
 
-    <!-- Story Studio -->
+    <!-- Story Studio Form -->
     <section id="studio" class="mx-auto max-w-5xl px-5 py-12">
       <div class="glass rounded-3xl p-6 shadow-2xl sm:p-8 md:p-10">
         <div class="mb-8 text-center">
@@ -154,7 +153,7 @@
             <input id="name" name="name" type="text" required placeholder="e.g. Aarav" class="field w-full rounded-xl px-4 py-3" />
           </div>
 
-          <!-- NEW FIELD: Native Place / Roots -->
+          <!-- Native Place / Roots -->
           <div class="sm:col-span-2">
             <label for="native_place" class="mb-2 block text-sm font-semibold text-gold-soft">Native Place / Ancestral Roots</label>
             <input id="native_place" name="native_place" type="text" required placeholder="e.g. Rajasthan, Pune, Bihar" class="field w-full rounded-xl px-4 py-3" />
@@ -206,6 +205,7 @@
             </select>
           </div>
 
+          <!-- Submit Button -->
           <div class="sm:col-span-2">
             <button type="submit" id="submit-btn" class="flex w-full items-center justify-center gap-2 rounded-full bg-gold px-7 py-4 text-base font-bold text-navy shadow-gold transition hover:brightness-105 disabled:opacity-70">
               <span id="btn-label">Create Magical Story ✨</span>
@@ -214,7 +214,7 @@
         </form>
       </div>
 
-      <!-- Result -->
+      <!-- Result Section -->
       <div id="result" class="mt-8 hidden">
         <div class="glass rounded-3xl p-6 shadow-2xl sm:p-8 md:p-10">
           <div class="mb-4 flex items-center gap-2 text-sm font-semibold text-gold">
@@ -225,21 +225,29 @@
 
           <div id="tags" class="mt-4 flex flex-wrap gap-2"></div>
 
-          <!-- Audio player (Ready for ElevenLabs later) -->
-          <div class="mt-6 rounded-2xl border border-purple-soft/20 bg-navy/40 p-4">
+          <!-- 🌟 REAL AUDIO PLAYER UI 🌟 -->
+          <audio id="real-audio-player" class="hidden"></audio>
+          
+          <div id="audio-container" class="mt-6 rounded-2xl border border-purple-soft/20 bg-navy/40 p-4 hidden">
             <div class="flex items-center gap-4">
               <button id="play-btn" aria-label="Play story" class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-gold transition hover:brightness-105">
+                <!-- Play Icon -->
                 <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <!-- Pause Icon -->
                 <svg id="icon-pause" class="hidden" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
               </button>
+              
+              <!-- Waveform Animation -->
               <div id="waveform" class="flex h-10 flex-1 items-center gap-[3px]"></div>
-              <span class="text-xs font-semibold text-muted">2:14</span>
+              
+              <span class="text-xs font-semibold text-muted">Audio Ready</span>
             </div>
           </div>
 
-          <!-- 🌟 Story Text Output 🌟 -->
+          <!-- Story Text -->
           <div id="story-body" class="mt-6 space-y-4 text-pretty whitespace-pre-wrap leading-relaxed text-muted font-medium"></div>
 
+          <!-- Actions -->
           <div class="mt-6 flex flex-col gap-3 sm:flex-row">
             <button id="share-btn" class="flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 font-bold text-navy shadow-gold transition hover:brightness-105">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
@@ -291,7 +299,7 @@
   </div>
 
   <script>
-    // ---------- Starfield ----------
+    // ---------- Starfield Background ----------
     (function () {
       const field = document.getElementById('starfield');
       const count = window.innerWidth < 640 ? 45 : 90;
@@ -309,7 +317,7 @@
       field.innerHTML = html;
     })();
 
-    // ---------- Waveform ----------
+    // ---------- Visual Waveform ----------
     (function () {
       const wf = document.getElementById('waveform');
       let bars = '';
@@ -321,11 +329,36 @@
       wf.innerHTML = bars;
     })();
 
-    // ---------- 🌟 LIVE Story Generation Logic 🌟 ----------
+    // ---------- Audio Player Logic ----------
+    const audioEl = document.getElementById('real-audio-player');
+    const playBtn = document.getElementById('play-btn');
+    const iconPlay = document.getElementById('icon-play');
+    const iconPause = document.getElementById('icon-pause');
+
+    playBtn.addEventListener('click', () => {
+      if (audioEl.paused) {
+        audioEl.play();
+        iconPlay.classList.add('hidden');
+        iconPause.classList.remove('hidden');
+      } else {
+        audioEl.pause();
+        iconPause.classList.add('hidden');
+        iconPlay.classList.remove('hidden');
+      }
+    });
+
+    // Reset Play button when audio finishes
+    audioEl.addEventListener('ended', () => {
+      iconPause.classList.add('hidden');
+      iconPlay.classList.remove('hidden');
+    });
+
+    // ---------- 🌟 LIVE Story & Audio Generation Logic 🌟 ----------
     const form = document.getElementById('story-form');
     const result = document.getElementById('result');
     const btn = document.getElementById('submit-btn');
     const btnLabel = document.getElementById('btn-label');
+    const audioContainer = document.getElementById('audio-container');
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -342,8 +375,9 @@
 
       // 2. Loading State (UI Update)
       btn.disabled = true;
-      btnLabel.textContent = 'AI is writing... ⏳';
+      btnLabel.textContent = 'AI is writing & recording... ⏳';
       result.classList.remove('hidden');
+      audioContainer.classList.add('hidden'); // Hide audio while loading
       document.getElementById('story-title').textContent = 'Crafting your magic...';
       document.getElementById('tags').innerHTML = '';
       document.getElementById('story-body').innerHTML = '<span class="text-gold animate-pulse">Sprinkling magic dust... please wait a few seconds.</span>';
@@ -368,6 +402,16 @@
             document.getElementById('tags').innerHTML = tags
               .map((t) => `<span class="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-soft">${t}</span>`) 
               .join('');
+              
+            // 🎙️ If Audio is returned from backend, set it up
+            if(res.audio_base64) {
+                audioEl.src = "data:audio/mpeg;base64," + res.audio_base64;
+                audioContainer.classList.remove('hidden'); // Show the audio player
+                
+                // Ensure icons are reset
+                iconPause.classList.add('hidden');
+                iconPlay.classList.remove('hidden');
+            }
         } else {
             document.getElementById('story-body').innerText = '❌ Error: ' + res.error;
         }
@@ -382,6 +426,7 @@
 
     // "Create Another" Button Logic
     document.getElementById('another-btn').addEventListener('click', () => {
+        audioEl.pause(); // Stop audio if playing
         result.classList.add('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
