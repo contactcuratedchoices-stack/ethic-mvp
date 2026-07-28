@@ -29,6 +29,9 @@ def generate_story():
     moral_value = data.get('moral_value')
     language = data.get('language')
     
+    # 🌟 NEW: Check if user actually wants audio
+    wants_audio = data.get('generate_audio', False)
+    
     # 🚨 THE BRAHMASTRA: Strict Language Lock
     language_instruction = ""
     if language == "Hindi":
@@ -75,17 +78,16 @@ def generate_story():
         )
         story_text = response.choices[0].message.content
         
-        # 2. AUDIO GENERATION (ElevenLabs)
+        # 2. AUDIO GENERATION (ElevenLabs) - Only runs if checkbox is ticked!
         audio_base64 = None
-        # अगर तुमने Voice ID डाली है और Render में API Key है, तभी यह काम करेगा
-        if ELEVENLABS_API_KEY and VOICE_ID != "YOUR_VOICE_ID_HERE":
+        
+        if wants_audio and ELEVENLABS_API_KEY and VOICE_ID != "YOUR_VOICE_ID_HERE":
             eleven_url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
             headers = {
                 "Accept": "audio/mpeg",
                 "Content-Type": "application/json",
                 "xi-api-key": ELEVENLABS_API_KEY
             }
-            # Multilingual v2 मॉडल हिंदी और इंग्लिश दोनों एकदम परफेक्ट बोलता है
             eleven_data = {
                 "text": story_text,
                 "model_id": "eleven_multilingual_v2",
@@ -100,10 +102,8 @@ def generate_story():
             eleven_res = requests.post(eleven_url, json=eleven_data, headers=headers)
             
             if eleven_res.status_code == 200:
-                # ऑडियो को एनकोड करके फ्रंटएंड पर भेज रहे हैं
                 audio_base64 = base64.b64encode(eleven_res.content).decode('utf-8')
             else:
-                # अगर ElevenLabs में कोई दिक्कत आती है, तो भी कहानी टेक्स्ट में दिखेगी
                 print(f"ElevenLabs Error: {eleven_res.text}")
 
         return jsonify({
