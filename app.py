@@ -6,13 +6,12 @@ import base64
 
 app = Flask(__name__)
 
-# --- KEYS SETUP ---
-# API Keys Render से आएंगी
+# API Keys Render के Environment Variables से ली जाएंगी
 GROQ_API_KEY = os.getenv("GROQ_API_KEY") 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
-# 🚨 नीचे अपनी Voice ID पेस्ट करो (Inverted commas " " के अंदर ही रखना) 🚨
-VOICE_ID = "ZthnDvLLxYzM9qeFVSJe"
+# 🚨🚨🚨 यहाँ अपनी ElevenLabs की VOICE ID डालें (API Key नहीं) 🚨🚨🚨
+VOICE_ID = "ZthnDvLLxYzM9qeFVSJe" 
 
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -30,26 +29,43 @@ def generate_story():
     moral_value = data.get('moral_value')
     language = data.get('language')
     
-    # Language Rules
+    # 🚨 THE BRAHMASTRA: Strict Language Lock
     language_instruction = ""
     if language == "Hindi":
-        language_instruction = "CRITICAL RULE: WRITE ENTIRE STORY IN PURE HINDI (DEVANAGARI SCRIPT). NO ENGLISH LETTERS."
+        language_instruction = """
+        CRITICAL RULE: YOU MUST WRITE THE ENTIRE STORY STRICTLY IN PURE HINDI USING THE DEVANAGARI SCRIPT (हिंदी लिपि). 
+        DO NOT USE ENGLISH LETTERS FOR HINDI. 
+        Example of correct format: 'एक बार की बात है, एक बहुत ही प्यारा बच्चा था...'
+        Do not output Romanized Hindi or Hinglish.
+        """
     elif language == "Hinglish":
-        language_instruction = "CRITICAL RULE: WRITE ENTIRE STORY IN HINGLISH (Hindi in English alphabet)."
+        language_instruction = """
+        CRITICAL RULE: WRITE THE ENTIRE STORY IN HINGLISH (Hindi language written in the English alphabet).
+        Example of correct format: 'Ek baar ki baat hai, ek bahut hi pyara bacha tha...'
+        """
     else:
-        language_instruction = "CRITICAL RULE: WRITE ENTIRE STORY IN ENGLISH."
+        language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
     system_prompt = "You are an expert, affectionate Indian Grandparent (Dadi/Nani) and a master storyteller."
 
     user_prompt = f"""
     Write a highly personalized, emotional bedtime story for your {age}-year-old {gender} grandchild named {child_name}.
-    Core Moral: "{moral_value}". Native Place: "{native_place}".
+    Core Moral to teach: "{moral_value}".
+    Native Place / Cultural Roots: "{native_place}".
+
     {language_instruction}
-    RULES: Add cultural depth. Tone must match a {age}-year-old. Add a warm grandparent greeting. Make the child face a struggle before doing the right thing. End with a real-world task (ETHIC Quest). Length: 350-400 words.
+
+    STORY WRITING RULES (DO NOT IGNORE):
+    1. Cultural Depth: Set the story completely in the regional landscape, local folklore, or positive local myths of "{native_place}". Make parents nostalgic.
+    2. Age-Specific Tone: Perfectly adapt the complexity and tone for a {age}-year-old child. 
+    3. The Dadi/Nani Vibe: Start the story with a warm, nostalgic grandparent greeting.
+    4. The Relatable Struggle: {child_name} MUST face a difficult choice or temptation related to "{moral_value}" before doing the right thing.
+    5. The "ETHIC" Quest: End the story with a highly specific, fun real-world task for {child_name} to do tomorrow to practice {moral_value}. Formulate it as a secret mission.
+    6. Length & Quality: Write exactly 350 to 450 words. Do not summarize, do not cut the story short, and ensure perfect grammar and smooth flow.
     """
     
     try:
-        # 1. Generate Story Text (Groq API)
+        # 1. TEXT GENERATION (Groq Llama-3)
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -57,10 +73,11 @@ def generate_story():
             ],
             model="llama-3.1-8b-instant",
         )
-        story = response.choices[0].message.content
+        story_text = response.choices[0].message.content
         
-        # 2. Generate Audio (ElevenLabs API)
+        # 2. AUDIO GENERATION (ElevenLabs)
         audio_base64 = None
+        # अगर तुमने Voice ID डाली है और Render में API Key है, तभी यह काम करेगा
         if ELEVENLABS_API_KEY and VOICE_ID != "YOUR_VOICE_ID_HERE":
             eleven_url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
             headers = {
@@ -68,22 +85,33 @@ def generate_story():
                 "Content-Type": "application/json",
                 "xi-api-key": ELEVENLABS_API_KEY
             }
-            # 'multilingual_v2' मॉडल हिंदी और इंग्लिश दोनों एकदम परफेक्ट बोलता है
+            # Multilingual v2 मॉडल हिंदी और इंग्लिश दोनों एकदम परफेक्ट बोलता है
             eleven_data = {
-                "text": story,
+                "text": story_text,
                 "model_id": "eleven_multilingual_v2",
                 "voice_settings": {
                     "stability": 0.5,
-                    "similarity_boost": 0.75
+                    "similarity_boost": 0.75,
+                    "style": 0.0,
+                    "use_speaker_boost": True
                 }
             }
+            
             eleven_res = requests.post(eleven_url, json=eleven_data, headers=headers)
             
             if eleven_res.status_code == 200:
                 # ऑडियो को एनकोड करके फ्रंटएंड पर भेज रहे हैं
                 audio_base64 = base64.b64encode(eleven_res.content).decode('utf-8')
+            else:
+                # अगर ElevenLabs में कोई दिक्कत आती है, तो भी कहानी टेक्स्ट में दिखेगी
+                print(f"ElevenLabs Error: {eleven_res.text}")
 
-        return jsonify({"success": True, "story": story, "audio": audio_base64})
+        return jsonify({
+            "success": True, 
+            "story": story_text, 
+            "audio_base64": audio_base64
+        })
+        
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
