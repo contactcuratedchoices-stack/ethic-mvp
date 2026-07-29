@@ -14,7 +14,7 @@
     </a>
   </div>
 
-  <!-- Success Messages (जब बच्चा ऐड हो जाए) -->
+  <!-- Success Messages -->
   {% with messages = get_flashed_messages(category_filter=["success"]) %}
     {% if messages %}
       <div class="mb-8 rounded-xl bg-green-500/20 border border-green-500/30 p-4 text-green-400 font-semibold text-center shadow-lg">
@@ -56,7 +56,7 @@
           </div>
         {% endif %}
 
-        <!-- Add Child Form (Hidden by default, toggled via JS) -->
+        <!-- Add Child Form -->
         <form id="add-child-form" action="/add_child" method="POST" class="hidden border-t border-purple-soft/20 pt-6 mt-2">
           <h3 class="text-sm font-bold text-gold-soft mb-4">Add a Child Profile</h3>
           <div class="space-y-3">
@@ -94,10 +94,10 @@
                   <p class="text-xs text-muted mb-4">{{ story.created_at.strftime('%d %b %Y') }}</p>
                 </div>
                 
-                <!-- (Future Upgrade: यहाँ क्लिक करने पर कहानी खुलेगी) -->
-                <button class="w-full py-2.5 rounded-xl border border-purple-soft/30 text-purple-soft text-sm font-semibold group-hover:bg-purple-soft/10 transition mt-2">
-                  Read Story
-                </button>
+                <!-- 🚀 UPDATED ACTIVE READ STORY LINK -->
+                <a href="/story/{{ story.id }}" class="block text-center w-full py-2.5 rounded-xl border border-purple-soft/30 text-purple-soft text-sm font-semibold hover:bg-purple-soft/20 hover:text-white transition mt-2">
+                  📖 Read Story
+                </a>
               </div>
             {% endfor %}
           </div>
@@ -115,7 +115,6 @@
   </div>
 </section>
 
-<!-- JavaScript for Toggling Form -->
 <script>
   function toggleAddChild() {
     const form = document.getElementById('add-child-form');
