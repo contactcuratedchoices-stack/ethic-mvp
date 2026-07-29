@@ -9,9 +9,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# --- नया: Security & Database Config ---
-app.secret_key = 'ethic_super_secret_key_2026' # लॉगिन सेशन सिक्योर करने के लिए
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_users.db' # डेटाबेस का नाम
+# Security & Database Config
+app.secret_key = 'ethic_super_secret_key_2026'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -20,26 +20,31 @@ db = SQLAlchemy(app)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY") 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- नया: DATABASE MODEL (यूजर का टेबल) ---
+# ==========================================
+# 🗄️ DATABASE MODELS 
+# ==========================================
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
-# रन होते ही डेटाबेस फाइल बना देगा
 with app.app_context():
     db.create_all()
 
 # ==========================================
-# 🌐 WEBSITE ROUTES (मल्टी-पेज)
+# 🌐 WEBSITE ROUTES 
 # ==========================================
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# 🚨 THE LOCK: यह कोड चेक करेगा कि यूजर लॉगिन है या नहीं
 @app.route('/studio')
 def studio():
+    if 'user_id' not in session:
+        flash('Please log in or create an account to generate your first story.', 'error')
+        return redirect(url_for('login'))
     return render_template('studio.html')
 
 @app.route('/pricing')
@@ -47,31 +52,28 @@ def pricing():
     return render_template('pricing.html')
 
 # ==========================================
-# 🔐 AUTHENTICATION ROUTES (लॉगिन / साइन-अप)
+# 🔐 AUTHENTICATION ROUTES 
 # ==========================================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        action = request.form.get('action') # फॉर्म से पता चलेगा कि लॉगिन है या साइन-अप
+        action = request.form.get('action') 
         
         if action == 'signup':
             name = request.form.get('name')
             email = request.form.get('email')
             password = request.form.get('password')
             
-            # चेक करो कि ईमेल पहले से तो नहीं है
             existing_user = User.query.filter_by(email=email).first()
             if existing_user:
                 flash('Email already registered! Please login.', 'error')
                 return redirect(url_for('login'))
                 
-            # नया यूजर बनाओ (पासवर्ड को एन्क्रिप्ट करके सेव करना)
             hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
             new_user = User(name=name, email=email, password=hashed_pw)
             db.session.add(new_user)
             db.session.commit()
             
-            # साइन-अप होते ही लॉगिन कर दो
             session['user_id'] = new_user.id
             session['user_name'] = new_user.name
             return redirect(url_for('studio'))
@@ -80,11 +82,9 @@ def login():
             email = request.form.get('email')
             password = request.form.get('password')
             
-            # यूजर को डेटाबेस में ढूंढो
             user = User.query.filter_by(email=email).first()
             
             if user and check_password_hash(user.password, password):
-                # लॉगिन सक्सेसफुल
                 session['user_id'] = user.id
                 session['user_name'] = user.name
                 return redirect(url_for('studio'))
@@ -101,10 +101,14 @@ def logout():
     return redirect(url_for('home'))
 
 # ==========================================
-# ⚙️ API ROUTES (स्टोरी जनरेशन)
+# ⚙️ API ROUTES 
 # ==========================================
 @app.route('/generate_story', methods=['POST'])
 def generate_story():
+    # सिक्यूरिटी: अगर कोई बिना लॉगिन के API कॉल करे तो रोक दो (Advanced)
+    if 'user_id' not in session:
+        return jsonify({"success": False, "error": "Unauthorized. Please login."}), 401
+
     data = request.json
     child_name = data.get('child_name')
     native_place = data.get('native_place')
