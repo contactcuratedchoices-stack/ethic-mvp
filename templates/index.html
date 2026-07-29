@@ -91,7 +91,6 @@
       border-color: #f4c95d;
       color: #f8d98a;
     }
-    /* Custom Checkbox Style */
     .custom-checkbox {
       appearance: none;
       background-color: rgba(20,16,50,0.6);
@@ -227,7 +226,6 @@
             </select>
           </div>
 
-          <!-- 🌟 NEW: AUDIO TOGGLE OPTION 🌟 -->
           <div class="sm:col-span-2 mt-2 p-4 rounded-xl border border-purple-soft/30 bg-navy-light/40">
             <label class="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" id="generate_audio" class="custom-checkbox" checked />
@@ -255,18 +253,26 @@
 
           <div id="tags" class="mt-4 flex flex-wrap gap-2"></div>
 
-          <!-- AUDIO PLAYER UI -->
+          <!-- 🌟 UPDATED AUDIO PLAYER UI (Always visible if requested) 🌟 -->
           <audio id="real-audio-player" class="hidden"></audio>
           
           <div id="audio-container" class="mt-6 rounded-2xl border border-purple-soft/20 bg-navy/40 p-4 hidden">
             <div class="flex items-center gap-4">
-              <button id="play-btn" aria-label="Play story" class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-gold transition hover:brightness-105">
+              <!-- Play/Pause Button -->
+              <button id="play-btn" aria-label="Play story" disabled class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-gold transition hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed">
                 <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 <svg id="icon-pause" class="hidden" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
               </button>
+              
+              <!-- Fake Waveform (Design) -->
               <div id="waveform" class="flex h-10 flex-1 items-center gap-[3px]"></div>
-              <span class="text-xs font-semibold text-muted">Audio Ready</span>
+              
+              <!-- 🌟 NEW: SPEED CONTROL BUTTON 🌟 -->
+              <button id="speed-btn" title="Change Playback Speed" class="rounded-lg bg-gold/15 border border-gold/30 px-3 py-1.5 text-xs font-bold text-gold hover:bg-gold/30 transition">1x</button>
             </div>
+            
+            <!-- 🚨 NEW: ERROR MESSAGE DISPLAY 🚨 -->
+            <div id="audio-error" class="hidden mt-3 rounded-lg bg-red-500/10 p-3 text-xs font-semibold text-red-400 border border-red-500/20"></div>
           </div>
 
           <!-- Story Text -->
@@ -275,31 +281,6 @@
           <div class="mt-6 flex flex-col gap-3 sm:flex-row">
             <button id="another-btn" class="rounded-full border border-purple-soft/30 px-6 py-3 font-semibold text-purple-soft transition hover:bg-navy-light/60">Create another</button>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- How it works -->
-    <section id="how" class="mx-auto max-w-6xl px-5 py-16">
-      <div class="mb-12 text-center">
-        <h2 class="font-serif text-3xl font-semibold md:text-4xl">How the magic happens</h2>
-        <p class="mx-auto mt-3 max-w-xl text-muted">Three simple steps to a bedtime your child will remember.</p>
-      </div>
-      <div class="grid gap-6 md:grid-cols-3">
-        <div class="glass rounded-2xl p-6 animate-float-slow">
-          <div class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-gold/15 text-gold font-serif text-xl font-bold">1</div>
-          <h3 class="font-serif text-xl font-semibold">Tell us about your child</h3>
-          <p class="mt-2 text-sm leading-relaxed text-muted">Name, age, roots, and the value you'd love them to learn tonight.</p>
-        </div>
-        <div class="glass rounded-2xl p-6 animate-float-slow" style="animation-delay:.8s">
-          <div class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-gold/15 text-gold font-serif text-xl font-bold">2</div>
-          <h3 class="font-serif text-xl font-semibold">AI weaves the story</h3>
-          <p class="mt-2 text-sm leading-relaxed text-muted">A personalized tale is crafted around your child as the hero of their own adventure.</p>
-        </div>
-        <div class="glass rounded-2xl p-6 animate-float-slow" style="animation-delay:1.6s">
-          <div class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-gold/15 text-gold font-serif text-xl font-bold">3</div>
-          <h3 class="font-serif text-xl font-semibold">Read or listen together</h3>
-          <p class="mt-2 text-sm leading-relaxed text-muted">Enjoy warm narrated audio or read along — no screens, just imagination.</p>
         </div>
       </div>
     </section>
@@ -350,7 +331,9 @@
     const playBtn = document.getElementById('play-btn');
     const iconPlay = document.getElementById('icon-play');
     const iconPause = document.getElementById('icon-pause');
+    const speedBtn = document.getElementById('speed-btn');
 
+    // 🌟 Play/Pause Logic
     playBtn.addEventListener('click', () => {
       if (audioEl.paused) {
         audioEl.play();
@@ -368,11 +351,21 @@
       iconPlay.classList.remove('hidden');
     });
 
+    // 🌟 Speed Control Logic
+    const speeds = [1, 1.25, 1.5, 2];
+    let speedIdx = 0;
+    speedBtn.addEventListener('click', () => {
+        speedIdx = (speedIdx + 1) % speeds.length;
+        audioEl.playbackRate = speeds[speedIdx];
+        speedBtn.innerText = speeds[speedIdx] + 'x';
+    });
+
     const form = document.getElementById('story-form');
     const result = document.getElementById('result');
     const btn = document.getElementById('submit-btn');
     const btnLabel = document.getElementById('btn-label');
     const audioContainer = document.getElementById('audio-container');
+    const audioErrorBox = document.getElementById('audio-error');
     const generateAudioCheckbox = document.getElementById('generate_audio');
 
     form.addEventListener('submit', async function (e) {
@@ -387,13 +380,15 @@
         gender: form.gender.value,
         moral_value: document.getElementById('value').value,
         language: document.getElementById('language').value,
-        generate_audio: isAudioRequested // 🌟 Sending choice to backend
+        generate_audio: isAudioRequested 
       };
 
       btn.disabled = true;
       btnLabel.textContent = isAudioRequested ? 'AI is writing & recording... ⏳' : 'AI is writing... ⏳';
       result.classList.remove('hidden');
       audioContainer.classList.add('hidden'); 
+      audioErrorBox.classList.add('hidden');
+      
       document.getElementById('story-title').textContent = 'Crafting your magic...';
       document.getElementById('tags').innerHTML = '';
       document.getElementById('story-body').innerHTML = '<span class="text-gold animate-pulse">Sprinkling magic dust... please wait a few seconds.</span>';
@@ -416,12 +411,21 @@
               .map((t) => `<span class="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-soft">${t}</span>`) 
               .join('');
               
-            // 🌟 Show Player ONLY if audio is generated
-            if(res.audio_base64) {
-                audioEl.src = "data:audio/mpeg;base64," + res.audio_base64;
-                audioContainer.classList.remove('hidden'); 
-                iconPause.classList.add('hidden');
-                iconPlay.classList.remove('hidden');
+            // 🌟 AUDIO HANDLING LOGIC 🌟
+            if(isAudioRequested) {
+                audioContainer.classList.remove('hidden'); // ALWAYS SHOW PLAYER BOX
+                
+                if(res.audio_base64) {
+                    audioEl.src = "data:audio/mpeg;base64," + res.audio_base64;
+                    playBtn.disabled = false; // Enable Play Button
+                    iconPause.classList.add('hidden');
+                    iconPlay.classList.remove('hidden');
+                } else {
+                    // SHOW ERROR IF FAILED
+                    playBtn.disabled = true;
+                    audioErrorBox.classList.remove('hidden');
+                    audioErrorBox.innerText = "❌ Audio Generation Failed: " + (res.audio_error || "Please check backend config.");
+                }
             }
         } else {
             document.getElementById('story-body').innerText = '❌ Error: ' + res.error;
