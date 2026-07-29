@@ -11,7 +11,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
 # 🚨🚨🚨 यहाँ अपनी ElevenLabs की VOICE ID डालें (API Key नहीं) 🚨🚨🚨
-VOICE_ID = "jBpfuIE2acCO8z3wKNLl" 
+VOICE_ID = "21m00Tcm4TlvDq8ikWAM" 
 
 client = Groq(api_key=GROQ_API_KEY)
 
