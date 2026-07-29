@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="flex flex-col items-center justify-center min-h-[80vh] px-5 py-12">
+  
+  <div class="text-center mb-8">
+    <h1 class="font-serif text-4xl font-bold text-white">Welcome to ETHIC</h1>
+    <p class="text-muted mt-2">Join mindful parents building character.</p>
+  </div>
+
+  <div class="glass w-full max-w-md p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+    <!-- Decorative glow -->
+    <div class="absolute -top-10 -right-10 w-32 h-32 bg-gold/20 rounded-full blur-2xl"></div>
+
+    <!-- TABS (Login vs Signup) -->
+    <div class="flex gap-4 mb-8 border-b border-purple-soft/20 pb-4">
+      <button onclick="showTab('login')" id="tab-login" class="flex-1 text-center font-bold text-gold border-b-2 border-gold pb-1 transition-all">Sign In</button>
+      <button onclick="showTab('signup')" id="tab-signup" class="flex-1 text-center font-bold text-muted border-b-2 border-transparent pb-1 transition-all">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form id="form-login" action="/login" method="POST" class="flex flex-col gap-5">
+      <input type="hidden" name="action" value="login">
+      
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Email Address</label>
+        <input type="email" name="email" required placeholder="mom@example.com" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Password</label>
+        <input type="password" name="password" required placeholder="••••••••" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      
+      <button type="submit" class="mt-4 w-full rounded-full bg-gold px-7 py-3 text-lg font-bold text-navy shadow-gold hover:brightness-105 transition">
+        Log In
+      </button>
+    </form>
+
+    <!-- SIGNUP FORM (Hidden by default) -->
+    <form id="form-signup" action="/login" method="POST" class="flex flex-col gap-5 hidden">
+      <input type="hidden" name="action" value="signup">
+      
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Parent's Name</label>
+        <input type="text" name="name" required placeholder="E.g. Priya Sharma" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Email Address</label>
+        <input type="email" name="email" required placeholder="mom@example.com" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Create Password</label>
+        <input type="password" name="password" required placeholder="Min 6 characters" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      
+      <button type="submit" class="mt-4 w-full rounded-full bg-navy-light border border-gold text-gold px-7 py-3 text-lg font-bold hover:bg-gold hover:text-navy transition shadow-gold">
+        Create Account
+      </button>
+    </form>
+
+  </div>
+</section>
+
+<!-- Simple JS to toggle forms -->
+<script>
+  function showTab(tabName) {
+    const formLogin = document.getElementById('form-login');
+    const formSignup = document.getElementById('form-signup');
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+
+    if(tabName === 'login') {
+      formLogin.classList.remove('hidden');
+      formSignup.classList.add('hidden');
+      tabLogin.classList.replace('text-muted', 'text-gold');
+      tabLogin.classList.replace('border-transparent', 'border-gold');
+      tabSignup.classList.replace('text-gold', 'text-muted');
+      tabSignup.classList.replace('border-gold', 'border-transparent');
+    } else {
+      formSignup.classList.remove('hidden');
+      formLogin.classList.add('hidden');
+      tabSignup.classList.replace('text-muted', 'text-gold');
+      tabSignup.classList.replace('border-transparent', 'border-gold');
+      tabLogin.classList.replace('text-gold', 'text-muted');
+      tabLogin.classList.replace('border-gold', 'border-transparent');
+    }
+  }
+</script>
+{% endblock %}
