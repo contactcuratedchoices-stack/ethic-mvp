@@ -12,7 +12,8 @@ app = Flask(__name__)
 
 # Security & Database Config
 app.secret_key = 'ethic_super_secret_key_2026'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_database.db'
+# ⚠️ नया डेटाबेस नाम ताकि नए कॉलम्स आसानी से बन जाएं
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_v2.db' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -46,6 +47,7 @@ class Story(db.Model):
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     moral = db.Column(db.String(100), nullable=False)
+    audio_data = db.Column(db.Text, nullable=True) # 🚀 NAYA FEATURE: Audio Saving
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 with app.app_context():
@@ -83,7 +85,6 @@ def studio():
     user_children = Child.query.filter_by(user_id=session['user_id']).all()
     return render_template('studio.html', children=user_children)
 
-# 🚨 THE LOCK: सेव की हुई कहानी पढ़ने का पेज
 @app.route('/story/<int:story_id>')
 def read_story(story_id):
     if 'user_id' not in session:
@@ -167,7 +168,6 @@ def add_child():
     flash(f'{name} profile added successfully!', 'success')
     return redirect(url_for('dashboard'))
 
-
 @app.route('/generate_story', methods=['POST'])
 def generate_story():
     if 'user_id' not in session:
@@ -208,11 +208,6 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # कहानी सेव करना
-        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value)
-        db.session.add(new_story)
-        db.session.commit()
-        
         audio_base64 = None
         audio_error = None
         
@@ -226,6 +221,11 @@ def generate_story():
                 audio_base64 = base64.b64encode(fp.read()).decode('utf-8')
             except Exception as e:
                 audio_error = f"Free TTS Error: {str(e)}"
+
+        # 🚀 UPDATED: कहानी के साथ अब ऑडियो (base64) भी सेव होगा!
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, audio_data=audio_base64)
+        db.session.add(new_story)
+        db.session.commit()
 
         return jsonify({
             "success": True, 
