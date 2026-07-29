@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # Security & Database Config
 app.secret_key = 'ethic_super_secret_key_2026'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_database.db' # नाम बदल दिया ताकि नया फ्रेश DB बने
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -29,7 +29,6 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    # रिलेशनशिप: एक यूजर के कई बच्चे और कई कहानियां हो सकती हैं
     children = db.relationship('Child', backref='parent', lazy=True)
     stories = db.relationship('Story', backref='author', lazy=True)
 
@@ -49,7 +48,6 @@ class Story(db.Model):
     moral = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# डेटाबेस टेबल्स क्रिएट करना
 with app.app_context():
     db.create_all()
 
@@ -64,7 +62,6 @@ def home():
 def pricing():
     return render_template('pricing.html')
 
-# 🚨 THE LOCK: यूजर का डैशबोर्ड
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
@@ -72,22 +69,34 @@ def dashboard():
         return redirect(url_for('login'))
     
     user_id = session['user_id']
-    # यूजर के बच्चे और पुरानी कहानियां डेटाबेस से निकालो
     user_children = Child.query.filter_by(user_id=user_id).all()
     user_stories = Story.query.filter_by(user_id=user_id).order_by(Story.created_at.desc()).all()
     
     return render_template('dashboard.html', children=user_children, stories=user_stories)
 
-# 🚨 THE LOCK: स्टोरी स्टूडियो
 @app.route('/studio')
 def studio():
     if 'user_id' not in session:
         flash('Please log in or create an account to generate your first story.', 'error')
         return redirect(url_for('login'))
     
-    # फॉर्म में ड्रॉपडाउन के लिए बच्चों की लिस्ट भेजो
     user_children = Child.query.filter_by(user_id=session['user_id']).all()
     return render_template('studio.html', children=user_children)
+
+# 🚨 THE LOCK: सेव की हुई कहानी पढ़ने का पेज
+@app.route('/story/<int:story_id>')
+def read_story(story_id):
+    if 'user_id' not in session:
+        flash('Please log in to read stories.', 'error')
+        return redirect(url_for('login'))
+    
+    story = Story.query.get_or_404(story_id)
+    
+    if story.user_id != session['user_id']:
+        flash('Unauthorized access!', 'error')
+        return redirect(url_for('dashboard'))
+        
+    return render_template('read_story.html', story=story)
 
 # ==========================================
 # 🔐 AUTHENTICATION ROUTES 
@@ -114,7 +123,7 @@ def login():
             
             session['user_id'] = new_user.id
             session['user_name'] = new_user.name
-            return redirect(url_for('dashboard')) # साइन-अप के बाद डैशबोर्ड पर भेजो
+            return redirect(url_for('dashboard'))
             
         elif action == 'login':
             email = request.form.get('email')
@@ -125,7 +134,7 @@ def login():
             if user and check_password_hash(user.password, password):
                 session['user_id'] = user.id
                 session['user_name'] = user.name
-                return redirect(url_for('dashboard')) # लॉग-इन के बाद डैशबोर्ड पर भेजो
+                return redirect(url_for('dashboard'))
             else:
                 flash('Invalid email or password!', 'error')
                 return redirect(url_for('login'))
@@ -141,8 +150,6 @@ def logout():
 # ==========================================
 # ⚙️ API ROUTES (Data Handling)
 # ==========================================
-
-# नया बच्चा ऐड करने का API
 @app.route('/add_child', methods=['POST'])
 def add_child():
     if 'user_id' not in session:
@@ -201,7 +208,7 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # 💾 कहानी को डेटाबेस में सेव करना
+        # कहानी सेव करना
         new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value)
         db.session.add(new_story)
         db.session.commit()
