@@ -7,12 +7,32 @@
     <div class="absolute -top-20 -right-20 w-64 h-64 bg-gold/10 rounded-full blur-3xl"></div>
     
     <div class="mb-8 text-center relative z-10">
-      <h1 class="font-serif text-4xl font-bold text-white">The Story Studio</h1>
-      <p class="mt-2 text-muted text-lg">Weave a personalized, value-driven tale for your little one.</p>
+      <div class="flex justify-between items-center mb-4">
+        <a href="/dashboard" class="text-xs bg-purple-soft/20 text-purple-soft font-bold px-3 py-1.5 rounded-lg hover:bg-purple-soft/40 transition">← Back to Dashboard</a>
+        <h1 class="font-serif text-3xl font-bold text-white">The Story Studio</h1>
+        <div class="w-24"></div> <!-- Spacer for alignment -->
+      </div>
+      <p class="text-muted text-sm">Weave a personalized, value-driven tale for your little one.</p>
     </div>
 
     <!-- THE FORM -->
     <form id="story-form" class="grid gap-5 sm:grid-cols-2 relative z-10">
+      
+      <!-- 👶 Profile Selector (अगर बच्चे सेव हैं तो ड्रॉपडाउन दिखाओ) -->
+      {% if children %}
+      <div class="sm:col-span-2 bg-navy-light/60 p-4 rounded-2xl border border-purple-soft/30">
+        <label class="mb-2 block text-xs font-semibold text-gold-soft uppercase tracking-wider">Select Saved Child Profile (One-Click Magic)</label>
+        <select id="profile-select" onchange="fillProfileData()" class="field w-full rounded-xl px-4 py-3 text-sm">
+          <option value="">-- Choose from saved profiles or enter manually below --</option>
+          {% for child in children %}
+            <option value="{{ child.id }}" data-name="{{ child.name }}" data-age="{{ child.age }}" data-place="{{ child.native_place }}" data-lang="{{ child.language }}">
+              {{ child.name }} ({{ child.age }} yrs, {{ child.native_place }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
       <div class="sm:col-span-2">
         <label for="name" class="mb-2 block text-sm font-semibold text-gold-soft">Child's Name</label>
         <input id="name" name="name" type="text" required placeholder="e.g. Aarav" class="field w-full rounded-xl px-4 py-3" />
@@ -24,7 +44,7 @@
       <div>
         <label for="age" class="mb-2 block text-sm font-semibold text-gold-soft">Age (3–10)</label>
         <select id="age" name="age" class="field w-full rounded-xl px-4 py-3">
-          <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option>
+          <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
         </select>
       </div>
       <div>
@@ -41,10 +61,12 @@
           <option value="Sharing & Empathy">Sharing & Empathy</option>
           <option value="Honesty & Truth">Honesty & Truth</option>
           <option value="Bravery & Courage">Bravery & Courage</option>
+          <option value="Respect for Elders">Respect for Elders</option>
+          <option value="Kindness to Animals">Kindness to Animals</option>
         </select>
       </div>
+      
       <div class="sm:col-span-2 mt-2 p-4 rounded-xl border border-purple-soft/30 bg-navy-light/40 flex items-center gap-3">
-        <!-- Custom Checkbox Style directly injected for this page -->
         <style>
           .custom-cb { appearance: none; width: 1.25em; height: 1.25em; border: 1px solid rgba(183,157,240,0.4); border-radius: 0.25em; display: grid; place-content: center; cursor: pointer; transition: all 0.2s; background-color: rgba(20,16,50,0.6); }
           .custom-cb::before { content: ""; width: 0.65em; height: 0.65em; transform: scale(0); transition: 120ms transform ease-in-out; box-shadow: inset 1em 1em #f4c95d; border-radius: 2px; }
@@ -57,6 +79,7 @@
           <span class="block text-xs text-muted mt-0.5">Helps in auditory learning and reduces screen dependency.</span>
         </div>
       </div>
+      
       <div class="sm:col-span-2 mt-4">
         <button type="submit" id="submit-btn" class="flex w-full items-center justify-center gap-2 rounded-full bg-gold px-7 py-4 text-lg font-bold text-navy shadow-gold transition hover:brightness-105 disabled:opacity-70">
           <span id="btn-label">Generate Magic ✨</span>
@@ -68,7 +91,7 @@
     <div id="result" class="mt-10 hidden border-t border-purple-soft/20 pt-8">
       <div class="mb-4 flex items-center justify-center gap-2 text-sm font-semibold text-gold">
         <span class="h-1.5 w-1.5 rounded-full bg-gold animate-pulse"></span>
-        Your story is ready
+        Your story is ready & saved to library!
       </div>
       <h2 id="story-title" class="font-serif text-3xl font-bold text-center text-white"></h2>
       <div id="tags" class="mt-4 flex flex-wrap justify-center gap-2"></div>
@@ -88,12 +111,29 @@
       </div>
 
       <div id="story-body" class="mt-8 space-y-4 text-pretty whitespace-pre-wrap leading-relaxed text-gray-300 font-medium text-lg px-2 md:px-8"></div>
+      
+      <div class="mt-8 text-center">
+        <a href="/dashboard" class="inline-block px-6 py-3 rounded-full bg-purple-soft/20 border border-purple-soft/40 text-purple-soft font-bold hover:bg-purple-soft/30 transition text-sm">
+          📂 View All Stories in Dashboard
+        </a>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Studio Logic (JavaScript) -->
+<!-- Studio Logic & Profile Selector Script -->
 <script>
+  function fillProfileData() {
+    const select = document.getElementById('profile-select');
+    const option = select.options[select.selectedIndex];
+    if(option.value) {
+      document.getElementById('name').value = option.getAttribute('data-name');
+      document.getElementById('native_place').value = option.getAttribute('data-place');
+      document.getElementById('age').value = option.getAttribute('data-age');
+      document.getElementById('language').value = option.getAttribute('data-lang');
+    }
+  }
+
   // Fake Waveform Generation
   const wf = document.getElementById('waveform');
   let bars = '';
@@ -142,7 +182,7 @@
     result.classList.remove('hidden'); audioContainer.classList.add('hidden'); audioErrorBox.classList.add('hidden');
     document.getElementById('story-title').textContent = 'Crafting magic...';
     document.getElementById('tags').innerHTML = '';
-    document.getElementById('story-body').innerHTML = '<span class="text-gold animate-pulse">Sprinkling magic dust...</span>';
+    document.getElementById('story-body').innerHTML = '<span class="text-gold animate-pulse">Sprinkling magic dust... and saving to library...</span>';
 
     try {
       const response = await fetch('/generate_story', {
@@ -151,7 +191,7 @@
       const res = await response.json();
       
       if(res.success) {
-          document.getElementById('story-title').textContent = `${data.child_name}'s Magical Tale`;
+          document.getElementById('story-title').textContent = res.title;
           document.getElementById('story-body').innerText = res.story;
           document.getElementById('tags').innerHTML = [data.moral_value, `Age ${data.age}`, data.language, data.native_place]
             .map(t => `<span class="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-soft">${t}</span>`).join('');
