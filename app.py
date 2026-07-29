@@ -29,7 +29,6 @@ def generate_story():
     moral_value = data.get('moral_value')
     language = data.get('language')
     
-    # 🌟 NEW: Check if user actually wants audio
     wants_audio = data.get('generate_audio', False)
     
     # 🚨 THE BRAHMASTRA: Strict Language Lock
@@ -78,38 +77,44 @@ def generate_story():
         )
         story_text = response.choices[0].message.content
         
-        # 2. AUDIO GENERATION (ElevenLabs) - Only runs if checkbox is ticked!
+        # 2. AUDIO GENERATION (ElevenLabs) 
         audio_base64 = None
+        audio_error = None  # 🌟 NEW: Error capturing variable
         
-        if wants_audio and ELEVENLABS_API_KEY and VOICE_ID != "YOUR_VOICE_ID_HERE":
-            eleven_url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
-            headers = {
-                "Accept": "audio/mpeg",
-                "Content-Type": "application/json",
-                "xi-api-key": ELEVENLABS_API_KEY
-            }
-            eleven_data = {
-                "text": story_text,
-                "model_id": "eleven_multilingual_v2",
-                "voice_settings": {
-                    "stability": 0.5,
-                    "similarity_boost": 0.75,
-                    "style": 0.0,
-                    "use_speaker_boost": True
-                }
-            }
-            
-            eleven_res = requests.post(eleven_url, json=eleven_data, headers=headers)
-            
-            if eleven_res.status_code == 200:
-                audio_base64 = base64.b64encode(eleven_res.content).decode('utf-8')
+        if wants_audio:
+            if not ELEVENLABS_API_KEY or VOICE_ID == "YOUR_VOICE_ID_HERE":
+                audio_error = "API Key or Voice ID is missing in app.py / Render Environment."
             else:
-                print(f"ElevenLabs Error: {eleven_res.text}")
+                eleven_url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
+                headers = {
+                    "Accept": "audio/mpeg",
+                    "Content-Type": "application/json",
+                    "xi-api-key": ELEVENLABS_API_KEY
+                }
+                eleven_data = {
+                    "text": story_text,
+                    "model_id": "eleven_multilingual_v2",
+                    "voice_settings": {
+                        "stability": 0.5,
+                        "similarity_boost": 0.75,
+                        "style": 0.0,
+                        "use_speaker_boost": True
+                    }
+                }
+                
+                eleven_res = requests.post(eleven_url, json=eleven_data, headers=headers)
+                
+                if eleven_res.status_code == 200:
+                    audio_base64 = base64.b64encode(eleven_res.content).decode('utf-8')
+                else:
+                    audio_error = f"ElevenLabs API Error (Code: {eleven_res.status_code}): {eleven_res.text}"
+                    print(audio_error)
 
         return jsonify({
             "success": True, 
             "story": story_text, 
-            "audio_base64": audio_base64
+            "audio_base64": audio_base64,
+            "audio_error": audio_error  # Sending error to frontend
         })
         
     except Exception as e:
