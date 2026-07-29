@@ -7,13 +7,37 @@ import io
 
 app = Flask(__name__)
 
-# अब सिर्फ Groq की API Key चाहिए
+# Groq API Setup
 GROQ_API_KEY = os.getenv("GROQ_API_KEY") 
 client = Groq(api_key=GROQ_API_KEY)
 
+# ==========================================
+# 🌐 WEBSITE ROUTES (मल्टी-पेज नेविगेशन)
+# ==========================================
+
+# 1. Home Page (मार्केटिंग और ट्रस्ट बिल्डिंग)
 @app.route('/')
 def home():
     return render_template('index.html')
+
+# 2. Story Studio Page (जहाँ फॉर्म और प्लेयर होगा)
+@app.route('/studio')
+def studio():
+    return render_template('studio.html')
+
+# 3. Pricing & Plans Page (IQ, EQ और पैकेजेस)
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+# 4. Login Page (यूजर ऑथेंटिकेशन के लिए)
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+# ==========================================
+# ⚙️ API ROUTES (बैकएंड लॉजिक)
+# ==========================================
 
 @app.route('/generate_story', methods=['POST'])
 def generate_story():
@@ -68,13 +92,9 @@ def generate_story():
         
         if wants_audio:
             try:
-                # भाषा सेट करना (अगर हिंदी है तो Google को 'hi' बताएंगे)
                 tts_lang = 'hi' if language == 'Hindi' else 'en'
-                
-                # Google TTS से ऑडियो जनरेट करना
                 tts = gTTS(text=story_text, lang=tts_lang, slow=False)
                 
-                # ऑडियो को सीधे मेमोरी में सेव करके Base64 में बदलना
                 fp = io.BytesIO()
                 tts.write_to_fp(fp)
                 fp.seek(0)
