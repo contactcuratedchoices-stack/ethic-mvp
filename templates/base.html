@@ -31,7 +31,7 @@
     .field { background: rgba(20,16,50,0.6); border: 1px solid rgba(183,157,240,0.2); color: #f2eefb; outline: none; transition: 0.2s; }
     .field:focus { border-color: rgba(244,201,93,0.7); box-shadow: 0 0 0 3px rgba(244,201,93,0.18); }
     
-    /* 🚀 NEW: Mobile Menu Animations */
+    /* Mobile Menu Animations */
     #mobile-menu { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
     #mobile-menu.open { max-height: 400px; opacity: 1; }
   </style>
@@ -42,10 +42,10 @@
   <header class="sticky top-0 z-50 glass border-b shadow-lg">
     <div class="mx-auto max-w-6xl px-5 py-4">
       <div class="flex items-center justify-between">
-        <!-- Logo -->
-        <a href="/" class="flex items-center gap-2">
-          <span class="grid h-9 w-9 place-items-center rounded-xl bg-gold text-navy shadow-gold font-bold">E</span>
-          <span class="font-serif text-2xl font-bold tracking-tight">ETHIC</span>
+        
+        <!-- 🚀 NEW PREMIUM LOGO (Header) -->
+        <a href="/" class="flex items-center hover:opacity-90 transition">
+          <span class="font-serif text-3xl font-bold tracking-tight text-white">ETHIC<span class="text-gold">.</span></span>
         </a>
         
         <!-- Desktop Navigation (Hidden on mobile) -->
@@ -74,14 +74,14 @@
           <a href="/studio" class="rounded-full bg-gold px-5 py-2 text-sm font-bold text-navy shadow-gold hover:brightness-105 transition">Create Story ✨</a>
         </div>
 
-        <!-- 🚀 NEW: Mobile Menu Toggle Button -->
+        <!-- Mobile Menu Toggle Button -->
         <button id="mobile-menu-btn" class="md:hidden text-white p-2 focus:outline-none">
           <svg id="icon-menu" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
           <svg id="icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
 
-      <!-- 🚀 NEW: Mobile Dropdown Menu -->
+      <!-- Mobile Dropdown Menu -->
       <div id="mobile-menu" class="md:hidden mt-4 flex flex-col gap-4 border-t border-purple-soft/20 pt-4 pb-2">
         <a href="/" class="text-white font-semibold hover:text-gold transition">Home</a>
         <a href="/pricing" class="text-white font-semibold hover:text-gold transition">Plans & Pricing</a>
@@ -108,7 +108,7 @@
     </div>
   </header>
 
-  <!-- 🚀 NEW: Mobile Menu Script -->
+  <!-- Mobile Menu Script -->
   <script>
     const btn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');
@@ -138,7 +138,10 @@
   <!-- 🌟 GLOBAL FOOTER 🌟 -->
   <footer class="border-t border-purple-soft/15 mt-auto">
     <div class="mx-auto max-w-6xl px-5 py-8 text-center md:text-left md:flex justify-between items-center text-sm text-muted">
-      <div class="font-serif text-lg font-bold text-white mb-4 md:mb-0">ETHIC</div>
+      
+      <!-- 🚀 NEW PREMIUM LOGO (Footer) -->
+      <div class="font-serif text-2xl font-bold text-white mb-4 md:mb-0">ETHIC<span class="text-gold">.</span></div>
+      
       <p>© 2026 ETHIC. Build Character, Not Screen Addiction.</p>
     </div>
   </footer>
