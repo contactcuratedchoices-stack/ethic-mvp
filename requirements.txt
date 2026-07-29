@@ -1,4 +1,5 @@
 Flask
 groq
-gunicorn
 gTTS
+Flask-SQLAlchemy
+Werkzeug
