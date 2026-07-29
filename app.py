@@ -1,44 +1,108 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from groq import Groq
 import os
 import base64
 from gtts import gTTS
 import io
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+
+# --- नया: Security & Database Config ---
+app.secret_key = 'ethic_super_secret_key_2026' # लॉगिन सेशन सिक्योर करने के लिए
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_users.db' # डेटाबेस का नाम
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
 
 # Groq API Setup
 GROQ_API_KEY = os.getenv("GROQ_API_KEY") 
 client = Groq(api_key=GROQ_API_KEY)
 
-# ==========================================
-# 🌐 WEBSITE ROUTES (मल्टी-पेज नेविगेशन)
-# ==========================================
+# --- नया: DATABASE MODEL (यूजर का टेबल) ---
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
 
-# 1. Home Page (मार्केटिंग और ट्रस्ट बिल्डिंग)
+# रन होते ही डेटाबेस फाइल बना देगा
+with app.app_context():
+    db.create_all()
+
+# ==========================================
+# 🌐 WEBSITE ROUTES (मल्टी-पेज)
+# ==========================================
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# 2. Story Studio Page (जहाँ फॉर्म और प्लेयर होगा)
 @app.route('/studio')
 def studio():
     return render_template('studio.html')
 
-# 3. Pricing & Plans Page (IQ, EQ और पैकेजेस)
 @app.route('/pricing')
 def pricing():
     return render_template('pricing.html')
 
-# 4. Login Page (यूजर ऑथेंटिकेशन के लिए)
-@app.route('/login')
+# ==========================================
+# 🔐 AUTHENTICATION ROUTES (लॉगिन / साइन-अप)
+# ==========================================
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        action = request.form.get('action') # फॉर्म से पता चलेगा कि लॉगिन है या साइन-अप
+        
+        if action == 'signup':
+            name = request.form.get('name')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            
+            # चेक करो कि ईमेल पहले से तो नहीं है
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                flash('Email already registered! Please login.', 'error')
+                return redirect(url_for('login'))
+                
+            # नया यूजर बनाओ (पासवर्ड को एन्क्रिप्ट करके सेव करना)
+            hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
+            new_user = User(name=name, email=email, password=hashed_pw)
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # साइन-अप होते ही लॉगिन कर दो
+            session['user_id'] = new_user.id
+            session['user_name'] = new_user.name
+            return redirect(url_for('studio'))
+            
+        elif action == 'login':
+            email = request.form.get('email')
+            password = request.form.get('password')
+            
+            # यूजर को डेटाबेस में ढूंढो
+            user = User.query.filter_by(email=email).first()
+            
+            if user and check_password_hash(user.password, password):
+                # लॉगिन सक्सेसफुल
+                session['user_id'] = user.id
+                session['user_name'] = user.name
+                return redirect(url_for('studio'))
+            else:
+                flash('Invalid email or password!', 'error')
+                return redirect(url_for('login'))
+
     return render_template('login.html')
 
-# ==========================================
-# ⚙️ API ROUTES (बैकएंड लॉजिक)
-# ==========================================
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    session.pop('user_name', None)
+    return redirect(url_for('home'))
 
+# ==========================================
+# ⚙️ API ROUTES (स्टोरी जनरेशन)
+# ==========================================
 @app.route('/generate_story', methods=['POST'])
 def generate_story():
     data = request.json
@@ -48,35 +112,25 @@ def generate_story():
     gender = data.get('gender')
     moral_value = data.get('moral_value')
     language = data.get('language')
-    
     wants_audio = data.get('generate_audio', False)
     
-    # 🚨 THE BRAHMASTRA: Strict Language Lock
     language_instruction = ""
     if language == "Hindi":
-        language_instruction = """
-        CRITICAL RULE: YOU MUST WRITE THE ENTIRE STORY STRICTLY IN PURE HINDI USING THE DEVANAGARI SCRIPT (हिंदी लिपि). 
-        DO NOT USE ENGLISH LETTERS FOR HINDI. 
-        """
+        language_instruction = "CRITICAL RULE: YOU MUST WRITE THE ENTIRE STORY STRICTLY IN PURE HINDI USING THE DEVANAGARI SCRIPT. DO NOT USE ENGLISH LETTERS FOR HINDI."
     elif language == "Hinglish":
-        language_instruction = """
-        CRITICAL RULE: WRITE THE ENTIRE STORY IN HINGLISH (Hindi language written in the English alphabet).
-        """
+        language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN HINGLISH."
     else:
         language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
     system_prompt = "You are an expert, affectionate Indian Grandparent (Dadi/Nani) and a master storyteller."
-
     user_prompt = f"""
     Write a highly personalized, emotional bedtime story for your {age}-year-old {gender} grandchild named {child_name}.
-    Core Moral to teach: "{moral_value}".
-    Native Place: "{native_place}".
+    Core Moral to teach: "{moral_value}". Native Place: "{native_place}".
     {language_instruction}
     RULES: Add cultural depth. Tone must match a {age}-year-old. Add a warm grandparent greeting. Relatable struggle before doing the right thing. End with a real-world task. Length: 350-400 words.
     """
     
     try:
-        # 1. TEXT GENERATION (Groq Llama-3)
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -86,7 +140,6 @@ def generate_story():
         )
         story_text = response.choices[0].message.content
         
-        # 2. 100% FREE AUDIO GENERATION (Google TTS)
         audio_base64 = None
         audio_error = None
         
@@ -94,14 +147,12 @@ def generate_story():
             try:
                 tts_lang = 'hi' if language == 'Hindi' else 'en'
                 tts = gTTS(text=story_text, lang=tts_lang, slow=False)
-                
                 fp = io.BytesIO()
                 tts.write_to_fp(fp)
                 fp.seek(0)
                 audio_base64 = base64.b64encode(fp.read()).decode('utf-8')
             except Exception as e:
                 audio_error = f"Free TTS Error: {str(e)}"
-                print(audio_error)
 
         return jsonify({
             "success": True, 
