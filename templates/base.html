@@ -48,11 +48,13 @@
       </nav>
 
       <div class="flex items-center gap-4">
-        
-        <!-- 💡 DYNAMIC LOGIN BUTTON (लॉगिन है तो नाम दिखेगा, नहीं तो 'Log in') -->
         {% if session.get('user_name') %}
+          <!-- 🚀 UPDATED: Dashboard Link Added Here -->
           <div class="hidden sm:flex items-center gap-4 text-sm font-semibold text-white">
-            <span>👋 Hi, {{ session.get('user_name') }}</span>
+            <a href="/dashboard" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy-light border border-purple-soft/30 hover:border-gold hover:text-gold transition">
+              📊 Dashboard
+            </a>
+            <span class="text-muted border-l border-purple-soft/30 pl-4">👋 {{ session.get('user_name') }}</span>
             <a href="/logout" class="text-red-400 hover:text-red-300 transition underline underline-offset-4">Logout</a>
           </div>
         {% else %}
@@ -67,19 +69,17 @@
     </div>
   </header>
 
-  <!-- ⚠️ Flash Messages (अगर गलत पासवर्ड डाला तो लाल रंग का एरर दिखाने के लिए) -->
   {% with messages = get_flashed_messages(category_filter=["error"]) %}
     {% if messages %}
-      <div class="bg-red-500/80 text-white text-center py-2 text-sm font-bold shadow-lg">
+      <div class="bg-red-500/80 text-white text-center py-2 text-sm font-bold">
         {{ messages[0] }}
       </div>
     {% endif %}
   {% endwith %}
 
-  <!-- 🌟 DYNAMIC CONTENT AREA (जहाँ बाकी पेजेस लोड होंगे) 🌟 -->
+  <!-- 🌟 DYNAMIC CONTENT AREA 🌟 -->
   <main class="flex-grow">
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
   </main>
 
   <!-- 🌟 GLOBAL FOOTER 🌟 -->
