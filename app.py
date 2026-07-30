@@ -12,8 +12,7 @@ app = Flask(__name__)
 
 # Security & Database Config
 app.secret_key = 'ethic_super_secret_key_2026'
-# ⚠️ नया डेटाबेस नाम ताकि नए कॉलम्स आसानी से बन जाएं
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_v2.db' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -23,7 +22,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY)
 
 # ==========================================
-# 🗄️ UPGRADED DATABASE MODELS 
+# 🗄️ DATABASE MODELS 
 # ==========================================
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -47,8 +46,14 @@ class Story(db.Model):
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     moral = db.Column(db.String(100), nullable=False)
-    audio_data = db.Column(db.Text, nullable=True) # 🚀 NAYA FEATURE: Audio Saving
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# 🚀 NAYA RAG DATABASE: रीजनल कहानियों का एडमिन डेटाबेस
+class RegionalStory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    state = db.Column(db.String(100), nullable=False)
+    moral = db.Column(db.String(100), nullable=False)
+    core_story = db.Column(db.Text, nullable=False)
 
 with app.app_context():
     db.create_all()
@@ -92,7 +97,6 @@ def read_story(story_id):
         return redirect(url_for('login'))
     
     story = Story.query.get_or_404(story_id)
-    
     if story.user_id != session['user_id']:
         flash('Unauthorized access!', 'error')
         return redirect(url_for('dashboard'))
@@ -131,7 +135,6 @@ def login():
             password = request.form.get('password')
             
             user = User.query.filter_by(email=email).first()
-            
             if user and check_password_hash(user.password, password):
                 session['user_id'] = user.id
                 session['user_name'] = user.name
@@ -149,7 +152,27 @@ def logout():
     return redirect(url_for('home'))
 
 # ==========================================
-# ⚙️ API ROUTES (Data Handling)
+# 🛠️ SECRET ADMIN PORTAL (CONTENT TEAM)
+# ==========================================
+@app.route('/admin/upload', methods=['GET', 'POST'])
+def admin_upload():
+    if request.method == 'POST':
+        state = request.form.get('state').strip()
+        moral = request.form.get('moral')
+        core_story = request.form.get('core_story').strip()
+        
+        new_regional_story = RegionalStory(state=state, moral=moral, core_story=core_story)
+        db.session.add(new_regional_story)
+        db.session.commit()
+        
+        flash(f'Success! Story for {state} added to the AI Database.', 'success')
+        return redirect(url_for('admin_upload'))
+        
+    all_regional_stories = RegionalStory.query.order_by(RegionalStory.id.desc()).all()
+    return render_template('admin_upload.html', stories=all_regional_stories)
+
+# ==========================================
+# ⚙️ API ROUTES (Data Handling & AI)
 # ==========================================
 @app.route('/add_child', methods=['POST'])
 def add_child():
@@ -189,11 +212,25 @@ def generate_story():
     else:
         language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
+    # 🔍 🧠 RAG LOGIC: Check database for authentic regional stories
+    regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value).first()
+    
+    regional_context = ""
+    if regional_base:
+        regional_context = f"""
+        CRITICAL INSTRUCTION: I am providing you an authentic regional folktale from {native_place}. 
+        You MUST base your entire response strictly on this story: '{regional_base.core_story}'.
+        Do not invent a new plot. Just replace the main character's name with '{child_name}' and adapt the tone for a {age}-year-old.
+        """
+    else:
+        regional_context = f"Invent a culturally accurate folktale from {native_place} teaching {moral_value}."
+
     system_prompt = "You are an expert, affectionate Indian Grandparent (Dadi/Nani) and a master storyteller."
     user_prompt = f"""
     Write a highly personalized, emotional bedtime story for your {age}-year-old grandchild named {child_name}.
     Core Moral to teach: "{moral_value}". Native Place: "{native_place}".
     {language_instruction}
+    {regional_context}
     RULES: Add cultural depth. Tone must match a {age}-year-old. Add a warm grandparent greeting. End with a real-world task. Length: 350-400 words.
     """
     
@@ -208,6 +245,11 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
+        # Save to library
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value)
+        db.session.add(new_story)
+        db.session.commit()
+        
         audio_base64 = None
         audio_error = None
         
@@ -221,11 +263,6 @@ def generate_story():
                 audio_base64 = base64.b64encode(fp.read()).decode('utf-8')
             except Exception as e:
                 audio_error = f"Free TTS Error: {str(e)}"
-
-        # 🚀 UPDATED: कहानी के साथ अब ऑडियो (base64) भी सेव होगा!
-        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, audio_data=audio_base64)
-        db.session.add(new_story)
-        db.session.commit()
 
         return jsonify({
             "success": True, 
