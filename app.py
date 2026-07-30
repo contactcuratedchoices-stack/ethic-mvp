@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # Security & Database Config
 app.secret_key = 'ethic_super_secret_key_2026'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_v3.db' # 🚀 NAYA DATABASE v3
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -29,6 +29,7 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False) # 🚀 NAYA FEATURE: Admin Role
     children = db.relationship('Child', backref='parent', lazy=True)
     stories = db.relationship('Story', backref='author', lazy=True)
 
@@ -48,7 +49,6 @@ class Story(db.Model):
     moral = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# 🚀 NAYA RAG DATABASE: रीजनल कहानियों का एडमिन डेटाबेस
 class RegionalStory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     state = db.Column(db.String(100), nullable=False)
@@ -57,6 +57,12 @@ class RegionalStory(db.Model):
 
 with app.app_context():
     db.create_all()
+    # 🚀 JADU: Auto-Create Default Admin Account (ताकि तुम तुरंत टेस्ट कर सको)
+    if not User.query.filter_by(email='admin@ethic.com').first():
+        hashed_pw = generate_password_hash('admin123', method='pbkdf2:sha256')
+        admin_user = User(name='Super Admin', email='admin@ethic.com', password=hashed_pw, is_admin=True)
+        db.session.add(admin_user)
+        db.session.commit()
 
 # ==========================================
 # 🌐 WEBSITE ROUTES 
@@ -97,7 +103,7 @@ def read_story(story_id):
         return redirect(url_for('login'))
     
     story = Story.query.get_or_404(story_id)
-    if story.user_id != session['user_id']:
+    if story.user_id != session['user_id'] and not session.get('is_admin'):
         flash('Unauthorized access!', 'error')
         return redirect(url_for('dashboard'))
         
@@ -128,6 +134,7 @@ def login():
             
             session['user_id'] = new_user.id
             session['user_name'] = new_user.name
+            session['is_admin'] = new_user.is_admin # 🚀 सेव एडमिन स्टेटस
             return redirect(url_for('dashboard'))
             
         elif action == 'login':
@@ -138,6 +145,11 @@ def login():
             if user and check_password_hash(user.password, password):
                 session['user_id'] = user.id
                 session['user_name'] = user.name
+                session['is_admin'] = user.is_admin # 🚀 सेव एडमिन स्टेटस
+                
+                # अगर एडमिन है, तो सीधा एडमिन पोर्टल पर भेज दो!
+                if user.is_admin:
+                    return redirect(url_for('admin_upload'))
                 return redirect(url_for('dashboard'))
             else:
                 flash('Invalid email or password!', 'error')
@@ -149,13 +161,19 @@ def login():
 def logout():
     session.pop('user_id', None)
     session.pop('user_name', None)
+    session.pop('is_admin', None)
     return redirect(url_for('home'))
 
 # ==========================================
-# 🛠️ SECRET ADMIN PORTAL (CONTENT TEAM)
+# 🛠️ CMS ADMIN PORTAL (SECURED)
 # ==========================================
 @app.route('/admin/upload', methods=['GET', 'POST'])
 def admin_upload():
+    # 🔒 SECURITY CHECK: सिर्फ एडमिन ही इसे खोल सकता है
+    if not session.get('is_admin'):
+        flash('ACCESS DENIED: You do not have permission to view this page.', 'error')
+        return redirect(url_for('dashboard'))
+
     if request.method == 'POST':
         state = request.form.get('state').strip()
         moral = request.form.get('moral')
@@ -212,7 +230,6 @@ def generate_story():
     else:
         language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
-    # 🔍 🧠 RAG LOGIC: Check database for authentic regional stories
     regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value).first()
     
     regional_context = ""
@@ -245,7 +262,6 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # Save to library
         new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value)
         db.session.add(new_story)
         db.session.commit()
