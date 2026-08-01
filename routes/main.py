@@ -1,0 +1,154 @@
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session, flash
+from groq import Groq
+import os
+import base64
+from gtts import gTTS
+import io
+from extensions import db
+from models import Child, Story, RegionalStory
+
+main_bp = Blueprint('main', __name__)
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY") 
+client = Groq(api_key=GROQ_API_KEY)
+
+@main_bp.route('/')
+def home():
+    return render_template('index.html')
+
+@main_bp.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+@main_bp.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        flash('Please log in to view your dashboard.', 'error')
+        return redirect(url_for('auth.login'))
+    
+    user_id = session['user_id']
+    user_children = Child.query.filter_by(user_id=user_id).all()
+    user_stories = Story.query.filter_by(user_id=user_id).order_by(Story.created_at.desc()).all()
+    
+    return render_template('dashboard.html', children=user_children, stories=user_stories)
+
+@main_bp.route('/studio')
+def studio():
+    if 'user_id' not in session:
+        flash('Please log in or create an account to generate your first story.', 'error')
+        return redirect(url_for('auth.login'))
+    
+    user_children = Child.query.filter_by(user_id=session['user_id']).all()
+    return render_template('studio.html', children=user_children)
+
+@main_bp.route('/story/<int:story_id>')
+def read_story(story_id):
+    if 'user_id' not in session:
+        flash('Please log in to read stories.', 'error')
+        return redirect(url_for('auth.login'))
+    
+    story = Story.query.get_or_404(story_id)
+    if story.user_id != session['user_id'] and not session.get('is_admin'):
+        flash('Unauthorized access!', 'error')
+        return redirect(url_for('main.dashboard'))
+        
+    return render_template('read_story.html', story=story)
+
+@main_bp.route('/add_child', methods=['POST'])
+def add_child():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+        
+    name = request.form.get('child_name')
+    age = request.form.get('age')
+    native_place = request.form.get('native_place')
+    language = request.form.get('language')
+    
+    new_child = Child(user_id=session['user_id'], name=name, age=age, native_place=native_place, language=language)
+    db.session.add(new_child)
+    db.session.commit()
+    
+    flash(f'{name} profile added successfully!', 'success')
+    return redirect(url_for('main.dashboard'))
+
+@main_bp.route('/generate_story', methods=['POST'])
+def generate_story():
+    if 'user_id' not in session:
+        return jsonify({"success": False, "error": "Unauthorized. Please login."}), 401
+
+    data = request.json
+    child_name = data.get('child_name')
+    native_place = data.get('native_place')
+    age = data.get('age')
+    moral_value = data.get('moral_value')
+    language = data.get('language')
+    wants_audio = data.get('generate_audio', False)
+    
+    language_instruction = ""
+    if language == "Hindi":
+        language_instruction = "CRITICAL RULE: YOU MUST WRITE THE ENTIRE STORY STRICTLY IN PURE HINDI USING THE DEVANAGARI SCRIPT."
+    elif language == "Hinglish":
+        language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN HINGLISH."
+    else:
+        language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
+
+    regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value).first()
+    
+    regional_context = ""
+    if regional_base:
+        regional_context = f"""
+        CRITICAL INSTRUCTION: I am providing you an authentic regional folktale from {native_place}. 
+        You MUST base your entire response strictly on this story: '{regional_base.core_story}'.
+        Do not invent a new plot. Just replace the main character's name with '{child_name}' and adapt the tone for a {age}-year-old.
+        """
+    else:
+        regional_context = f"Invent a culturally accurate folktale from {native_place} teaching {moral_value}."
+
+    system_prompt = "You are an expert, affectionate Indian Grandparent (Dadi/Nani) and a master storyteller."
+    user_prompt = f"""
+    Write a highly personalized, emotional bedtime story for your {age}-year-old grandchild named {child_name}.
+    Core Moral to teach: "{moral_value}". Native Place: "{native_place}".
+    {language_instruction}
+    {regional_context}
+    RULES: Add cultural depth. Tone must match a {age}-year-old. Add a warm grandparent greeting. End with a real-world task. Length: 350-400 words.
+    """
+    
+    try:
+        response = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            model="llama-3.1-8b-instant",
+        )
+        story_text = response.choices[0].message.content
+        title = f"{child_name}'s Tale of {moral_value}"
+        
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value)
+        db.session.add(new_story)
+        db.session.commit()
+        
+        audio_base64 = None
+        audio_error = None
+        
+        if wants_audio:
+            try:
+                tts_lang = 'hi' if language == 'Hindi' else 'en'
+                tts = gTTS(text=story_text, lang=tts_lang, slow=False)
+                fp = io.BytesIO()
+                tts.write_to_fp(fp)
+                fp.seek(0)
+                audio_base64 = base64.b64encode(fp.read()).decode('utf-8')
+            except Exception as e:
+                audio_error = f"Free TTS Error: {str(e)}"
+
+        return jsonify({
+            "success": True, 
+            "story": story_text,
+            "title": title,
+            "audio_base64": audio_base64,
+            "audio_error": audio_error
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
