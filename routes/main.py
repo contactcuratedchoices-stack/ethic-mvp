@@ -141,12 +141,29 @@ def generate_story():
                     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
                     
                     if language == 'English':
-                        speech_config.speech_synthesis_voice_name = "en-IN-NeerjaNeural"
+                        voice_name = "en-IN-NeerjaNeural"
                     else:
-                        speech_config.speech_synthesis_voice_name = "hi-IN-AartiNeural"
+                        voice_name = "hi-IN-AartiNeural"
+
+                    # 🌟 SSML Formatting: Escaping XML characters and adding pauses
+                    formatted_story_for_speech = story_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                    formatted_story_for_speech = formatted_story_for_speech.replace('.', '.<break time="600ms"/>')
+                    formatted_story_for_speech = formatted_story_for_speech.replace('\n', '<break time="800ms"/>')
+
+                    ssml_string = f"""
+                    <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hi-IN">
+                        <voice name="{voice_name}">
+                            <prosody rate="0.95" pitch="medium">
+                                {formatted_story_for_speech}
+                            </prosody>
+                        </voice>
+                    </speak>
+                    """
 
                     synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
-                    result = synthesizer.speak_text_async(story_text).get()
+                    
+                    # 🌟 Use speak_ssml_async instead of speak_text_async
+                    result = synthesizer.speak_ssml_async(ssml_string).get()
                     
                     if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
                         audio_base64 = base64.b64encode(result.audio_data).decode('utf-8')
