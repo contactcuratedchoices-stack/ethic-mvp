@@ -199,7 +199,8 @@
           if(isAudioRequested) {
               audioContainer.classList.remove('hidden');
               if(res.audio_base64) {
-                  audioEl.src = "data:audio/mpeg;base64," + res.audio_base64;
+                  // यहाँ हमने audio/mpeg को बदलकर audio/wav कर दिया है 
+                  audioEl.src = "data:audio/wav;base64," + res.audio_base64;
                   playBtn.disabled = false; iconPause.classList.add('hidden'); iconPlay.classList.remove('hidden');
               } else {
                   playBtn.disabled = true; audioErrorBox.classList.remove('hidden'); audioErrorBox.innerText = "❌ Audio Failed: " + (res.audio_error || "Try again.");
