@@ -4,3 +4,4 @@ gTTS
 Flask-SQLAlchemy
 Werkzeug
 gunicorn
+azure-cognitiveservices-speech
