@@ -5,3 +5,4 @@ Flask-SQLAlchemy
 Werkzeug
 gunicorn
 azure-cognitiveservices-speech
+psycopg2-binary
