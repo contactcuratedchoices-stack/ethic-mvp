@@ -1,97 +1,89 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ETHIC App - Login & Story</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 80px;
-            background-color: #f4f4f9;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-            display: inline-block;
-            max-width: 400px;
-        }
-        button {
-            padding: 12px 25px;
-            font-size: 16px;
-            background: #0078D4;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 25px;
-            font-weight: bold;
-        }
-        button:hover {
-            background: #005a9e;
-        }
-        #statusText {
-            margin-top: 20px;
-            color: #555;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <div class="container">
-        <h2>ETHIC में आपका स्वागत है</h2>
-        <p>बच्चों के लिए बेहतरीन और मज़ेदार कहानियाँ</p>
-        
-        <!-- ऑडियो प्ले करने का बटन -->
-        <button id="playBtn">▶ कहानी प्ले करें (आरती)</button>
-        <div id="statusText"></div>
+{% block content %}
+<section class="flex flex-col items-center justify-center min-h-[80vh] px-5 py-12">
+  
+  <div class="text-center mb-8">
+    <h1 class="font-serif text-4xl font-bold text-white">Welcome to ETHIC</h1>
+    <p class="text-muted mt-2">Join mindful parents building character.</p>
+  </div>
+
+  <div class="glass w-full max-w-md p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+    <!-- Decorative glow -->
+    <div class="absolute -top-10 -right-10 w-32 h-32 bg-gold/20 rounded-full blur-2xl"></div>
+
+    <!-- TABS (Login vs Signup) -->
+    <div class="flex gap-4 mb-8 border-b border-purple-soft/20 pb-4">
+      <button onclick="showTab('login')" id="tab-login" class="flex-1 text-center font-bold text-gold border-b-2 border-gold pb-1 transition-all">Sign In</button>
+      <button onclick="showTab('signup')" id="tab-signup" class="flex-1 text-center font-bold text-muted border-b-2 border-transparent pb-1 transition-all">Create Account</button>
     </div>
 
-    <!-- बैकएंड से कनेक्ट करने वाली स्क्रिप्ट -->
-    <script>
-        async function playStoryAudio(storyText) {
-            const statusText = document.getElementById("statusText");
-            statusText.innerText = "ऑडियो लोड हो रहा है... कृपया रुकें।";
-            
-            try {
-                const response = await fetch('/api/generate-audio', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ text: storyText })
-                });
+    <!-- LOGIN FORM -->
+    <form id="form-login" action="/login" method="POST" class="flex flex-col gap-5">
+      <input type="hidden" name="action" value="login">
+      
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Email Address</label>
+        <input type="email" name="email" required placeholder="mom@example.com" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Password</label>
+        <input type="password" name="password" required placeholder="••••••••" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      
+      <button type="submit" class="mt-4 w-full rounded-full bg-gold px-7 py-3 text-lg font-bold text-navy shadow-gold hover:brightness-105 transition">
+        Log In
+      </button>
+    </form>
 
-                if (response.ok) {
-                    const audioBlob = await response.blob();
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    const audio = new Audio(audioUrl);
-                    
-                    audio.onended = () => {
-                        statusText.innerText = "कहानी समाप्त हुई।";
-                    };
+    <!-- SIGNUP FORM (Hidden by default) -->
+    <form id="form-signup" action="/login" method="POST" class="flex flex-col gap-5 hidden">
+      <input type="hidden" name="action" value="signup">
+      
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Parent's Name</label>
+        <input type="text" name="name" required placeholder="E.g. Priya Sharma" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Email Address</label>
+        <input type="email" name="email" required placeholder="mom@example.com" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold text-gold-soft">Create Password</label>
+        <input type="password" name="password" required placeholder="Min 6 characters" class="field w-full rounded-xl px-4 py-3" />
+      </div>
+      
+      <button type="submit" class="mt-4 w-full rounded-full bg-navy-light border border-gold text-gold px-7 py-3 text-lg font-bold hover:bg-gold hover:text-navy transition shadow-gold">
+        Create Account
+      </button>
+    </form>
 
-                    audio.play();
-                    statusText.innerText = "कहानी चल रही है 🎵";
-                } else {
-                    statusText.innerText = "एरर: बैकएंड से आवाज़ नहीं बन पाई।";
-                }
-            } catch (error) {
-                statusText.innerText = "एरर: सर्वर से कनेक्शन टूट गया।";
-                console.error("Fetch error:", error);
-            }
-        }
+  </div>
+</section>
 
-        // बटन दबाने पर यह कहानी प्ले होगी
-        document.getElementById("playBtn").addEventListener("click", function() {
-            const textToPlay = "नमस्ते, मैं आरती हूँ। एथिक ऐप में आपका स्वागत है। चाँद की परी की कहानी सुनने के लिए तैयार हो जाइये!";
-            playStoryAudio(textToPlay);
-        });
-    </script>
+<!-- Simple JS to toggle forms -->
+<script>
+  function showTab(tabName) {
+    const formLogin = document.getElementById('form-login');
+    const formSignup = document.getElementById('form-signup');
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
 
-</body>
-</html>
+    if(tabName === 'login') {
+      formLogin.classList.remove('hidden');
+      formSignup.classList.add('hidden');
+      tabLogin.classList.replace('text-muted', 'text-gold');
+      tabLogin.classList.replace('border-transparent', 'border-gold');
+      tabSignup.classList.replace('text-gold', 'text-muted');
+      tabSignup.classList.replace('border-gold', 'border-transparent');
+    } else {
+      formSignup.classList.remove('hidden');
+      formLogin.classList.add('hidden');
+      tabSignup.classList.replace('text-muted', 'text-gold');
+      tabSignup.classList.replace('border-transparent', 'border-gold');
+      tabLogin.classList.replace('text-gold', 'text-muted');
+      tabLogin.classList.replace('border-gold', 'border-transparent');
+    }
+  }
+</script>
+{% endblock %}
