@@ -2,8 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from groq import Groq
 import os
 import base64
-from gtts import gTTS
-import io
+import azure.cognitiveservices.speech as speechsdk
 from extensions import db
 from models import Child, Story, RegionalStory
 
@@ -133,14 +132,28 @@ def generate_story():
         
         if wants_audio:
             try:
-                tts_lang = 'hi' if language == 'Hindi' else 'en'
-                tts = gTTS(text=story_text, lang=tts_lang, slow=False)
-                fp = io.BytesIO()
-                tts.write_to_fp(fp)
-                fp.seek(0)
-                audio_base64 = base64.b64encode(fp.read()).decode('utf-8')
+                speech_key = os.environ.get('AZURE_SPEECH_KEY')
+                service_region = os.environ.get('AZURE_SPEECH_REGION')
+                
+                if not speech_key or not service_region:
+                    audio_error = "Azure keys not found in environment."
+                else:
+                    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+                    
+                    if language == 'English':
+                        speech_config.speech_synthesis_voice_name = "en-IN-NeerjaNeural"
+                    else:
+                        speech_config.speech_synthesis_voice_name = "hi-IN-AartiNeural"
+
+                    synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
+                    result = synthesizer.speak_text_async(story_text).get()
+                    
+                    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                        audio_base64 = base64.b64encode(result.audio_data).decode('utf-8')
+                    else:
+                        audio_error = f"TTS Error: {result.reason}"
             except Exception as e:
-                audio_error = f"Free TTS Error: {str(e)}"
+                audio_error = f"Audio Generation Failed: {str(e)}"
 
         return jsonify({
             "success": True, 
