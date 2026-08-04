@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 from extensions import db
 from models import User
 from werkzeug.security import generate_password_hash
@@ -13,7 +14,15 @@ def create_app():
     
     # Configurations
     app.secret_key = 'ethic_super_secret_key_2026'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ethic_v3.db'
+    
+    # 🚀 SECURE CLOUD DATABASE LOGIC (Supabase PostgreSQL)
+    database_url = os.getenv('DATABASE_URL', 'sqlite:///ethic_v3.db')
+    
+    # SQLAlchemy Fix: Ensure the URL uses 'postgresql://' instead of 'postgres://'
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+        
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize Database Extension
