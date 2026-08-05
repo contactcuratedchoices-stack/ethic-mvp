@@ -6,7 +6,6 @@ import wave
 import io
 import urllib.parse
 import random
-import json  # 🚀 NAYA: Multiple images list ko JSON me save karne ke liye
 import requests
 import azure.cognitiveservices.speech as speechsdk
 from extensions import db
@@ -145,7 +144,6 @@ def generate_story():
     """
     
     try:
-        # 1. GENERATE STORY TEXT
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -156,62 +154,35 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # 🚀 2. MULTI-IMAGE GENERATION LOGIC (Har paragraph ke liye alag 3D Scene)
+        # 🚀 NORMAL IMAGE LOGIC (Sirf 1 cover image, baki JS handle karega)
         safe_theme = theme.replace("&", "and")
         safe_place = native_place.replace("&", "and")
-        
-        paragraphs = [p.strip() for p in story_text.split('\n') if p.strip()]
-        images_list = []
-        
-        for idx, para in enumerate(paragraphs):
-            # Paragraph snippet clean kar rahe hain URL ke liye
-            clean_snippet = para.replace('&', 'and').replace('"', '').replace("'", "")[:90]
-            
-            image_prompt = f"3D Pixar Disney animated style illustration, {safe_theme}, cute {age} year old Indian {gender} in {safe_place}, scene: {clean_snippet}, glowing cinematic lighting, masterpiece"
-            encoded_prompt = urllib.parse.quote(image_prompt)
-            seed = random.randint(1, 1000000)
-            
-            img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=768&nologo=true&seed={seed}"
-            images_list.append(img_url)
+        image_prompt = f"Magical bedtime story illustration, {safe_theme}, cute {age} year old Indian {gender} in {safe_place}, 3D Pixar Disney animated style, masterpiece"
+        encoded_prompt = urllib.parse.quote(image_prompt)
+        seed = random.randint(1, 100000)
+        cover_image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=768&nologo=true&seed={seed}"
 
-        # JSON String me saari images list save karenge
-        story_images_json = json.dumps(images_list)
-
-        new_story = Story(
-            user_id=session['user_id'], 
-            title=title, 
-            content=story_text, 
-            moral=moral_value, 
-            image_url=story_images_json
-        )
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=cover_image_url)
         db.session.add(new_story)
         db.session.commit()
         
-        # 3. GENERATE AUDIO
         audio_error = None
         if wants_audio:
             try:
                 speech_key = os.environ.get('AZURE_SPEECH_KEY')
                 service_region = os.environ.get('AZURE_SPEECH_REGION')
                 
-                if not speech_key or not service_region:
-                    audio_error = "Azure keys not found in environment."
-                else:
+                if speech_key and service_region:
                     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
                     speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Raw16Khz16BitMonoPcm)
-                    
-                    if language == 'English':
-                        voice_name = "en-IN-NeerjaNeural"
-                    else:
-                        voice_name = "hi-IN-AartiNeural"
-
+                    voice_name = "en-IN-NeerjaNeural" if language == 'English' else "hi-IN-AartiNeural"
                     synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
                     
+                    paragraphs = [p.strip() for p in story_text.split('\n') if p.strip()]
                     combined_pcm_bytes = b""
                     
-                    for index, para in enumerate(paragraphs):
+                    for para in paragraphs:
                         formatted_para = para.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                        
                         ssml_string = f"""
                         <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hi-IN">
                             <voice name="{voice_name}">
@@ -222,13 +193,9 @@ def generate_story():
                             </voice>
                         </speak>
                         """
-                        
                         result = synthesizer.speak_ssml_async(ssml_string).get()
-                        
                         if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
                             combined_pcm_bytes += result.audio_data
-                        else:
-                            print(f"Warning: Chunk {index} failed with reason: {result.reason}")
                     
                     if combined_pcm_bytes:
                         wav_io = io.BytesIO()
@@ -237,21 +204,11 @@ def generate_story():
                             wav_file.setsampwidth(2)
                             wav_file.setframerate(16000)
                             wav_file.writeframes(combined_pcm_bytes)
-                        
-                        audio_base64 = base64.b64encode(wav_io.getvalue()).decode('utf-8')
-                        new_story.audio_data = audio_base64
+                        new_story.audio_data = base64.b64encode(wav_io.getvalue()).decode('utf-8')
                         db.session.commit()
-                    else:
-                        audio_error = "TTS Error: Audio could not be generated."
-
             except Exception as e:
-                audio_error = f"Audio Generation Failed: {str(e)}"
+                audio_error = str(e)
 
-        return jsonify({
-            "success": True, 
-            "story_id": new_story.id,
-            "audio_error": audio_error
-        })
-        
+        return jsonify({"success": True, "story_id": new_story.id, "audio_error": audio_error})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
