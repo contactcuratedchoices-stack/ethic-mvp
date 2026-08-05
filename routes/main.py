@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from groq import Groq
 import os
 import base64
+import wave  # 🚀 NAYA IMPORT
+import io    # 🚀 NAYA IMPORT
 import azure.cognitiveservices.speech as speechsdk
 from extensions import db
 from models import Child, Story, RegionalStory
@@ -160,7 +162,6 @@ def generate_story():
         audio_base64 = None
         audio_error = None
         
-        # 🚀 THE NEW AUDIO CHUNKING LOGIC
         if wants_audio:
             try:
                 speech_key = os.environ.get('AZURE_SPEECH_KEY')
@@ -171,8 +172,8 @@ def generate_story():
                 else:
                     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
                     
-                    # Fix output format for consistent 44-byte WAV header
-                    speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm)
+                    # 🚀 NAYA FIX: Ab hum Azure se 'Raw' bina header wali audio maangenge
+                    speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Raw16Khz16BitMonoPcm)
                     
                     if language == 'English':
                         voice_name = "en-IN-NeerjaNeural"
@@ -181,9 +182,8 @@ def generate_story():
 
                     synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
                     
-                    # Split story into paragraphs
                     paragraphs = [p.strip() for p in story_text.split('\n') if p.strip()]
-                    combined_audio_bytes = b""
+                    combined_pcm_bytes = b""
                     
                     for index, para in enumerate(paragraphs):
                         formatted_para = para.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
@@ -202,17 +202,21 @@ def generate_story():
                         result = synthesizer.speak_ssml_async(ssml_string).get()
                         
                         if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                            if index == 0:
-                                # Keep the 44-byte header for the very first chunk
-                                combined_audio_bytes += result.audio_data
-                            else:
-                                # Strip the 44-byte WAV header from all subsequent chunks
-                                combined_audio_bytes += result.audio_data[44:]
+                            # 🚀 Raw bytes ko ek sath jodte jao
+                            combined_pcm_bytes += result.audio_data
                         else:
                             print(f"Warning: Chunk {index} failed with reason: {result.reason}")
                     
-                    if combined_audio_bytes:
-                        audio_base64 = base64.b64encode(combined_audio_bytes).decode('utf-8')
+                    if combined_pcm_bytes:
+                        # 🚀 NAYA FIX: Python khud ek perfect naya WAV header banakar lagayega!
+                        wav_io = io.BytesIO()
+                        with wave.open(wav_io, 'wb') as wav_file:
+                            wav_file.setnchannels(1) # Mono
+                            wav_file.setsampwidth(2) # 16-bit
+                            wav_file.setframerate(16000) # 16kHz
+                            wav_file.writeframes(combined_pcm_bytes)
+                        
+                        audio_base64 = base64.b64encode(wav_io.getvalue()).decode('utf-8')
                     else:
                         audio_error = "TTS Error: Audio could not be generated."
 
