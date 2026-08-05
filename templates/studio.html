@@ -15,17 +15,17 @@
       <p class="text-muted text-sm">Weave a personalized, value-driven tale for your little one.</p>
     </div>
 
-    <!-- 🚀 THE FORM (यहाँ onsubmit फिक्स किया गया है ताकि पेज रिलोड न हो) -->
-    <form id="story-form" onsubmit="event.preventDefault(); generateStoryMagic();" class="grid gap-5 sm:grid-cols-2 relative z-10">
+    <!-- THE FORM -->
+    <form id="story-form" class="grid gap-5 sm:grid-cols-2 relative z-10">
       
       <!-- 👶 Profile Selector -->
       {% if children %}
       <div class="sm:col-span-2 bg-navy-light/60 p-4 rounded-2xl border border-purple-soft/30">
-        <label class="mb-2 block text-xs font-semibold text-gold-soft uppercase tracking-wider">Select Saved Child Profile</label>
+        <label class="mb-2 block text-xs font-semibold text-gold-soft uppercase tracking-wider">Select Saved Child Profile (One-Click Magic)</label>
         <select id="profile-select" onchange="fillProfileData()" class="field w-full rounded-xl px-4 py-3 text-sm">
           <option value="">-- Choose from saved profiles or enter manually below --</option>
           {% for child in children %}
-            <option value="{{ child.id }}" data-name="{{ child.name }}" data-age="{{ child.age }}" data-place="{{ child.native_place }}" data-lang="{{ child.language }}">
+            <option value="{{ child.id }}" data-name="{{ child.name }}" data-age="{{ child.age }}" data-place="{{ child.native_place }}" data-lang="{{ child.language }}" data-gender="{{ child.gender or '' }}">
               {{ child.name }} ({{ child.age }} yrs, {{ child.native_place }})
             </option>
           {% endfor %}
@@ -41,6 +41,8 @@
         <label for="native_place" class="mb-2 block text-sm font-semibold text-gold-soft">Native Place / Roots (For Cultural Touch)</label>
         <input id="native_place" name="native_place" type="text" required placeholder="e.g. Pune, Rajasthan" class="field w-full rounded-xl px-4 py-3" />
       </div>
+      
+      <!-- AGE & LANGUAGE -->
       <div>
         <label for="age" class="mb-2 block text-sm font-semibold text-gold-soft">Age (3–10)</label>
         <select id="age" name="age" class="field w-full rounded-xl px-4 py-3">
@@ -55,8 +57,28 @@
           <option value="English">English</option>
         </select>
       </div>
+
+      <!-- 🚀 NAYE SMART TAGS: GENDER & THEME -->
+      <div>
+        <label for="gender" class="mb-2 block text-sm font-semibold text-gold-soft">Child's Gender</label>
+        <select id="gender" name="gender" class="field w-full rounded-xl px-4 py-3">
+          <option value="Boy">Boy</option>
+          <option value="Girl">Girl</option>
+        </select>
+      </div>
+      <div>
+        <label for="theme" class="mb-2 block text-sm font-semibold text-gold-soft">Favorite Theme</label>
+        <select id="theme" name="theme" class="field w-full rounded-xl px-4 py-3">
+          <option value="General">Surprise Me!</option>
+          <option value="Magic & Fairies">Magic & Fairies</option>
+          <option value="Kings & Warriors">Kings & Warriors</option>
+          <option value="Animals & Nature">Animals & Nature</option>
+          <option value="Real-life Adventure">Real-life Adventure</option>
+        </select>
+      </div>
+
       <div class="sm:col-span-2">
-        <label for="value" class="mb-2 block text-sm font-semibold text-gold-soft">Core Value to Teach</label>
+        <label for="value" class="mb-2 block text-sm font-semibold text-gold-soft">Core Value to Teach (EQ Development)</label>
         <select id="value" name="value" class="field w-full rounded-xl px-4 py-3">
           <option value="Sharing & Empathy">Sharing & Empathy</option>
           <option value="Honesty & Truth">Honesty & Truth</option>
@@ -81,7 +103,6 @@
       </div>
       
       <div class="sm:col-span-2 mt-4">
-        <!-- 🚀 BUTTON -->
         <button type="submit" id="submit-btn" class="flex w-full items-center justify-center gap-2 rounded-full bg-gold px-7 py-4 text-lg font-bold text-navy shadow-gold transition hover:brightness-105 disabled:opacity-70">
           <span id="btn-label">Generate Magic ✨</span>
         </button>
@@ -122,7 +143,7 @@
   </div>
 </section>
 
-<!-- 🚀 UPDATED SCRIPT (Bulletproof Logic) -->
+<!-- Studio Logic & Profile Selector Script -->
 <script>
   function fillProfileData() {
     const select = document.getElementById('profile-select');
@@ -132,10 +153,15 @@
       document.getElementById('native_place').value = option.getAttribute('data-place');
       document.getElementById('age').value = option.getAttribute('data-age');
       document.getElementById('language').value = option.getAttribute('data-lang');
+      
+      // 🚀 NAYA: Ab Gender bhi auto-fill hoga
+      if(option.getAttribute('data-gender')) {
+          document.getElementById('gender').value = option.getAttribute('data-gender');
+      }
     }
   }
 
-  // Fake Waveform
+  // Fake Waveform Generation
   const wf = document.getElementById('waveform');
   let bars = '';
   for (let i = 0; i < 30; i++) {
@@ -144,7 +170,6 @@
   }
   if(wf) wf.innerHTML = bars;
 
-  // Audio Controls
   const audioEl = document.getElementById('real-audio-player');
   const playBtn = document.getElementById('play-btn');
   const iconPlay = document.getElementById('icon-play');
@@ -160,71 +185,62 @@
   let speedIdx = 0; const speeds = [1, 1.25, 1.5, 2];
   speedBtn.addEventListener('click', () => { speedIdx = (speedIdx + 1) % speeds.length; audioEl.playbackRate = speeds[speedIdx]; speedBtn.innerText = speeds[speedIdx] + 'x'; });
 
-  // 🚀 MAIN GENERATE FUNCTION
-  async function generateStoryMagic() {
-    const btn = document.getElementById('submit-btn');
-    const btnLabel = document.getElementById('btn-label');
-    const result = document.getElementById('result');
-    const audioContainer = document.getElementById('audio-container');
-    const audioErrorBox = document.getElementById('audio-error');
+  const form = document.getElementById('story-form');
+  const result = document.getElementById('result');
+  const btn = document.getElementById('submit-btn');
+  const btnLabel = document.getElementById('btn-label');
+  const audioContainer = document.getElementById('audio-container');
+  const audioErrorBox = document.getElementById('audio-error');
 
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
     const isAudioRequested = document.getElementById('generate_audio').checked;
+    
+    // 🚀 NAYA: Data object jisme Gender aur Theme jayega
     const data = {
       child_name: document.getElementById('name').value.trim(),
       native_place: document.getElementById('native_place').value.trim(),
       age: document.getElementById('age').value,
       language: document.getElementById('language').value,
       moral_value: document.getElementById('value').value,
+      gender: document.getElementById('gender').value,
+      theme: document.getElementById('theme').value,
       generate_audio: isAudioRequested 
     };
 
-    // UI Loading State
     btn.disabled = true;
     btnLabel.textContent = isAudioRequested ? 'Writing & Recording... ⏳' : 'Writing Story... ⏳';
-    result.classList.remove('hidden'); 
-    audioContainer.classList.add('hidden'); 
-    audioErrorBox.classList.add('hidden');
+    result.classList.remove('hidden'); audioContainer.classList.add('hidden'); audioErrorBox.classList.add('hidden');
     document.getElementById('story-title').textContent = 'Crafting magic...';
     document.getElementById('tags').innerHTML = '';
     document.getElementById('story-body').innerHTML = '<span class="text-gold animate-pulse">Sprinkling magic dust... and saving to library...</span>';
 
     try {
       const response = await fetch('/generate_story', {
-          method: 'POST', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify(data)
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
       });
       const res = await response.json();
       
       if(res.success) {
           document.getElementById('story-title').textContent = res.title;
           document.getElementById('story-body').innerText = res.story;
-          document.getElementById('tags').innerHTML = [data.moral_value, `Age ${data.age}`, data.language, data.native_place]
+          
+          // 🚀 NAYA: Tags me ab Theme bhi dikhegi
+          document.getElementById('tags').innerHTML = [data.moral_value, `Age ${data.age}`, data.language, data.native_place, data.theme]
             .map(t => `<span class="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-soft">${t}</span>`).join('');
             
           if(isAudioRequested) {
               audioContainer.classList.remove('hidden');
               if(res.audio_base64) {
                   audioEl.src = "data:audio/wav;base64," + res.audio_base64;
-                  playBtn.disabled = false; 
-                  iconPause.classList.add('hidden'); 
-                  iconPlay.classList.remove('hidden');
+                  playBtn.disabled = false; iconPause.classList.add('hidden'); iconPlay.classList.remove('hidden');
               } else {
-                  playBtn.disabled = true; 
-                  audioErrorBox.classList.remove('hidden'); 
-                  audioErrorBox.innerText = "❌ Audio Failed: " + (res.audio_error || "Try again.");
+                  playBtn.disabled = true; audioErrorBox.classList.remove('hidden'); audioErrorBox.innerText = "❌ Audio Failed: " + (res.audio_error || "Try again.");
               }
           }
-      } else { 
-          document.getElementById('story-body').innerText = '❌ Error: ' + res.error; 
-      }
-    } catch(err) { 
-        document.getElementById('story-body').innerText = '❌ Server Error: Could not connect to API.'; 
-    }
-    
-    // Restore Button
-    btn.disabled = false; 
-    btnLabel.textContent = 'Generate Magic ✨';
-  }
+      } else { document.getElementById('story-body').innerText = '❌ Error: ' + res.error; }
+    } catch(err) { document.getElementById('story-body').innerText = '❌ Server Error: Connection lost.'; }
+    btn.disabled = false; btnLabel.textContent = 'Generate Magic ✨';
+  });
 </script>
 {% endblock %}
