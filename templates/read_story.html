@@ -101,7 +101,7 @@
         cursor: pointer;
     }
 
-    /* 🚀 NAYA: Cinematic Bottom Control Bar */
+    /* Cinematic Bottom Control Bar */
     .cinematic-controls {
         position: absolute;
         bottom: 0;
@@ -175,7 +175,7 @@
 
   <div id="storybook" class="storybook-container">
       
-      <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop" class="story-bg" alt="Magical Background">
+      <img src="{% if story.image_url %}{{ story.image_url }}{% else %}https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop{% endif %}" class="story-bg" alt="Magical Background">
       
       <div class="top-bar-overlay">
           <span id="page-indicator" class="bg-black/50 text-gold-soft px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur-sm border border-gold/20 shadow-lg">
@@ -329,7 +329,6 @@
     seekBar.addEventListener('input', () => {
         const seekTime = (seekBar.value / 100) * audio.duration;
         audio.currentTime = seekTime;
-        // The text sync will happen automatically because of the 'timeupdate' event!
     });
 
     // Skips (10s)
