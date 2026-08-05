@@ -5,7 +5,7 @@ import base64
 import wave
 import io
 import urllib.parse
-import random  # 🚀 NAYA: Image ko har baar naya banane ke liye
+import requests  
 import azure.cognitiveservices.speech as speechsdk
 from extensions import db
 from models import Child, Story, RegionalStory
@@ -143,6 +143,7 @@ def generate_story():
     """
     
     try:
+        # 1. GENERATE STORY TEXT
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -153,20 +154,45 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # 🚀 THE FAST AI IMAGE LOGIC (No backend download, just Direct URL)
-        image_prompt = f"Magical bedtime story, {theme}, cute {age} year old Indian {gender} in {native_place}, 3D Pixar Disney animated style, masterpiece"
-        encoded_prompt = urllib.parse.quote(image_prompt)
-        # Random seed lagaya hai taki browser cache use na kare aur har baar nayi image de
-        seed = random.randint(1, 1000000) 
-        generated_image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=768&nologo=true&seed={seed}"
+        # 🚀 2. AI IMAGE GENERATION (FIXED '&' BUG)
+        # Replacing '&' with 'and' so the URL doesn't break!
+        safe_theme = theme.replace("&", "and")
+        safe_place = native_place.replace("&", "and")
         
-        # URL ko seedhe database me save kar diya
-        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=generated_image_url)
+        image_prompt = f"Magical bedtime story illustration, {safe_theme}, cute {age} year old Indian {gender} in {safe_place}, 3D Pixar Disney animated style, masterpiece, glowing lighting"
+        encoded_prompt = urllib.parse.quote(image_prompt)
+        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=768&nologo=true"
+        
+        final_image_data = None
+        
+        try:
+            # Pretend to be a real browser
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+            # Max 15 seconds wait for image
+            img_response = requests.get(pollinations_url, headers=headers, timeout=15)
+            
+            if img_response.status_code == 200:
+                img_base64 = base64.b64encode(img_response.content).decode('utf-8')
+                final_image_data = f"data:image/jpeg;base64,{img_base64}"
+            else:
+                print(f"AI Image Error: {img_response.status_code}")
+                
+        except Exception as e:
+            print(f"AI Image Request Failed: {e}")
+
+        # SMART FALLBACK: Agar AI fail ho jaye, to pyari si default image lag jaye
+        if not final_image_data:
+            final_image_data = "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop"
+
+        # Save to DB
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=final_image_data)
         db.session.add(new_story)
         db.session.commit()
         
+        # 3. GENERATE AUDIO
         audio_error = None
-        
         if wants_audio:
             try:
                 speech_key = os.environ.get('AZURE_SPEECH_KEY')
