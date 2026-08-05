@@ -45,7 +45,7 @@
     /* Translucent Text Box */
     .story-text-box {
         position: absolute;
-        bottom: 80px; /* Space for controls */
+        bottom: 80px; 
         left: 5%;
         right: 5%;
         background: rgba(20, 16, 50, 0.75);
@@ -58,7 +58,7 @@
         transform: translateY(20px);
         opacity: 0;
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: none; /* Let clicks pass through if needed */
+        pointer-events: none; 
     }
     .story-text-box.visible {
         transform: translateY(0);
@@ -175,7 +175,9 @@
 
   <div id="storybook" class="storybook-container">
       
-      <img src="{% if story.image_url %}{{ story.image_url }}{% else %}https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop{% endif %}" class="story-bg" alt="Magical Background">
+      <img src="{% if story.image_url %}{{ story.image_url }}{% else %}https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop{% endif %}" 
+           onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop';" 
+           class="story-bg" alt="Magical Background">
       
       <div class="top-bar-overlay">
           <span id="page-indicator" class="bg-black/50 text-gold-soft px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur-sm border border-gold/20 shadow-lg">
@@ -230,7 +232,10 @@
 </section>
 
 <script>
-    const rawText = document.getElementById('raw-story-content').innerText;
+    // 🚀 FIX: Removed the ** Markdown characters so the text looks clean!
+    let rawText = document.getElementById('raw-story-content').innerText;
+    rawText = rawText.replace(/\*\*/g, ''); // Removes bold stars
+    
     const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
     const audio = document.getElementById('story-audio');
     
