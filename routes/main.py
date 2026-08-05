@@ -5,7 +5,9 @@ import base64
 import wave
 import io
 import urllib.parse
-import requests  
+import random
+import json  # 🚀 NAYA: Multiple images list ko JSON me save karne ke liye
+import requests
 import azure.cognitiveservices.speech as speechsdk
 from extensions import db
 from models import Child, Story, RegionalStory
@@ -154,40 +156,34 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # 🚀 2. AI IMAGE GENERATION (FIXED '&' BUG)
-        # Replacing '&' with 'and' so the URL doesn't break!
+        # 🚀 2. MULTI-IMAGE GENERATION LOGIC (Har paragraph ke liye alag 3D Scene)
         safe_theme = theme.replace("&", "and")
         safe_place = native_place.replace("&", "and")
         
-        image_prompt = f"Magical bedtime story illustration, {safe_theme}, cute {age} year old Indian {gender} in {safe_place}, 3D Pixar Disney animated style, masterpiece, glowing lighting"
-        encoded_prompt = urllib.parse.quote(image_prompt)
-        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=768&nologo=true"
+        paragraphs = [p.strip() for p in story_text.split('\n') if p.strip()]
+        images_list = []
         
-        final_image_data = None
-        
-        try:
-            # Pretend to be a real browser
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            }
-            # Max 15 seconds wait for image
-            img_response = requests.get(pollinations_url, headers=headers, timeout=15)
+        for idx, para in enumerate(paragraphs):
+            # Paragraph snippet clean kar rahe hain URL ke liye
+            clean_snippet = para.replace('&', 'and').replace('"', '').replace("'", "")[:90]
             
-            if img_response.status_code == 200:
-                img_base64 = base64.b64encode(img_response.content).decode('utf-8')
-                final_image_data = f"data:image/jpeg;base64,{img_base64}"
-            else:
-                print(f"AI Image Error: {img_response.status_code}")
-                
-        except Exception as e:
-            print(f"AI Image Request Failed: {e}")
+            image_prompt = f"3D Pixar Disney animated style illustration, {safe_theme}, cute {age} year old Indian {gender} in {safe_place}, scene: {clean_snippet}, glowing cinematic lighting, masterpiece"
+            encoded_prompt = urllib.parse.quote(image_prompt)
+            seed = random.randint(1, 1000000)
+            
+            img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=768&nologo=true&seed={seed}"
+            images_list.append(img_url)
 
-        # SMART FALLBACK: Agar AI fail ho jaye, to pyari si default image lag jaye
-        if not final_image_data:
-            final_image_data = "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop"
+        # JSON String me saari images list save karenge
+        story_images_json = json.dumps(images_list)
 
-        # Save to DB
-        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=final_image_data)
+        new_story = Story(
+            user_id=session['user_id'], 
+            title=title, 
+            content=story_text, 
+            moral=moral_value, 
+            image_url=story_images_json
+        )
         db.session.add(new_story)
         db.session.commit()
         
@@ -211,7 +207,6 @@ def generate_story():
 
                     synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
                     
-                    paragraphs = [p.strip() for p in story_text.split('\n') if p.strip()]
                     combined_pcm_bytes = b""
                     
                     for index, para in enumerate(paragraphs):
