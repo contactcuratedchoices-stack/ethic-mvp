@@ -62,7 +62,6 @@ def add_child():
     age = request.form.get('age')
     native_place = request.form.get('native_place')
     language = request.form.get('language')
-    # 🚀 NAYA: Dashboard se Gender bhi save kar sakte hain agar form me add kiya ho
     gender = request.form.get('gender', 'Any') 
     
     new_child = Child(user_id=session['user_id'], name=name, age=age, native_place=native_place, language=language, gender=gender)
@@ -85,7 +84,6 @@ def generate_story():
     language = data.get('language')
     wants_audio = data.get('generate_audio', False)
     
-    # 🚀 NAYE SMART TAGS EXTRACT KIYE
     gender = data.get('gender', 'Boy')
     theme = data.get('theme', 'General')
     
@@ -97,15 +95,12 @@ def generate_story():
     else:
         language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
-    # 🚀 SMART DATABASE QUERY (Fallback Logic)
-    # 1. Pehle perfect match dhundo
+    # SMART DATABASE QUERY
     regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, theme=theme, target_gender=gender).first()
     
-    # 2. Agar nahi mila, toh bina theme ke gender match karo
     if not regional_base:
         regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, target_gender=gender).first()
         
-    # 3. Agar woh bhi nahi, toh purana normal match karo (AI khud isko adapt kar lega)
     if not regional_base:
         regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value).first()
     
@@ -119,7 +114,6 @@ def generate_story():
     else:
         regional_context = f"Invent a culturally accurate folktale from {native_place} teaching {moral_value}."
 
-    # 🚀 AI PROMPT INJECTION (The Brain)
     gender_role = "heroine (like a brave princess, smart girl, or fairy)" if gender == "Girl" else "hero (like a brave prince, smart boy, or warrior)"
     
     system_prompt = "You are an expert, affectionate Indian Grandparent (Dadi/Nani) and a master storyteller."
@@ -166,6 +160,7 @@ def generate_story():
         audio_base64 = None
         audio_error = None
         
+        # 🚀 THE NEW AUDIO CHUNKING LOGIC
         if wants_audio:
             try:
                 speech_key = os.environ.get('AZURE_SPEECH_KEY')
@@ -176,34 +171,51 @@ def generate_story():
                 else:
                     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
                     
+                    # Fix output format for consistent 44-byte WAV header
+                    speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm)
+                    
                     if language == 'English':
                         voice_name = "en-IN-NeerjaNeural"
                     else:
                         voice_name = "hi-IN-AartiNeural"
 
-                    # 🌟 SSML Formatting
-                    formatted_story_for_speech = story_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                    formatted_story_for_speech = formatted_story_for_speech.replace('.', '.<break time="600ms"/>')
-                    formatted_story_for_speech = formatted_story_for_speech.replace('\n', '<break time="800ms"/>')
-
-                    ssml_string = f"""
-                    <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hi-IN">
-                        <voice name="{voice_name}">
-                            <prosody rate="0.95" pitch="medium">
-                                {formatted_story_for_speech}
-                            </prosody>
-                        </voice>
-                    </speak>
-                    """
-
                     synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
                     
-                    result = synthesizer.speak_ssml_async(ssml_string).get()
+                    # Split story into paragraphs
+                    paragraphs = [p.strip() for p in story_text.split('\n') if p.strip()]
+                    combined_audio_bytes = b""
                     
-                    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                        audio_base64 = base64.b64encode(result.audio_data).decode('utf-8')
+                    for index, para in enumerate(paragraphs):
+                        formatted_para = para.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                        
+                        ssml_string = f"""
+                        <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hi-IN">
+                            <voice name="{voice_name}">
+                                <prosody rate="0.95" pitch="medium">
+                                    {formatted_para}
+                                    <break time="800ms"/>
+                                </prosody>
+                            </voice>
+                        </speak>
+                        """
+                        
+                        result = synthesizer.speak_ssml_async(ssml_string).get()
+                        
+                        if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                            if index == 0:
+                                # Keep the 44-byte header for the very first chunk
+                                combined_audio_bytes += result.audio_data
+                            else:
+                                # Strip the 44-byte WAV header from all subsequent chunks
+                                combined_audio_bytes += result.audio_data[44:]
+                        else:
+                            print(f"Warning: Chunk {index} failed with reason: {result.reason}")
+                    
+                    if combined_audio_bytes:
+                        audio_base64 = base64.b64encode(combined_audio_bytes).decode('utf-8')
                     else:
-                        audio_error = f"TTS Error: {result.reason}"
+                        audio_error = "TTS Error: Audio could not be generated."
+
             except Exception as e:
                 audio_error = f"Audio Generation Failed: {str(e)}"
 
