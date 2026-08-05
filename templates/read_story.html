@@ -14,11 +14,10 @@
         border-radius: 2rem;
         overflow: hidden;
         box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(244,201,93,0.3);
-        background-color: #0f0c29;
+        background-color: #050510;
         transition: all 0.3s ease;
     }
     
-    /* Fullscreen fixes */
     .storybook-container:fullscreen { border-radius: 0; height: 100vh; }
     .storybook-container:-webkit-full-screen { border-radius: 0; height: 100vh; }
 
@@ -36,42 +35,47 @@
         transform: scale(1.15);
     }
 
-    /* REELS LYRICS TEXT BOX */
+    /* 🚀 NEW: REELS/NETFLIX STYLE SUBTITLES BOX (Minimal & Clean) */
     .story-text-box {
         position: absolute;
-        bottom: 80px; 
-        left: 5%;
-        right: 5%;
-        background: rgba(15, 12, 41, 0.85);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(244, 201, 93, 0.4);
-        border-radius: 1.5rem;
-        padding: 1.5rem 2rem;
+        bottom: 95px; /* Thoda upar taaki controls se na takraye */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 800px;
         text-align: center;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.7);
-        opacity: 0;
-        transition: opacity 0.4s ease;
         pointer-events: none; 
-    }
-    .story-text-box.visible { opacity: 1; }
-
-    /* 🚀 THE REELS ANIMATION EFFECT */
-    @keyframes reelsSlideUp {
-        0% { transform: translateY(40px); opacity: 0; filter: blur(4px); }
-        100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+        display: flex;
+        justify-content: center;
+        z-index: 35;
     }
 
+    /* 🚀 NEW: THE SUBTITLE PILL */
     .karaoke-text {
-        color: #f4c95d;
-        font-size: 1.6rem;
-        line-height: 1.6;
-        text-shadow: 0 0 15px rgba(244,201,93,0.8), 2px 3px 6px rgba(0,0,0,0.9);
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.4;
+        background: rgba(0, 0, 0, 0.7); /* Netflix style dark background */
+        backdrop-filter: blur(8px);
+        padding: 10px 24px;
+        border-radius: 20px;
+        border: 1px solid rgba(244, 201, 93, 0.4); /* Gold border */
+        text-shadow: 0px 2px 5px rgba(0,0,0,1);
         display: inline-block;
+        opacity: 0;
     }
     @media (min-width: 768px) { .karaoke-text { font-size: 2.2rem; } }
     
+    /* Subtitle highlight color (Gold) */
+    .karaoke-highlight { color: #f4c95d; }
+
+    @keyframes reelsSlideUp {
+        0% { transform: translateY(20px); opacity: 0; filter: blur(2px); }
+        100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+    }
     .reels-text-anim {
-        animation: reelsSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: reelsSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     /* Cinematic Controls */
@@ -134,22 +138,13 @@
                   </button>
                   <span id="time-display" class="text-xs font-bold text-gray-300">0:00 / 0:00</span>
               </div>
-              
               <div class="flex items-center gap-6">
-                  <button id="skip-back" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="Rewind 10s">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/></svg>
-                      -10s
-                  </button>
-                  <button id="skip-forward" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="Forward 10s">
-                      +10s
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.334-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.334-4z"/></svg>
-                  </button>
+                  <button id="skip-back" class="ctrl-btn text-sm font-bold">-10s</button>
+                  <button id="skip-forward" class="ctrl-btn text-sm font-bold">+10s</button>
               </div>
-
               <div class="flex items-center gap-4">
                   <button id="speed-btn" class="ctrl-btn text-xs font-bold border border-gray-400/50 rounded px-2 py-1">1x</button>
-                  
-                  <button id="fullscreen-btn" class="ctrl-btn" title="Full Screen">
+                  <button id="fullscreen-btn" class="ctrl-btn">
                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                   </button>
               </div>
@@ -167,19 +162,20 @@
     const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
     const audio = document.getElementById('story-audio');
     
-    // SAFE TITLE (English only, no special chars)
     const storyTitle = {{ story.title | tojson | safe }}.replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
 
-    // 🚀 THE BULLETPROOF IMAGE FIX
-    // Hindi text URL ko tod raha tha, isliye ab hum sirf Title aur Random Seed bhejenge.
-    // Har paragraph ke liye ek nayi random 3D Pixar image aayegi!
-    const storyImages = pages.map(() => {
+    // 🚀 NEW: FLUX MODEL (Ultra HD, Perfect Faces, Widescreen)
+    const storyImages = pages.map((pageText, index) => {
         let randomSeed = Math.floor(Math.random() * 9999999);
-        let imagePrompt = `Magical 3D Pixar Disney style bedtime story illustration for ${storyTitle}, highly detailed, glowing cinematic lighting`;
-        return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1024&height=768&nologo=true&seed=${randomSeed}`;
+        let cleanText = pageText.replace(/["'\\\n\r]/g, ' ').substring(0, 80);
+        // Prompt ko bahut powerful bana diya hai
+        let imagePrompt = `Ultra-detailed 3D CGI Pixar style masterpiece, ${cleanText}, vibrant colors, extremely cute, perfect symmetric face, glowing cinematic lighting, 8k resolution`;
+        
+        // model=flux & width=1280 (HD) add kar diya
+        return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1280&height=720&nologo=true&model=flux&seed=${randomSeed}`;
     });
 
-    // PRELOAD IMAGES to prevent lag during crossfade
+    // Preload Images
     storyImages.forEach(url => {
         const img = new Image();
         img.src = url;
@@ -191,7 +187,6 @@
     
     const storybook = document.getElementById('storybook');
     const centerPlayBtn = document.getElementById('center-play-btn');
-    const textBox = document.getElementById('text-box');
     const dynamicText = document.getElementById('dynamic-text');
     const pageIndicator = document.getElementById('page-indicator');
     const seekBar = document.getElementById('seek-bar');
@@ -200,9 +195,52 @@
     const miniPlay = document.getElementById('mini-play');
     const miniPause = document.getElementById('mini-pause');
     
-    let pageTimings = [];
+    // 🚀 NEW: CHUNKING ALGORITHM (For Reels/Subtitles)
+    let subtitleTimings = [];
+    let currentSubtitleIndex = -1;
     let currentPageIndex = -1;
     let isStarted = false;
+
+    audio.addEventListener('loadedmetadata', () => {
+        const totalChars = pages.join(' ').length;
+        let accumulatedTime = 0;
+        let chunkIndex = 0;
+
+        pages.forEach((pageText, pageIndex) => {
+            // Har paragraph ko 6-7 shabdo (words) ki lines me todna
+            let words = pageText.split(/\s+/);
+            let chunks = [];
+            let currentChunk = [];
+
+            for(let i = 0; i < words.length; i++) {
+                currentChunk.push(words[i]);
+                // Break line at 7 words OR punctuation marks (। ? ! . ,)
+                if(currentChunk.length >= 7 || words[i].match(/[।?!.,|]$/)) {
+                    chunks.push(currentChunk.join(' '));
+                    currentChunk = [];
+                }
+            }
+            if(currentChunk.length > 0) chunks.push(currentChunk.join(' '));
+
+            // Har chhote chunk (line) ko apna ek exact time dena
+            chunks.forEach((chunk) => {
+                const chunkLength = chunk.length + 1; // +1 space ke liye
+                const duration = (chunkLength / totalChars) * audio.duration;
+                
+                subtitleTimings.push({
+                    chunkIndex: chunkIndex++,
+                    pageIndex: pageIndex,
+                    start: accumulatedTime,
+                    end: accumulatedTime + duration,
+                    text: chunk
+                });
+                accumulatedTime += duration;
+            });
+        });
+        
+        timeDisplay.innerText = `0:00 / ${formatTime(audio.duration)}`;
+        pageIndicator.innerText = "Ready to Play 🎬";
+    });
 
     function formatTime(sec) {
         if (isNaN(sec)) return "0:00";
@@ -211,19 +249,7 @@
         return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    audio.addEventListener('loadedmetadata', () => {
-        const totalChars = pages.reduce((sum, p) => sum + p.length, 0);
-        let accumulatedTime = 0;
-        pages.forEach((pageText, index) => {
-            const duration = (pageText.length / totalChars) * audio.duration; 
-            pageTimings.push({ index, start: accumulatedTime, end: accumulatedTime + duration, text: pageText });
-            accumulatedTime += duration;
-        });
-        timeDisplay.innerText = `0:00 / ${formatTime(audio.duration)}`;
-        pageIndicator.innerText = "Ready to Play 🎬";
-    });
-
-    // CROSSFADE FUNCTION
+    // CROSSFADE SCENES
     function changeSceneImage(imageSrc) {
         if (activeLayer === 1) {
             bgLayer2.src = imageSrc;
@@ -253,7 +279,6 @@
                 isStarted = true;
                 storybook.classList.add('started');
                 centerPlayBtn.classList.add('hidden');
-                textBox.classList.add('visible');
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             }
         } else {
@@ -266,7 +291,7 @@
     centerPlayBtn.addEventListener('click', togglePlay);
     miniPlayPause.addEventListener('click', togglePlay);
 
-    // SYNC ENGINE WITH REELS ANIMATION
+    // 🚀 NEW: SYNC ENGINE (Subtitles & Scene Changer)
     audio.addEventListener('timeupdate', () => {
         if(!isNaN(audio.duration)) {
             const progress = (audio.currentTime / audio.duration) * 100;
@@ -274,24 +299,28 @@
             seekBar.style.background = `linear-gradient(to right, #f4c95d ${progress}%, rgba(255,255,255,0.2) ${progress}%)`;
             timeDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
 
-            const activePage = pageTimings.find(pt => audio.currentTime >= pt.start && audio.currentTime <= pt.end);
+            // Check which SUBTITLE line is active right now
+            const activeSubtitle = subtitleTimings.find(st => audio.currentTime >= st.start && audio.currentTime <= st.end);
             
-            if (activePage && activePage.index !== currentPageIndex) {
-                currentPageIndex = activePage.index;
+            if (activeSubtitle && activeSubtitle.chunkIndex !== currentSubtitleIndex) {
+                currentSubtitleIndex = activeSubtitle.chunkIndex;
                 
-                // 1. Switch Scene Image smoothly
-                if(storyImages[currentPageIndex]) {
-                    changeSceneImage(storyImages[currentPageIndex]);
+                // 1. Scene Switch (Sirf tab jab naya paragraph aaye)
+                if (activeSubtitle.pageIndex !== currentPageIndex) {
+                    currentPageIndex = activeSubtitle.pageIndex;
+                    if(storyImages[currentPageIndex]) {
+                        changeSceneImage(storyImages[currentPageIndex]);
+                    }
+                    pageIndicator.innerText = `Scene ${currentPageIndex + 1} of ${pages.length}`;
                 }
 
-                // 2. Reels Lyrics Text Animation (DOM Reflow forced)
+                // 2. Reels Lyrics Text Animation
                 dynamicText.classList.remove('reels-text-anim');
-                void dynamicText.offsetWidth; 
+                void dynamicText.offsetWidth; // DOM Reflow
                 
-                dynamicText.innerText = activePage.text;
+                // Thoda golden style add karte hue
+                dynamicText.innerHTML = `<span class="karaoke-highlight">${activeSubtitle.text}</span>`;
                 dynamicText.classList.add('reels-text-anim');
-                
-                pageIndicator.innerText = `Scene ${activePage.index + 1} of ${pages.length}`;
             }
         }
     });
@@ -307,13 +336,11 @@
         e.target.innerText = speeds[speedIdx] + 'x';
     });
 
-    // 🚀 FULLSCREEN LOGIC FIXED
     const fullscreenBtn = document.getElementById('fullscreen-btn');
     fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
             if (storybook.requestFullscreen) { storybook.requestFullscreen(); }
-            else if (storybook.webkitRequestFullscreen) { storybook.webkitRequestFullscreen(); } // Safari
-            else if (storybook.msRequestFullscreen) { storybook.msRequestFullscreen(); } // IE11
+            else if (storybook.webkitRequestFullscreen) { storybook.webkitRequestFullscreen(); }
         } else {
             if (document.exitFullscreen) { document.exitFullscreen(); }
             else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
@@ -327,7 +354,7 @@
         dynamicText.classList.remove('reels-text-anim');
         dynamicText.innerText = "The End ✨";
         confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#f4c95d', '#ffffff'] });
-        currentPageIndex = -1;
+        currentSubtitleIndex = -1;
     });
 </script>
 {% endblock %}
