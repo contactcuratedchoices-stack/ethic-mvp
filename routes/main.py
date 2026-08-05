@@ -4,6 +4,7 @@ import os
 import base64
 import wave
 import io
+import urllib.parse # 🚀 NAYA: URL encode karne ke liye
 import azure.cognitiveservices.speech as speechsdk
 from extensions import db
 from models import Child, Story, RegionalStory
@@ -85,7 +86,6 @@ def generate_story():
     moral_value = data.get('moral_value')
     language = data.get('language')
     wants_audio = data.get('generate_audio', False)
-    
     gender = data.get('gender', 'Boy')
     theme = data.get('theme', 'General')
     
@@ -98,10 +98,8 @@ def generate_story():
         language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
     regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, theme=theme, target_gender=gender).first()
-    
     if not regional_base:
         regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, target_gender=gender).first()
-        
     if not regional_base:
         regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value).first()
     
@@ -154,7 +152,18 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value)
+        # 🚀 NAYA: AI IMAGE GENERATION LOGIC
+        # Ek perfect Pixar style prompt banate hain
+        image_prompt = f"3D Pixar Disney style illustration, magical bedtime story atmosphere, {theme}, featuring a {age} year old cute Indian {gender} in {native_place}, glowing cinematic lighting, highly detailed masterpiece, 8k resolution"
+        
+        # URL encode karna zaruri hai
+        encoded_prompt = urllib.parse.quote(image_prompt)
+        
+        # Pollinations AI ki free HD API (No key required)
+        generated_image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1920&height=1080&nologo=true"
+        
+        # Ab story save karte waqt image_url bhi save karenge
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=generated_image_url)
         db.session.add(new_story)
         db.session.commit()
         
