@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<link href="[https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap](https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap)" rel="stylesheet">
-<script src="[https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js](https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js)"></script>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
     .magical-font { font-family: 'Baloo 2', cursive; }
@@ -17,6 +17,8 @@
         background-color: #0f0c29;
         transition: all 0.3s ease;
     }
+    
+    /* Fullscreen fixes */
     .storybook-container:fullscreen { border-radius: 0; height: 100vh; }
     .storybook-container:-webkit-full-screen { border-radius: 0; height: 100vh; }
 
@@ -105,7 +107,6 @@
   </div>
 
   <div id="storybook" class="storybook-container">
-      <!-- LAYERED IMAGES -->
       <img id="bg-layer-1" class="story-bg opacity-100" src="{{ story.image_url }}" alt="Scene Layer 1">
       <img id="bg-layer-2" class="story-bg opacity-0" src="{{ story.image_url }}" alt="Scene Layer 2">
       
@@ -133,13 +134,24 @@
                   </button>
                   <span id="time-display" class="text-xs font-bold text-gray-300">0:00 / 0:00</span>
               </div>
+              
               <div class="flex items-center gap-6">
-                  <button id="skip-back" class="ctrl-btn text-sm font-bold">-10s</button>
-                  <button id="skip-forward" class="ctrl-btn text-sm font-bold">+10s</button>
+                  <button id="skip-back" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="Rewind 10s">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/></svg>
+                      -10s
+                  </button>
+                  <button id="skip-forward" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="Forward 10s">
+                      +10s
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.334-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.334-4z"/></svg>
+                  </button>
               </div>
+
               <div class="flex items-center gap-4">
                   <button id="speed-btn" class="ctrl-btn text-xs font-bold border border-gray-400/50 rounded px-2 py-1">1x</button>
-                  <button id="fullscreen-btn" class="ctrl-btn">FS</button>
+                  
+                  <button id="fullscreen-btn" class="ctrl-btn" title="Full Screen">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                  </button>
               </div>
           </div>
       </div>
@@ -149,23 +161,28 @@
   <div id="raw-story-content" class="hidden">{{ story.content }}</div>
 </section>
 
-<!-- THE SAFE & VERIFIED MAGIC LOGIC -->
 <script>
-    // 1. Text Parsing
     let rawText = document.getElementById('raw-story-content').innerText;
     rawText = rawText.replace(/\*\*/g, '');
     const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
     const audio = document.getElementById('story-audio');
     
-    // Safer way to handle titles with quotes and special characters
-    const storyTitle = {{ story.title | tojson | safe }}.replace(/[^a-zA-Z0-9\s]/g, ' ');
+    // SAFE TITLE (English only, no special chars)
+    const storyTitle = {{ story.title | tojson | safe }}.replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
 
-    // 🚀 SAFE MULTI-IMAGE GENERATION (Supports Hindi, English & all Unicode characters)
-    const storyImages = pages.map((pageText, index) => {
-        // Safe cleaning: removes only quotes and bad breaks, preserves Hindi/Unicode letters
-        let cleanText = pageText.replace(/["'\\\n\r]/g, ' ').substring(0, 75);
-        let imagePrompt = `Magical 3D Pixar Disney style bedtime story, scene action: ${cleanText}, glowing cinematic lighting, highly detailed masterpiece`;
-        return `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(imagePrompt)}?width=1024&height=768&nologo=true&seed=${index + 555}`;
+    // 🚀 THE BULLETPROOF IMAGE FIX
+    // Hindi text URL ko tod raha tha, isliye ab hum sirf Title aur Random Seed bhejenge.
+    // Har paragraph ke liye ek nayi random 3D Pixar image aayegi!
+    const storyImages = pages.map(() => {
+        let randomSeed = Math.floor(Math.random() * 9999999);
+        let imagePrompt = `Magical 3D Pixar Disney style bedtime story illustration for ${storyTitle}, highly detailed, glowing cinematic lighting`;
+        return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1024&height=768&nologo=true&seed=${randomSeed}`;
+    });
+
+    // PRELOAD IMAGES to prevent lag during crossfade
+    storyImages.forEach(url => {
+        const img = new Image();
+        img.src = url;
     });
 
     const bgLayer1 = document.getElementById('bg-layer-1');
@@ -288,6 +305,29 @@
         speedIdx = (speedIdx + 1) % speeds.length;
         audio.playbackRate = speeds[speedIdx];
         e.target.innerText = speeds[speedIdx] + 'x';
+    });
+
+    // 🚀 FULLSCREEN LOGIC FIXED
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            if (storybook.requestFullscreen) { storybook.requestFullscreen(); }
+            else if (storybook.webkitRequestFullscreen) { storybook.webkitRequestFullscreen(); } // Safari
+            else if (storybook.msRequestFullscreen) { storybook.msRequestFullscreen(); } // IE11
+        } else {
+            if (document.exitFullscreen) { document.exitFullscreen(); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+        }
+    });
+    
+    audio.addEventListener('ended', () => {
+        storybook.classList.remove('playing');
+        miniPlay.classList.remove('hidden');
+        miniPause.classList.add('hidden');
+        dynamicText.classList.remove('reels-text-anim');
+        dynamicText.innerText = "The End ✨";
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#f4c95d', '#ffffff'] });
+        currentPageIndex = -1;
     });
 </script>
 {% endblock %}
