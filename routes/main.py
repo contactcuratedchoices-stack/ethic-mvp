@@ -4,7 +4,8 @@ import os
 import base64
 import wave
 import io
-import urllib.parse # 🚀 NAYA: URL encode karne ke liye
+import urllib.parse
+import requests  # 🚀 NAYA: Image download karne ke liye
 import azure.cognitiveservices.speech as speechsdk
 from extensions import db
 from models import Child, Story, RegionalStory
@@ -152,18 +153,23 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # 🚀 NAYA: AI IMAGE GENERATION LOGIC
-        # Ek perfect Pixar style prompt banate hain
+        # 🚀 NAYA LOGIC: Backend me Image Download karke Base64 me convert karna
         image_prompt = f"3D Pixar Disney style illustration, magical bedtime story atmosphere, {theme}, featuring a {age} year old cute Indian {gender} in {native_place}, glowing cinematic lighting, highly detailed masterpiece, 8k resolution"
-        
-        # URL encode karna zaruri hai
         encoded_prompt = urllib.parse.quote(image_prompt)
+        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1920&height=1080&nologo=true"
         
-        # Pollinations AI ki free HD API (No key required)
-        generated_image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1920&height=1080&nologo=true"
-        
-        # Ab story save karte waqt image_url bhi save karenge
-        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=generated_image_url)
+        final_image_data = None
+        try:
+            # Backend server request bhej raha hai
+            img_response = requests.get(pollinations_url, timeout=20)
+            if img_response.status_code == 200:
+                img_base64 = base64.b64encode(img_response.content).decode('utf-8')
+                final_image_data = f"data:image/jpeg;base64,{img_base64}"
+        except Exception as e:
+            print(f"AI Image Generation Failed: {e}")
+
+        # Ab Base64 image data ko database me save karenge
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=final_image_data)
         db.session.add(new_story)
         db.session.commit()
         
