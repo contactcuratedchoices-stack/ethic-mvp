@@ -5,7 +5,7 @@ import base64
 import wave
 import io
 import urllib.parse
-import requests
+import random  # 🚀 NAYA: Image ko har baar naya banane ke liye
 import azure.cognitiveservices.speech as speechsdk
 from extensions import db
 from models import Child, Story, RegionalStory
@@ -153,35 +153,15 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # 🚀 100% WORKING AI IMAGE LOGIC (Anti-Bot & Fast Gen)
-        # Ek short aur perfect prompt
-        image_prompt = f"Magical bedtime story illustration, {theme}, cute {age} year old Indian {gender} in {native_place}, 3D Pixar Disney animated style, masterpiece, glowing cinematic lighting"
+        # 🚀 THE FAST AI IMAGE LOGIC (No backend download, just Direct URL)
+        image_prompt = f"Magical bedtime story, {theme}, cute {age} year old Indian {gender} in {native_place}, 3D Pixar Disney animated style, masterpiece"
         encoded_prompt = urllib.parse.quote(image_prompt)
+        # Random seed lagaya hai taki browser cache use na kare aur har baar nayi image de
+        seed = random.randint(1, 1000000) 
+        generated_image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=768&nologo=true&seed={seed}"
         
-        # Thoda chhota size (1024x768) taaki turant generate ho aur timeout na ho
-        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=768&nologo=true"
-        
-        final_image_data = None
-        try:
-            # 🚀 JUGAD: Python ko Google Chrome ka roop de diya!
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            }
-            
-            # Timeout bada kar 25 second kar diya
-            img_response = requests.get(pollinations_url, headers=headers, timeout=25)
-            
-            if img_response.status_code == 200:
-                img_base64 = base64.b64encode(img_response.content).decode('utf-8')
-                final_image_data = f"data:image/jpeg;base64,{img_base64}"
-            else:
-                print(f"AI Image Error: {img_response.status_code}")
-                
-        except Exception as e:
-            print(f"AI Image Generation Failed: {e}")
-
-        # Ab Base64 image data ko database me save karenge
-        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=final_image_data)
+        # URL ko seedhe database me save kar diya
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=generated_image_url)
         db.session.add(new_story)
         db.session.commit()
         
