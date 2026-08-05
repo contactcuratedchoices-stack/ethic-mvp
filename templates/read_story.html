@@ -1,66 +1,266 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="mx-auto max-w-3xl px-5 py-12 md:py-20">
-  <div class="glass rounded-3xl p-8 shadow-2xl sm:p-12 relative overflow-hidden">
-    
-    <!-- Decorative Glow -->
-    <div class="absolute -top-20 -left-20 w-64 h-64 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Google Fonts for Kids (Baloo 2) -->
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Confetti JS for Magical Entry -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+<style>
+    .magical-font { font-family: 'Baloo 2', cursive; }
+    
+    /* Beautiful Paragraph Cards */
+    .story-card {
+        background: rgba(30, 27, 75, 0.4);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 1.5rem;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .story-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(244, 201, 93, 0.5); /* Gold hover */
+    }
+
+    /* Custom Audio Progress Bar */
+    .custom-progress {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 8px;
+        background: rgba(244, 201, 93, 0.2);
+        border-radius: 5px;
+        outline: none;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .custom-progress::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #f4c95d;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(244, 201, 93, 0.8);
+        transition: transform 0.2s;
+    }
+    .custom-progress::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+    }
+
+    /* Twinkling Stars Background Animation */
+    .star {
+        position: absolute;
+        background: #fff;
+        border-radius: 50%;
+        animation: twinkle infinite ease-in-out;
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.1; transform: scale(0.5); }
+        50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 10px #fff; }
+    }
+</style>
+
+<section class="relative mx-auto max-w-4xl px-5 py-12 min-h-screen overflow-hidden">
+  
+  <!-- Starry Background Container -->
+  <div id="stars-container" class="absolute inset-0 pointer-events-none z-0"></div>
+
+  <div class="glass p-6 md:p-12 rounded-3xl border-t-4 border-t-gold shadow-[0_0_50px_rgba(244,201,93,0.1)] relative z-10">
+    
     <!-- Back Button -->
-    <div class="mb-8 relative z-10 flex justify-between items-center">
-      <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-purple-soft hover:text-white transition bg-purple-soft/10 px-4 py-2 rounded-lg border border-purple-soft/20">
-        ← Back to Dashboard
+    <div class="mb-8 flex justify-between items-center">
+      <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-purple-soft hover:text-white transition bg-purple-soft/10 px-4 py-2 rounded-xl border border-purple-soft/30 hover:bg-purple-soft/20">
+        ← Back to Library
       </a>
     </div>
 
     <!-- Story Header -->
-    <div class="text-center relative z-10 border-b border-purple-soft/20 pb-8 mb-8">
+    <div class="text-center mb-10">
       {% if story.moral %}
-      <span class="inline-block px-3 py-1 bg-gold/15 text-gold text-xs uppercase tracking-wider font-bold rounded-md mb-4 border border-gold/30 shadow-gold">
-        Value: {{ story.moral }}
+      <span class="inline-block px-4 py-1.5 bg-gradient-to-r from-gold/20 to-orange-500/20 text-gold text-xs uppercase tracking-widest font-extrabold rounded-full mb-5 border border-gold/40 shadow-[0_0_15px_rgba(244,201,93,0.3)]">
+        ✨ {{ story.moral }} ✨
       </span>
       {% endif %}
-      <h1 class="font-serif text-3xl md:text-5xl font-bold text-white leading-tight mb-4">{{ story.title }}</h1>
-      <p class="text-sm text-muted">Created on {{ story.created_at.strftime('%B %d, %Y') if story.created_at else 'Recently' }}</p>
+      <h1 class="magical-font text-4xl md:text-6xl font-bold text-white leading-tight mb-3 drop-shadow-lg">
+        {{ story.title }}
+      </h1>
+      <p class="text-sm text-purple-300/70 font-semibold">Created on {{ story.created_at.strftime('%B %d, %Y') if story.created_at else 'Recently' }}</p>
     </div>
 
-    <!-- 🚀 UPDATED: PROFESSIONAL NATIVE AUDIO PLAYER -->
+    <!-- 🚀 SUPER MAGICAL CUSTOM AUDIO PLAYER -->
     {% if story.audio_data %}
-    <div class="relative z-10 mb-10 mx-auto max-w-lg rounded-2xl border border-indigo-500/30 bg-indigo-900/40 p-5 shadow-xl text-center">
-      <p class="text-indigo-200 text-sm font-semibold mb-3">🎧 Listen to the magical story</p>
+    <div class="mb-12 bg-gradient-to-r from-navy-light/80 via-purple-900/40 to-navy-light/80 p-6 md:p-8 rounded-3xl border border-gold/30 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
       
-      <!-- Native HTML5 Controls for Seek/Forward/Backward -->
-      <audio controls class="w-full rounded-lg outline-none custom-audio-player">
-        <source src="data:audio/wav;base64,{{ story.audio_data }}" type="audio/wav">
-        Your browser does not support the audio element.
-      </audio>
+      <!-- Hidden Original Audio -->
+      <audio id="real-audio" src="data:audio/wav;base64,{{ story.audio_data }}" preload="metadata"></audio>
+
+      <div class="flex flex-col md:flex-row items-center gap-6">
+        
+        <!-- Big Magical Play Button -->
+        <button id="custom-play-btn" class="relative group h-16 w-16 shrink-0 rounded-full bg-gradient-to-br from-gold to-orange-400 flex items-center justify-center text-navy shadow-[0_0_20px_rgba(244,201,93,0.6)] transition-all duration-300 hover:scale-110">
+          <div class="absolute inset-0 rounded-full bg-gold animate-ping opacity-20 group-hover:opacity-40"></div>
+          
+          <svg id="play-icon" class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="pause-icon" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+        </button>
+
+        <!-- Progress and Controls -->
+        <div class="flex-1 w-full flex flex-col gap-2">
+          <p class="text-gold-soft text-sm font-bold tracking-widest uppercase text-center md:text-left">Listen to Dadi's Voice</p>
+          
+          <div class="flex items-center gap-4">
+            <!-- Time Current -->
+            <span id="current-time" class="text-xs text-purple-200 font-bold w-8 text-right">0:00</span>
+            
+            <!-- Seek Bar -->
+            <input type="range" id="seek-bar" class="custom-progress flex-1" value="0" max="100" step="0.1">
+            
+            <!-- Time Total -->
+            <span id="duration-time" class="text-xs text-purple-200 font-bold w-8 text-left">0:00</span>
+            
+            <!-- Speed Button -->
+            <button id="speed-toggle" class="ml-2 h-8 px-3 rounded-lg bg-indigo-500/20 border border-indigo-400/40 text-indigo-200 text-xs font-bold hover:bg-indigo-500/40 transition">1x</button>
+          </div>
+        </div>
+      </div>
     </div>
     {% endif %}
 
-    <!-- Story Content -->
-    <div class="relative z-10 text-lg leading-relaxed text-gray-300 font-medium whitespace-pre-wrap text-pretty space-y-6">
-      {{ story.content }}
+    <!-- Hidden Raw Text -->
+    <div id="raw-story-content" class="hidden">{{ story.content }}</div>
+    
+    <!-- Formatted Story Layout -->
+    <div id="magical-story-layout" class="magical-font text-xl md:text-2xl text-gray-100 leading-relaxed space-y-6">
+       <!-- JS will inject styled cards here -->
     </div>
 
   </div>
 </section>
 
-<!-- 🎨 Audio Player Custom CSS -->
-<style>
-    .custom-audio-player {
-        height: 50px;
-        border-radius: 12px;
-    }
-    .custom-audio-player::-webkit-media-controls-panel {
-        background-color: #e0e7ff; /* Light Indigo */
-    }
-    .custom-audio-player::-webkit-media-controls-play-button,
-    .custom-audio-player::-webkit-media-controls-mute-button,
-    .custom-audio-player::-webkit-media-controls-timeline,
-    .custom-audio-player::-webkit-media-controls-current-time-display,
-    .custom-audio-player::-webkit-media-controls-time-remaining-display {
-        color: #312e81; /* Dark Indigo */
-    }
-</style>
+<!-- THE MAGIC LOGIC -->
+<script>
+  // 1. Confetti Animation on Load
+  window.onload = function() {
+      var duration = 3 * 1000;
+      var animationEnd = Date.now() + duration;
+      var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+      function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+      var interval = setInterval(function() {
+          var timeLeft = animationEnd - Date.now();
+          if (timeLeft <= 0) { return clearInterval(interval); }
+          var particleCount = 50 * (timeLeft / duration);
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#f4c95d', '#8b5cf6', '#ffffff'] }));
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#f4c95d', '#8b5cf6', '#ffffff'] }));
+      }, 250);
+  };
+
+  // 2. Background Twinkling Stars
+  const starContainer = document.getElementById('stars-container');
+  for (let i = 0; i < 40; i++) {
+      let star = document.createElement('div');
+      star.className = 'star';
+      let size = Math.random() * 3 + 1;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      star.style.animationDelay = Math.random() * 2 + 's';
+      starContainer.appendChild(star);
+  }
+
+  // 3. Auto-Format Story into Beautiful Cards
+  const rawText = document.getElementById('raw-story-content').innerText;
+  const layout = document.getElementById('magical-story-layout');
+  const paragraphs = rawText.split(/\n+/);
+  
+  paragraphs.forEach(p => {
+      if(p.trim().length > 0) {
+          const card = document.createElement('div');
+          card.className = 'story-card';
+          card.innerText = p.trim();
+          layout.appendChild(card);
+      }
+  });
+
+  // 4. Custom Advanced Audio Player Logic
+  const audio = document.getElementById('real-audio');
+  if(audio) {
+      const playBtn = document.getElementById('custom-play-btn');
+      const playIcon = document.getElementById('play-icon');
+      const pauseIcon = document.getElementById('pause-icon');
+      const seekBar = document.getElementById('seek-bar');
+      const currentTimeEl = document.getElementById('current-time');
+      const durationTimeEl = document.getElementById('duration-time');
+      const speedBtn = document.getElementById('speed-toggle');
+
+      // Helper function to format time
+      function formatTime(seconds) {
+          if (isNaN(seconds)) return "0:00";
+          const min = Math.floor(seconds / 60);
+          const sec = Math.floor(seconds % 60);
+          return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+      }
+
+      // Load Metadata for total time
+      audio.addEventListener('loadedmetadata', () => {
+          durationTimeEl.innerText = formatTime(audio.duration);
+      });
+
+      // Play / Pause Toggle
+      playBtn.addEventListener('click', () => {
+          if (audio.paused) {
+              audio.play();
+              playIcon.classList.add('hidden');
+              pauseIcon.classList.remove('hidden');
+              playBtn.classList.add('animate-pulse'); // Adds magic effect while playing
+          } else {
+              audio.pause();
+              pauseIcon.classList.add('hidden');
+              playIcon.classList.remove('hidden');
+              playBtn.classList.remove('animate-pulse');
+          }
+      });
+
+      // Update Seek Bar as audio plays
+      audio.addEventListener('timeupdate', () => {
+          if (!isNaN(audio.duration)) {
+              const progressPercent = (audio.currentTime / audio.duration) * 100;
+              seekBar.value = progressPercent;
+              currentTimeEl.innerText = formatTime(audio.currentTime);
+              
+              // Fill background color of slider dynamically (Gold fill)
+              seekBar.style.background = `linear-gradient(to right, #f4c95d ${progressPercent}%, rgba(244, 201, 93, 0.2) ${progressPercent}%)`;
+          }
+      });
+
+      // Seek Audio when user drags the bar
+      seekBar.addEventListener('input', () => {
+          const seekTime = (seekBar.value / 100) * audio.duration;
+          audio.currentTime = seekTime;
+      });
+
+      // Reset when audio ends
+      audio.addEventListener('ended', () => {
+          pauseIcon.classList.add('hidden');
+          playIcon.classList.remove('hidden');
+          playBtn.classList.remove('animate-pulse');
+          seekBar.value = 0;
+          seekBar.style.background = `rgba(244, 201, 93, 0.2)`;
+          currentTimeEl.innerText = "0:00";
+      });
+
+      // Speed Control Logic
+      let speedIdx = 0;
+      const speeds = [1, 1.25, 1.5, 2];
+      speedBtn.addEventListener('click', () => {
+          speedIdx = (speedIdx + 1) % speeds.length;
+          audio.playbackRate = speeds[speedIdx];
+          speedBtn.innerText = speeds[speedIdx] + 'x';
+      });
+  }
+</script>
 {% endblock %}
