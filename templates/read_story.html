@@ -1,227 +1,262 @@
 {% extends "base.html" %}
 
 {% block content %}
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
 
 <style>
     .magical-font { font-family: 'Baloo 2', cursive; }
     
-    /* Beautiful Single Card */
-    .story-card {
-        background: rgba(30, 27, 75, 0.6);
-        border: 2px solid rgba(244, 201, 93, 0.4);
-        border-radius: 1.5rem;
-        padding: 2rem 2.5rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(244, 201, 93, 0.1);
-        backdrop-filter: blur(12px);
-        min-height: 250px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.4s ease-in-out;
+    /* Full Screen Storybook Container */
+    .storybook-container {
+        position: relative;
+        width: 100%;
+        height: 85vh; /* Takes most of the screen */
+        border-radius: 2rem;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(244,201,93,0.3);
+        background-color: #0f0c29;
     }
 
-    /* Twinkling Stars Background */
-    .star {
+    /* 3D Background Image with Ken Burns (Zoom) Effect */
+    .story-bg {
         position: absolute;
-        background: #fff;
-        border-radius: 50%;
-        animation: twinkle infinite ease-in-out;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.6;
+        transform: scale(1);
+        transition: transform 20s linear; /* Slow zoom effect */
     }
-    @keyframes twinkle {
-        0%, 100% { opacity: 0.1; transform: scale(0.5); }
-        50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 10px #fff; }
+    .storybook-container.playing .story-bg {
+        transform: scale(1.15);
+    }
+
+    /* Translucent Text Box at the bottom */
+    .story-text-box {
+        position: absolute;
+        bottom: 5%;
+        left: 5%;
+        right: 5%;
+        background: rgba(20, 16, 50, 0.75);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(139, 92, 246, 0.4);
+        border-radius: 1.5rem;
+        padding: 1.5rem 2rem;
+        text-align: center;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .story-text-box.visible {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    /* Karaoke Text Style */
+    .karaoke-text {
+        color: #e2e8f0;
+        font-size: 1.5rem;
+        line-height: 1.6;
+        text-shadow: 1px 2px 4px rgba(0,0,0,0.8);
+    }
+    @media (min-width: 768px) {
+        .karaoke-text { font-size: 2.2rem; }
+    }
+    
+    /* Highlighting active text */
+    .karaoke-text.active-page {
+        color: #f4c95d; /* Gold */
+        text-shadow: 0 0 15px rgba(244,201,93,0.6);
+    }
+
+    /* Controls Overlay */
+    .controls-overlay {
+        position: absolute;
+        top: 5%;
+        left: 5%;
+        right: 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 20;
+    }
+
+    /* Play Button Floating in center before start */
+    #center-play-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 30;
+        cursor: pointer;
+    }
+
+    /* Progress bar */
+    .progress-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: rgba(255,255,255,0.1);
+    }
+    .progress-bar {
+        height: 100%;
+        background: #f4c95d;
+        width: 0%;
+        box-shadow: 0 0 10px #f4c95d;
+        transition: width 0.1s linear;
     }
 </style>
 
-<section class="relative mx-auto max-w-4xl px-5 py-12 min-h-screen overflow-hidden">
+<section class="mx-auto max-w-5xl px-4 py-8">
   
-  <div id="stars-container" class="absolute inset-0 pointer-events-none z-0"></div>
-
-  <div class="glass p-6 md:p-12 rounded-3xl border-t-4 border-t-gold shadow-[0_0_50px_rgba(244,201,93,0.1)] relative z-10">
-    
-    <div class="mb-8 flex justify-between items-center">
-      <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-purple-soft hover:text-white transition bg-purple-soft/10 px-4 py-2 rounded-xl border border-purple-soft/30 hover:bg-purple-soft/20">
-        ← Back to Library
-      </a>
-    </div>
-
-    <div class="text-center mb-10">
-      {% if story.moral %}
-      <span class="inline-block px-4 py-1.5 bg-gradient-to-r from-gold/20 to-orange-500/20 text-gold text-xs uppercase tracking-widest font-extrabold rounded-full mb-5 border border-gold/40 shadow-[0_0_15px_rgba(244,201,93,0.3)]">
-        ✨ {{ story.moral }} ✨
-      </span>
-      {% endif %}
-      <h1 class="magical-font text-4xl md:text-5xl font-bold text-white leading-tight mb-3 drop-shadow-lg">
+  <div class="mb-6 flex justify-between items-center px-2">
+    <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-purple-soft hover:text-white transition bg-purple-soft/10 px-4 py-2 rounded-xl border border-purple-soft/30 hover:bg-purple-soft/20">
+      ← Library
+    </a>
+    <h1 class="magical-font text-2xl md:text-3xl font-bold text-white tracking-wide">
         {{ story.title }}
-      </h1>
-    </div>
+    </h1>
+    <div class="w-20"></div> </div>
 
-    {% if story.audio_data %}
-    <div class="mb-12 bg-gradient-to-r from-navy-light/80 via-purple-900/40 to-navy-light/80 p-5 md:p-6 rounded-3xl border border-gold/30 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
+  <div id="storybook" class="storybook-container">
       
-      <p class="text-gold-soft text-xs font-bold tracking-widest uppercase text-center mb-4">Listen to the Magic</p>
+      <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop" class="story-bg" alt="Magical Background">
       
-      <div class="flex items-center gap-4">
-        <button id="play-pause-btn" class="h-14 w-14 shrink-0 rounded-full bg-gradient-to-br from-gold to-orange-400 flex items-center justify-center text-navy shadow-[0_0_15px_rgba(244,201,93,0.6)] transition-all hover:scale-110">
-          <svg id="icon-play" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          <svg id="icon-pause" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-        </button>
-
-        <div id="waveform" class="flex-1 cursor-pointer"></div>
+      <div class="controls-overlay">
+          <span id="page-indicator" class="bg-black/50 text-gold-soft px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur-sm border border-gold/20">
+              Page 1
+          </span>
+          <button id="top-pause-btn" class="hidden bg-black/50 text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-sm border border-white/20 hover:bg-white/20 transition">
+              ⏸ Pause
+          </button>
       </div>
-    </div>
-    {% endif %}
 
-    <div id="raw-story-content" class="hidden">{{ story.content }}</div>
-    
-    <div class="relative max-w-2xl mx-auto">
-        <div id="story-card" class="story-card magical-font text-2xl md:text-3xl text-white text-center leading-relaxed">
-            </div>
+      <div id="center-play-btn" class="h-24 w-24 rounded-full bg-gold/90 text-navy flex items-center justify-center shadow-[0_0_40px_rgba(244,201,93,0.8)] hover:scale-110 transition-transform duration-300 backdrop-blur-md">
+          <svg class="w-12 h-12 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
 
-        <div class="flex items-center justify-between mt-6">
-            <button id="prev-btn" class="px-5 py-2.5 rounded-full bg-purple-soft/20 text-purple-300 font-bold border border-purple-soft/30 hover:bg-purple-soft/40 transition disabled:opacity-30 disabled:cursor-not-allowed">
-                ← Previous
-            </button>
-            
-            <span id="page-counter" class="text-gold font-bold text-sm bg-gold/10 px-4 py-1.5 rounded-full border border-gold/20">
-                Page 1
-            </span>
+      <div id="text-box" class="story-text-box">
+          <p id="dynamic-text" class="magical-font karaoke-text">
+              </p>
+      </div>
 
-            <button id="next-btn" class="px-5 py-2.5 rounded-full bg-gold/20 text-gold font-bold border border-gold/30 hover:bg-gold/40 transition disabled:opacity-30 disabled:cursor-not-allowed">
-                Next →
-            </button>
-        </div>
-    </div>
-
+      <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      
   </div>
+
+  <audio id="story-audio" src="{% if story.audio_data %}data:audio/wav;base64,{{ story.audio_data }}{% endif %}" preload="metadata"></audio>
+  <div id="raw-story-content" class="hidden">{{ story.content }}</div>
+
 </section>
 
 <script>
-  // 1. Confetti & Stars
-  window.onload = function() {
-      var duration = 3 * 1000;
-      var animationEnd = Date.now() + duration;
-      var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-      function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-      var interval = setInterval(function() {
-          var timeLeft = animationEnd - Date.now();
-          if (timeLeft <= 0) { return clearInterval(interval); }
-          var particleCount = 50 * (timeLeft / duration);
-          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#f4c95d', '#8b5cf6', '#ffffff'] }));
-          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#f4c95d', '#8b5cf6', '#ffffff'] }));
-      }, 250);
-  };
+    // 1. Setup Data
+    const rawText = document.getElementById('raw-story-content').innerText;
+    const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
+    const audio = document.getElementById('story-audio');
+    
+    // UI Elements
+    const storybook = document.getElementById('storybook');
+    const centerPlayBtn = document.getElementById('center-play-btn');
+    const topPauseBtn = document.getElementById('top-pause-btn');
+    const textBox = document.getElementById('text-box');
+    const dynamicText = document.getElementById('dynamic-text');
+    const pageIndicator = document.getElementById('page-indicator');
+    const progressBar = document.getElementById('progress-bar');
+    
+    let pageTimings = [];
+    let currentPageIndex = -1;
 
-  const starContainer = document.getElementById('stars-container');
-  for (let i = 0; i < 40; i++) {
-      let star = document.createElement('div');
-      star.className = 'star';
-      let size = Math.random() * 3 + 1;
-      star.style.width = size + 'px';
-      star.style.height = size + 'px';
-      star.style.left = Math.random() * 100 + '%';
-      star.style.top = Math.random() * 100 + '%';
-      star.style.animationDuration = (Math.random() * 3 + 2) + 's';
-      star.style.animationDelay = Math.random() * 2 + 's';
-      starContainer.appendChild(star);
-  }
+    // 2. The Smart Sync Algorithm (Calculates time per page based on text length)
+    audio.addEventListener('loadedmetadata', () => {
+        const totalChars = pages.reduce((sum, p) => sum + p.length, 0);
+        const totalDuration = audio.duration;
+        let accumulatedTime = 0;
 
-  // 2. 🚀 REAL WAVEFORM LOGIC (Wavesurfer.js)
-  const audioDataUrl = "{% if story.audio_data %}data:audio/wav;base64,{{ story.audio_data }}{% else %}''{% endif %}";
-  
-  if(audioDataUrl !== "''") {
-      const wavesurfer = WaveSurfer.create({
-          container: '#waveform',
-          waveColor: 'rgba(244, 201, 93, 0.3)', // Dull gold for unplayed
-          progressColor: '#f4c95d',             // Bright gold for played
-          barWidth: 3,
-          barGap: 3,
-          barRadius: 3,
-          height: 50,
-          url: audioDataUrl
-      });
+        pages.forEach((pageText, index) => {
+            // Give slightly more time to commas and periods if you want, but raw length is very accurate for AI voices!
+            const duration = (pageText.length / totalChars) * totalDuration; 
+            pageTimings.push({
+                index: index,
+                start: accumulatedTime,
+                end: accumulatedTime + duration,
+                text: pageText
+            });
+            accumulatedTime += duration;
+        });
+    });
 
-      const playBtn = document.getElementById('play-pause-btn');
-      const iconPlay = document.getElementById('icon-play');
-      const iconPause = document.getElementById('icon-pause');
+    // 3. Play / Pause Actions
+    function startMagic() {
+        if(pages.length === 0 || !audio.src) {
+            alert("No story or audio found!");
+            return;
+        }
+        
+        audio.play();
+        centerPlayBtn.classList.add('hidden');
+        topPauseBtn.classList.remove('hidden');
+        storybook.classList.add('playing'); // Triggers Image Zoom
+        textBox.classList.add('visible');
+        
+        // Confetti on Start
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#f4c95d', '#8b5cf6'] });
+    }
 
-      playBtn.addEventListener('click', () => {
-          wavesurfer.playPause();
-      });
+    function pauseMagic() {
+        audio.pause();
+        centerPlayBtn.classList.remove('hidden');
+        topPauseBtn.classList.add('hidden');
+        storybook.classList.remove('playing');
+    }
 
-      wavesurfer.on('play', () => {
-          iconPlay.classList.add('hidden');
-          iconPause.classList.remove('hidden');
-          playBtn.classList.add('animate-pulse');
-      });
+    centerPlayBtn.addEventListener('click', startMagic);
+    topPauseBtn.addEventListener('click', pauseMagic);
 
-      wavesurfer.on('pause', () => {
-          iconPause.classList.add('hidden');
-          iconPlay.classList.remove('hidden');
-          playBtn.classList.remove('animate-pulse');
-      });
-      
-      wavesurfer.on('finish', () => {
-          iconPause.classList.add('hidden');
-          iconPlay.classList.remove('hidden');
-          playBtn.classList.remove('animate-pulse');
-      });
-  }
+    // 4. Core Engine: Checking Time and Auto-Flipping Pages
+    audio.addEventListener('timeupdate', () => {
+        const currTime = audio.currentTime;
+        
+        // Update Bottom Progress Bar
+        const progress = (currTime / audio.duration) * 100;
+        progressBar.style.width = progress + '%';
 
-  // 3. 🚀 STORYBOOK (Single Card) LOGIC
-  const rawText = document.getElementById('raw-story-content').innerText;
-  // Paragraphs ko array me badalna (Khali line hata kar)
-  const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
-  
-  let currentPage = 0;
-  const cardEl = document.getElementById('story-card');
-  const prevBtn = document.getElementById('prev-btn');
-  const nextBtn = document.getElementById('next-btn');
-  const counterEl = document.getElementById('page-counter');
+        // Find which page we are currently on
+        const activePage = pageTimings.find(pt => currTime >= pt.start && currTime <= pt.end);
 
-  function renderPage(index) {
-      // Fade out effect
-      cardEl.style.opacity = 0;
-      
-      setTimeout(() => {
-          // Set new text
-          cardEl.innerText = pages[index];
-          counterEl.innerText = `Page ${index + 1} of ${pages.length}`;
-          
-          // Button states
-          prevBtn.disabled = index === 0;
-          nextBtn.disabled = index === pages.length - 1;
-          
-          // Fade in effect
-          cardEl.style.opacity = 1;
-      }, 200); // 200ms delay for smooth transition
-  }
+        if (activePage && activePage.index !== currentPageIndex) {
+            // PAGE FLIP DETECTED!
+            currentPageIndex = activePage.index;
+            
+            // UI Update: Hide text briefly, change it, show it again (Smooth Transition)
+            textBox.classList.remove('visible');
+            setTimeout(() => {
+                dynamicText.innerText = activePage.text;
+                // Add magical glow class
+                dynamicText.classList.add('active-page');
+                pageIndicator.innerText = `Page ${activePage.index + 1} of ${pages.length}`;
+                textBox.classList.add('visible');
+            }, 300); // 300ms fade
+        }
+    });
 
-  // Button Listeners
-  prevBtn.addEventListener('click', () => {
-      if(currentPage > 0) {
-          currentPage--;
-          renderPage(currentPage);
-      }
-  });
-
-  nextBtn.addEventListener('click', () => {
-      if(currentPage < pages.length - 1) {
-          currentPage++;
-          renderPage(currentPage);
-      }
-  });
-
-  // Initialize first page if pages exist
-  if(pages.length > 0) {
-      renderPage(0);
-  } else {
-      cardEl.innerText = "The magic faded away... Story not found.";
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
-  }
+    // 5. When Story Ends
+    audio.addEventListener('ended', () => {
+        pauseMagic();
+        textBox.classList.remove('visible');
+        setTimeout(() => {
+            dynamicText.innerText = "The End ✨";
+            textBox.classList.add('visible');
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#f4c95d', '#ffffff'] });
+        }, 500);
+        currentPageIndex = -1; // Reset
+    });
 </script>
 {% endblock %}
