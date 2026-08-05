@@ -10,67 +10,32 @@
     <!-- Back Button -->
     <div class="mb-8 relative z-10 flex justify-between items-center">
       <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-purple-soft hover:text-white transition bg-purple-soft/10 px-4 py-2 rounded-lg border border-purple-soft/20">
-        ← Back to Library
+        ← Back to Dashboard
       </a>
     </div>
 
     <!-- Story Header -->
     <div class="text-center relative z-10 border-b border-purple-soft/20 pb-8 mb-8">
+      {% if story.moral %}
       <span class="inline-block px-3 py-1 bg-gold/15 text-gold text-xs uppercase tracking-wider font-bold rounded-md mb-4 border border-gold/30 shadow-gold">
         Value: {{ story.moral }}
       </span>
+      {% endif %}
       <h1 class="font-serif text-3xl md:text-5xl font-bold text-white leading-tight mb-4">{{ story.title }}</h1>
-      <p class="text-sm text-muted">Created on {{ story.created_at.strftime('%B %d, %Y') }}</p>
+      <p class="text-sm text-muted">Created on {{ story.created_at.strftime('%B %d, %Y') if story.created_at else 'Recently' }}</p>
     </div>
 
-    <!-- 🚀 UPDATED: AUDIO PLAYER (Only shows if audio exists) -->
+    <!-- 🚀 UPDATED: PROFESSIONAL NATIVE AUDIO PLAYER -->
     {% if story.audio_data %}
-    <div class="relative z-10 mb-10 mx-auto max-w-lg rounded-2xl border border-purple-soft/30 bg-navy/80 p-4 shadow-xl">
-      <div class="flex items-center gap-4">
-        <audio id="saved-audio-player" src="data:audio/mpeg;base64,{{ story.audio_data }}" class="hidden"></audio>
-        
-        <button id="play-btn" class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-gold transition hover:brightness-105">
-          <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          <svg id="icon-pause" class="hidden" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-        </button>
-        
-        <div id="waveform" class="flex h-10 flex-1 items-center gap-[3px]"></div>
-        
-        <button id="speed-btn" class="rounded-lg bg-gold/15 border border-gold/30 px-3 py-1.5 text-xs font-bold text-gold hover:bg-gold/30 transition">1x</button>
-      </div>
+    <div class="relative z-10 mb-10 mx-auto max-w-lg rounded-2xl border border-indigo-500/30 bg-indigo-900/40 p-5 shadow-xl text-center">
+      <p class="text-indigo-200 text-sm font-semibold mb-3">🎧 Listen to the magical story</p>
+      
+      <!-- Native HTML5 Controls for Seek/Forward/Backward -->
+      <audio controls class="w-full rounded-lg outline-none custom-audio-player">
+        <source src="data:audio/wav;base64,{{ story.audio_data }}" type="audio/wav">
+        Your browser does not support the audio element.
+      </audio>
     </div>
-    
-    <script>
-      // Audio Player Logic for Saved Story
-      const wf = document.getElementById('waveform');
-      let bars = '';
-      for (let i = 0; i < 30; i++) {
-        const h = (20 + Math.abs(Math.sin(i * 0.9)) * 80).toFixed(2);
-        bars += `<span style="display:block;width:3px;border-radius:9999px;background:#f4c95d;height:${h}%;opacity:.6;animation-delay:${(i * 0.05).toFixed(2)}s"></span>`;
-      }
-      if(wf) wf.innerHTML = bars;
-
-      const audioEl = document.getElementById('saved-audio-player');
-      const playBtn = document.getElementById('play-btn');
-      const iconPlay = document.getElementById('icon-play');
-      const iconPause = document.getElementById('icon-pause');
-      const speedBtn = document.getElementById('speed-btn');
-
-      if(playBtn && audioEl) {
-        playBtn.addEventListener('click', () => {
-          if (audioEl.paused) { audioEl.play(); iconPlay.classList.add('hidden'); iconPause.classList.remove('hidden'); } 
-          else { audioEl.pause(); iconPause.classList.add('hidden'); iconPlay.classList.remove('hidden'); }
-        });
-        audioEl.addEventListener('ended', () => { iconPause.classList.add('hidden'); iconPlay.classList.remove('hidden'); });
-
-        let speedIdx = 0; const speeds = [1, 1.25, 1.5, 2];
-        speedBtn.addEventListener('click', () => { 
-          speedIdx = (speedIdx + 1) % speeds.length; 
-          audioEl.playbackRate = speeds[speedIdx]; 
-          speedBtn.innerText = speeds[speedIdx] + 'x'; 
-        });
-      }
-    </script>
     {% endif %}
 
     <!-- Story Content -->
@@ -80,4 +45,22 @@
 
   </div>
 </section>
+
+<!-- 🎨 Audio Player Custom CSS -->
+<style>
+    .custom-audio-player {
+        height: 50px;
+        border-radius: 12px;
+    }
+    .custom-audio-player::-webkit-media-controls-panel {
+        background-color: #e0e7ff; /* Light Indigo */
+    }
+    .custom-audio-player::-webkit-media-controls-play-button,
+    .custom-audio-player::-webkit-media-controls-mute-button,
+    .custom-audio-player::-webkit-media-controls-timeline,
+    .custom-audio-player::-webkit-media-controls-current-time-display,
+    .custom-audio-player::-webkit-media-controls-time-remaining-display {
+        color: #312e81; /* Dark Indigo */
+    }
+</style>
 {% endblock %}
