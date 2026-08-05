@@ -19,64 +19,63 @@
         transition: all 0.3s ease;
     }
     
-    /* Fix radius when in Fullscreen */
-    .storybook-container:fullscreen {
-        border-radius: 0;
-        height: 100vh;
-    }
+    .storybook-container:fullscreen { border-radius: 0; height: 100vh; }
     .storybook-container:-webkit-full-screen { border-radius: 0; height: 100vh; }
-    .storybook-container:-ms-fullscreen { border-radius: 0; height: 100vh; }
 
-    /* 3D Background Image */
+    /* Dual Layer Crossfade Background Images */
     .story-bg {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        opacity: 0.6;
         transform: scale(1);
-        transition: transform 20s linear;
+        transition: opacity 1.2s ease-in-out, transform 20s linear;
     }
     .storybook-container.playing .story-bg {
         transform: scale(1.15);
     }
 
-    /* Translucent Text Box */
+    /* Translucent Reels Lyrics Text Box */
     .story-text-box {
         position: absolute;
         bottom: 80px; 
         left: 5%;
         right: 5%;
-        background: rgba(20, 16, 50, 0.75);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(139, 92, 246, 0.4);
+        background: rgba(15, 12, 41, 0.82);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(244, 201, 93, 0.4);
         border-radius: 1.5rem;
         padding: 1.5rem 2rem;
         text-align: center;
-        box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
-        transform: translateY(20px);
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         opacity: 0;
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(20px);
+        transition: opacity 0.4s ease, transform 0.4s ease;
         pointer-events: none; 
     }
     .story-text-box.visible {
-        transform: translateY(0);
         opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* 🚀 REELS / SPOTIFY LYRICS ANIMATION */
+    @keyframes reelsSlideUp {
+        0% { transform: translateY(25px) scale(0.96); opacity: 0; }
+        100% { transform: translateY(0) scale(1); opacity: 1; }
     }
 
     .karaoke-text {
-        color: #e2e8f0;
+        color: #f4c95d;
         font-size: 1.5rem;
         line-height: 1.6;
-        text-shadow: 1px 2px 4px rgba(0,0,0,0.8);
-        transition: color 0.3s;
+        text-shadow: 0 0 20px rgba(244,201,93,0.7), 2px 3px 6px rgba(0,0,0,0.9);
+        display: inline-block;
     }
     @media (min-width: 768px) { .karaoke-text { font-size: 2.2rem; } }
     
-    .karaoke-text.active-page {
-        color: #f4c95d;
-        text-shadow: 0 0 15px rgba(244,201,93,0.6);
+    .reels-text-anim {
+        animation: reelsSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     /* Top Info Bar */
@@ -107,7 +106,7 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0));
+        background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0));
         padding: 20px 2% 10px 2%;
         display: flex;
         flex-direction: column;
@@ -122,7 +121,6 @@
         transform: translateY(0);
     }
 
-    /* Seekable Progress Bar */
     .seek-slider {
         -webkit-appearance: none;
         width: 100%;
@@ -147,7 +145,6 @@
     }
     .seek-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
 
-    /* Control Buttons */
     .ctrl-btn {
         color: white;
         background: none;
@@ -175,11 +172,12 @@
 
   <div id="storybook" class="storybook-container">
       
-      <img src="{% if story.image_url %}{{ story.image_url }}{% else %}https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop{% endif %}" class="story-bg" alt="Magical Background">
+      <img id="bg-layer-1" class="story-bg opacity-100" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop" alt="Scene Layer 1">
+      <img id="bg-layer-2" class="story-bg opacity-0" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop" alt="Scene Layer 2">
       
       <div class="top-bar-overlay">
-          <span id="page-indicator" class="bg-black/50 text-gold-soft px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur-sm border border-gold/20 shadow-lg">
-              Story Ready
+          <span id="page-indicator" class="bg-black/60 text-gold-soft px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur-md border border-gold/30 shadow-lg">
+              Scene 1
           </span>
       </div>
 
@@ -205,11 +203,11 @@
               </div>
               
               <div class="flex items-center gap-6">
-                  <button id="skip-back" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="Rewind 10s">
+                  <button id="skip-back" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="-10s">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/></svg>
                       -10s
                   </button>
-                  <button id="skip-forward" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="Forward 10s">
+                  <button id="skip-forward" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="+10s">
                       +10s
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.334-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.334-4z"/></svg>
                   </button>
@@ -230,13 +228,44 @@
 </section>
 
 <script>
+    // 1. Raw text setup
     let rawText = document.getElementById('raw-story-content').innerText;
-    rawText = rawText.replace(/\*\*/g, ''); // Removes bold stars
-    
+    rawText = rawText.replace(/\*\*/g, '');
     const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
     const audio = document.getElementById('story-audio');
     
+    // 2. Parse Multiple Images JSON
+    const rawImages = `{{ story.image_url | default('', true) }}`;
+    let storyImages = [];
+    try {
+        if(rawImages.startsWith('[')) {
+            storyImages = JSON.parse(rawImages);
+        } else if(rawImages) {
+            storyImages = [rawImages];
+        }
+    } catch(e) {
+        storyImages = ["https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop"];
+    }
+
+    if(storyImages.length === 0) {
+        storyImages = ["https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop"];
+    }
+
+    // Preload Images in Browser Memory
+    storyImages.forEach(src => {
+        const img = new Image();
+        img.src = src;
+    });
+
+    // Elements
     const storybook = document.getElementById('storybook');
+    const bgLayer1 = document.getElementById('bg-layer-1');
+    const bgLayer2 = document.getElementById('bg-layer-2');
+    let activeLayer = 1;
+
+    // Set Initial Image
+    bgLayer1.src = storyImages[0];
+
     const centerPlayBtn = document.getElementById('center-play-btn');
     const textBox = document.getElementById('text-box');
     const dynamicText = document.getElementById('dynamic-text');
@@ -256,7 +285,6 @@
     let currentPageIndex = -1;
     let isStarted = false;
 
-    // Helper: Format Time
     function formatTime(sec) {
         if (isNaN(sec)) return "0:00";
         const m = Math.floor(sec / 60);
@@ -276,6 +304,25 @@
         });
         timeDisplay.innerText = `0:00 / ${formatTime(audio.duration)}`;
     });
+
+    // Dual Layer Background Crossfade Function
+    function changeSceneImage(imageSrc) {
+        if (activeLayer === 1) {
+            bgLayer2.src = imageSrc;
+            bgLayer2.classList.remove('opacity-0');
+            bgLayer2.classList.add('opacity-100');
+            bgLayer1.classList.remove('opacity-100');
+            bgLayer1.classList.add('opacity-0');
+            activeLayer = 2;
+        } else {
+            bgLayer1.src = imageSrc;
+            bgLayer1.classList.remove('opacity-0');
+            bgLayer1.classList.add('opacity-100');
+            bgLayer2.classList.remove('opacity-100');
+            bgLayer2.classList.add('opacity-0');
+            activeLayer = 1;
+        }
+    }
 
     // Play/Pause Logic
     function togglePlay() {
@@ -303,41 +350,43 @@
     centerPlayBtn.addEventListener('click', togglePlay);
     miniPlayPause.addEventListener('click', togglePlay);
 
-    // Sync Text & Update Progress Bar
+    // Sync Text & Multi-Scene Images
     audio.addEventListener('timeupdate', () => {
         if(!isNaN(audio.duration)) {
-            // Update slider
             const progress = (audio.currentTime / audio.duration) * 100;
             seekBar.value = progress;
             seekBar.style.background = `linear-gradient(to right, #f4c95d ${progress}%, rgba(255,255,255,0.2) ${progress}%)`;
             timeDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
 
-            // Sync Text
             const activePage = pageTimings.find(pt => audio.currentTime >= pt.start && audio.currentTime <= pt.end);
+            
             if (activePage && activePage.index !== currentPageIndex) {
                 currentPageIndex = activePage.index;
-                textBox.classList.remove('visible');
-                setTimeout(() => {
-                    dynamicText.innerText = activePage.text;
-                    dynamicText.classList.add('active-page');
-                    pageIndicator.innerText = `Page ${activePage.index + 1} of ${pages.length}`;
-                    textBox.classList.add('visible');
-                }, 200); 
+                
+                // 1. Change Background Scene Image with Crossfade
+                const targetImage = storyImages[currentPageIndex] || storyImages[0];
+                changeSceneImage(targetImage);
+
+                // 2. Reels Lyrics Style Upward Animation
+                dynamicText.classList.remove('reels-text-anim');
+                void dynamicText.offsetWidth; // Trigger DOM reflow
+                
+                dynamicText.innerText = activePage.text;
+                dynamicText.classList.add('reels-text-anim');
+                
+                pageIndicator.innerText = `Scene ${activePage.index + 1} of ${pages.length}`;
             }
         }
     });
 
-    // Seek / Drag Progress Bar
     seekBar.addEventListener('input', () => {
         const seekTime = (seekBar.value / 100) * audio.duration;
         audio.currentTime = seekTime;
     });
 
-    // Skips (10s)
     skipBackBtn.addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
     skipForwardBtn.addEventListener('click', () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); });
 
-    // Playback Speed
     let speedIdx = 0;
     const speeds = [1, 1.25, 1.5, 2];
     speedBtn.addEventListener('click', () => {
@@ -346,30 +395,23 @@
         speedBtn.innerText = speeds[speedIdx] + 'x';
     });
 
-    // Fullscreen Toggle
     fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
             if (storybook.requestFullscreen) { storybook.requestFullscreen(); }
-            else if (storybook.webkitRequestFullscreen) { storybook.webkitRequestFullscreen(); } // Safari
-            else if (storybook.msRequestFullscreen) { storybook.msRequestFullscreen(); } // IE11
+            else if (storybook.webkitRequestFullscreen) { storybook.webkitRequestFullscreen(); }
         } else {
             if (document.exitFullscreen) { document.exitFullscreen(); }
             else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
-            else if (document.msExitFullscreen) { document.msExitFullscreen(); }
         }
     });
 
-    // End State
     audio.addEventListener('ended', () => {
         storybook.classList.remove('playing');
         miniPlay.classList.remove('hidden');
         miniPause.classList.add('hidden');
-        textBox.classList.remove('visible');
-        setTimeout(() => {
-            dynamicText.innerText = "The End ✨";
-            textBox.classList.add('visible');
-            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#f4c95d', '#ffffff'] });
-        }, 500);
+        dynamicText.classList.remove('reels-text-anim');
+        dynamicText.innerText = "The End ✨";
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#f4c95d', '#ffffff'] });
         currentPageIndex = -1;
     });
 </script>
