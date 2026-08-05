@@ -2,8 +2,8 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from groq import Groq
 import os
 import base64
-import wave  # 🚀 NAYA IMPORT
-import io    # 🚀 NAYA IMPORT
+import wave
+import io
 import azure.cognitiveservices.speech as speechsdk
 from extensions import db
 from models import Child, Story, RegionalStory
@@ -97,7 +97,6 @@ def generate_story():
     else:
         language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
-    # SMART DATABASE QUERY
     regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, theme=theme, target_gender=gender).first()
     
     if not regional_base:
@@ -159,7 +158,6 @@ def generate_story():
         db.session.add(new_story)
         db.session.commit()
         
-        audio_base64 = None
         audio_error = None
         
         if wants_audio:
@@ -171,8 +169,6 @@ def generate_story():
                     audio_error = "Azure keys not found in environment."
                 else:
                     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
-                    
-                    # 🚀 NAYA FIX: Ab hum Azure se 'Raw' bina header wali audio maangenge
                     speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Raw16Khz16BitMonoPcm)
                     
                     if language == 'English':
@@ -202,21 +198,21 @@ def generate_story():
                         result = synthesizer.speak_ssml_async(ssml_string).get()
                         
                         if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                            # 🚀 Raw bytes ko ek sath jodte jao
                             combined_pcm_bytes += result.audio_data
                         else:
                             print(f"Warning: Chunk {index} failed with reason: {result.reason}")
                     
                     if combined_pcm_bytes:
-                        # 🚀 NAYA FIX: Python khud ek perfect naya WAV header banakar lagayega!
                         wav_io = io.BytesIO()
                         with wave.open(wav_io, 'wb') as wav_file:
-                            wav_file.setnchannels(1) # Mono
-                            wav_file.setsampwidth(2) # 16-bit
-                            wav_file.setframerate(16000) # 16kHz
+                            wav_file.setnchannels(1)
+                            wav_file.setsampwidth(2)
+                            wav_file.setframerate(16000)
                             wav_file.writeframes(combined_pcm_bytes)
                         
                         audio_base64 = base64.b64encode(wav_io.getvalue()).decode('utf-8')
+                        new_story.audio_data = audio_base64
+                        db.session.commit()
                     else:
                         audio_error = "TTS Error: Audio could not be generated."
 
@@ -225,9 +221,7 @@ def generate_story():
 
         return jsonify({
             "success": True, 
-            "story": story_text,
-            "title": title,
-            "audio_base64": audio_base64,
+            "story_id": new_story.id,
             "audio_error": audio_error
         })
         
