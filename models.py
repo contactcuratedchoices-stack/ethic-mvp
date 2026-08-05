@@ -15,6 +15,7 @@ class Child(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     age = db.Column(db.String(20), nullable=False)
+    gender = db.Column(db.String(20), nullable=True) # 🚀 NAYA: Ladka ya Ladki
     native_place = db.Column(db.String(100), nullable=False)
     language = db.Column(db.String(50), nullable=False)
 
@@ -23,7 +24,7 @@ class Story(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    moral = db.Column(db.String(100), nullable=False)
+    moral = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class RegionalStory(db.Model):
@@ -31,3 +32,9 @@ class RegionalStory(db.Model):
     state = db.Column(db.String(100), nullable=False)
     moral = db.Column(db.String(100), nullable=False)
     core_story = db.Column(db.Text, nullable=False)
+    
+    # 🚀 NAYE SMART TAGS
+    target_gender = db.Column(db.String(50), default='Any') # Boy, Girl, Any
+    min_age = db.Column(db.Integer, default=3)              
+    max_age = db.Column(db.Integer, default=10)             
+    theme = db.Column(db.String(100), default='General')    # Magic, Adventure, Animals
