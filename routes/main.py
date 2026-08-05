@@ -62,8 +62,10 @@ def add_child():
     age = request.form.get('age')
     native_place = request.form.get('native_place')
     language = request.form.get('language')
+    # 🚀 NAYA: Dashboard se Gender bhi save kar sakte hain agar form me add kiya ho
+    gender = request.form.get('gender', 'Any') 
     
-    new_child = Child(user_id=session['user_id'], name=name, age=age, native_place=native_place, language=language)
+    new_child = Child(user_id=session['user_id'], name=name, age=age, native_place=native_place, language=language, gender=gender)
     db.session.add(new_child)
     db.session.commit()
     
@@ -83,6 +85,10 @@ def generate_story():
     language = data.get('language')
     wants_audio = data.get('generate_audio', False)
     
+    # 🚀 NAYE SMART TAGS EXTRACT KIYE
+    gender = data.get('gender', 'Boy')
+    theme = data.get('theme', 'General')
+    
     language_instruction = ""
     if language == "Hindi":
         language_instruction = "CRITICAL RULE: YOU MUST WRITE THE ENTIRE STORY STRICTLY IN PURE HINDI USING THE DEVANAGARI SCRIPT."
@@ -91,25 +97,55 @@ def generate_story():
     else:
         language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
-    regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value).first()
+    # 🚀 SMART DATABASE QUERY (Fallback Logic)
+    # 1. Pehle perfect match dhundo
+    regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, theme=theme, target_gender=gender).first()
+    
+    # 2. Agar nahi mila, toh bina theme ke gender match karo
+    if not regional_base:
+        regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, target_gender=gender).first()
+        
+    # 3. Agar woh bhi nahi, toh purana normal match karo (AI khud isko adapt kar lega)
+    if not regional_base:
+        regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value).first()
     
     regional_context = ""
     if regional_base:
         regional_context = f"""
         CRITICAL INSTRUCTION: I am providing you an authentic regional folktale from {native_place}. 
         You MUST base your entire response strictly on this story: '{regional_base.core_story}'.
-        Do not invent a new plot. Just replace the main character's name with '{child_name}' and adapt the tone for a {age}-year-old.
+        Do not invent a completely new plot, BUT you must adapt and bend this core story to perfectly fit the requested '{theme}' theme and make the main character a '{gender}'.
         """
     else:
         regional_context = f"Invent a culturally accurate folktale from {native_place} teaching {moral_value}."
 
+    # 🚀 AI PROMPT INJECTION (The Brain)
+    gender_role = "heroine (like a brave princess, smart girl, or fairy)" if gender == "Girl" else "hero (like a brave prince, smart boy, or warrior)"
+    
     system_prompt = "You are an expert, affectionate Indian Grandparent (Dadi/Nani) and a master storyteller."
+    
     user_prompt = f"""
-    Write a highly personalized, emotional bedtime story for your {age}-year-old grandchild named {child_name}.
-    Core Moral to teach: "{moral_value}". Native Place: "{native_place}".
+    Write a highly personalized, emotional bedtime story.
+    
+    🎯 CHILD'S PROFILE: 
+    - Name: {child_name}
+    - Age: {age} years old
+    - Gender: {gender}. Make {child_name} the main {gender_role} of the story!
+    
+    ✨ STORY SETTINGS:
+    - Theme: "{theme}". The story MUST heavily revolve around this theme.
+    - Core Moral to teach: "{moral_value}". 
+    - Native Place: "{native_place}".
+    
     {language_instruction}
     {regional_context}
-    RULES: Add cultural depth. Tone must match a {age}-year-old. Add a warm grandparent greeting. End with a real-world task. Length: 350-400 words.
+    
+    RULES: 
+    1. Add cultural depth from {native_place}. 
+    2. Tone must perfectly match a {age}-year-old. 
+    3. Add a warm grandparent greeting. 
+    4. End with a real-world task. 
+    5. Length: 350-400 words.
     """
     
     try:
@@ -145,7 +181,7 @@ def generate_story():
                     else:
                         voice_name = "hi-IN-AartiNeural"
 
-                    # 🌟 SSML Formatting: Escaping XML characters and adding pauses
+                    # 🌟 SSML Formatting
                     formatted_story_for_speech = story_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                     formatted_story_for_speech = formatted_story_for_speech.replace('.', '.<break time="600ms"/>')
                     formatted_story_for_speech = formatted_story_for_speech.replace('\n', '<break time="800ms"/>')
@@ -162,7 +198,6 @@ def generate_story():
 
                     synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
                     
-                    # 🌟 Use speak_ssml_async instead of speak_text_async
                     result = synthesizer.speak_ssml_async(ssml_string).get()
                     
                     if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
