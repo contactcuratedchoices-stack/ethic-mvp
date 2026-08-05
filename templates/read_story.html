@@ -7,7 +7,6 @@
 <style>
     .magical-font { font-family: 'Baloo 2', cursive; }
     
-    /* Full Screen Storybook Container */
     .storybook-container {
         position: relative;
         width: 100%;
@@ -18,11 +17,10 @@
         background-color: #0f0c29;
         transition: all 0.3s ease;
     }
-    
     .storybook-container:fullscreen { border-radius: 0; height: 100vh; }
     .storybook-container:-webkit-full-screen { border-radius: 0; height: 100vh; }
 
-    /* Dual Layer Crossfade Background Images */
+    /* DUAL LAYER CROSSFADE */
     .story-bg {
         position: absolute;
         inset: 0;
@@ -30,169 +28,104 @@
         height: 100%;
         object-fit: cover;
         transform: scale(1);
-        transition: opacity 1.2s ease-in-out, transform 20s linear;
+        transition: opacity 1.5s ease-in-out, transform 25s linear;
     }
     .storybook-container.playing .story-bg {
         transform: scale(1.15);
     }
 
-    /* Translucent Reels Lyrics Text Box */
+    /* REELS LYRICS TEXT BOX */
     .story-text-box {
         position: absolute;
         bottom: 80px; 
         left: 5%;
         right: 5%;
-        background: rgba(15, 12, 41, 0.82);
-        backdrop-filter: blur(16px);
+        background: rgba(15, 12, 41, 0.85);
+        backdrop-filter: blur(12px);
         border: 1px solid rgba(244, 201, 93, 0.4);
         border-radius: 1.5rem;
         padding: 1.5rem 2rem;
         text-align: center;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.7);
         opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.4s ease, transform 0.4s ease;
+        transition: opacity 0.4s ease;
         pointer-events: none; 
     }
-    .story-text-box.visible {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    .story-text-box.visible { opacity: 1; }
 
-    /* 🚀 REELS / SPOTIFY LYRICS ANIMATION */
+    /* 🚀 THE REELS ANIMATION EFFECT */
     @keyframes reelsSlideUp {
-        0% { transform: translateY(25px) scale(0.96); opacity: 0; }
-        100% { transform: translateY(0) scale(1); opacity: 1; }
+        0% { transform: translateY(40px); opacity: 0; filter: blur(4px); }
+        100% { transform: translateY(0); opacity: 1; filter: blur(0); }
     }
 
     .karaoke-text {
         color: #f4c95d;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         line-height: 1.6;
-        text-shadow: 0 0 20px rgba(244,201,93,0.7), 2px 3px 6px rgba(0,0,0,0.9);
+        text-shadow: 0 0 15px rgba(244,201,93,0.8), 2px 3px 6px rgba(0,0,0,0.9);
         display: inline-block;
     }
     @media (min-width: 768px) { .karaoke-text { font-size: 2.2rem; } }
     
     .reels-text-anim {
-        animation: reelsSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: reelsSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    /* Top Info Bar */
-    .top-bar-overlay {
-        position: absolute;
-        top: 4%;
-        left: 4%;
-        right: 4%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 20;
-    }
-
-    /* Center Big Play Button */
-    #center-play-btn {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 30;
-        cursor: pointer;
-    }
-
-    /* Cinematic Bottom Control Bar */
+    /* Cinematic Controls */
     .cinematic-controls {
         position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
+        bottom: 0; left: 0; width: 100%;
         background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0));
         padding: 20px 2% 10px 2%;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        z-index: 40;
-        opacity: 0;
-        transform: translateY(10px);
+        display: flex; flex-direction: column; gap: 10px;
+        z-index: 40; opacity: 0; transform: translateY(10px);
         transition: all 0.4s ease;
     }
     .storybook-container.started .cinematic-controls {
-        opacity: 1;
-        transform: translateY(0);
+        opacity: 1; transform: translateY(0);
     }
+    
+    .top-bar-overlay { position: absolute; top: 4%; left: 4%; right: 4%; display: flex; justify-content: space-between; z-index: 20; }
+    #center-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 30; cursor: pointer; }
 
-    .seek-slider {
-        -webkit-appearance: none;
-        width: 100%;
-        height: 6px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 5px;
-        outline: none;
-        cursor: pointer;
-        transition: height 0.2s;
-    }
-    .seek-slider:hover { height: 8px; }
-    .seek-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #f4c95d;
-        cursor: pointer;
-        box-shadow: 0 0 10px rgba(244, 201, 93, 0.8);
-        transition: transform 0.2s;
-    }
-    .seek-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
-
-    .ctrl-btn {
-        color: white;
-        background: none;
-        border: none;
-        cursor: pointer;
-        transition: color 0.2s, transform 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .seek-slider { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; transition: height 0.2s; }
+    .seek-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #f4c95d; cursor: pointer; box-shadow: 0 0 10px rgba(244, 201, 93, 0.8); }
+    .ctrl-btn { color: white; background: none; border: none; cursor: pointer; transition: color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center; }
     .ctrl-btn:hover { color: #f4c95d; transform: scale(1.1); }
 </style>
 
 <section class="mx-auto max-w-5xl px-4 py-8">
-  
   <div class="mb-4 flex justify-between items-center px-2">
     <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-purple-soft hover:text-white transition bg-purple-soft/10 px-4 py-2 rounded-xl border border-purple-soft/30 hover:bg-purple-soft/20">
       ← Library
     </a>
-    <h1 class="magical-font text-2xl md:text-3xl font-bold text-white tracking-wide">
-        {{ story.title }}
-    </h1>
+    <h1 class="magical-font text-2xl md:text-3xl font-bold text-white tracking-wide">{{ story.title }}</h1>
     <div class="w-20"></div> 
   </div>
 
   <div id="storybook" class="storybook-container">
       
-      <img id="bg-layer-1" class="story-bg opacity-100" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop" alt="Scene Layer 1">
-      <img id="bg-layer-2" class="story-bg opacity-0" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop" alt="Scene Layer 2">
+      <!-- LAYERED IMAGES -->
+      <img id="bg-layer-1" class="story-bg opacity-100" src="{{ story.image_url }}" alt="Scene Layer 1">
+      <img id="bg-layer-2" class="story-bg opacity-0" src="{{ story.image_url }}" alt="Scene Layer 2">
       
       <div class="top-bar-overlay">
           <span id="page-indicator" class="bg-black/60 text-gold-soft px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur-md border border-gold/30 shadow-lg">
-              Scene 1
+              Loading Magic...
           </span>
       </div>
 
-      <div id="center-play-btn" class="h-24 w-24 rounded-full bg-gold/90 text-navy flex items-center justify-center shadow-[0_0_40px_rgba(244,201,93,0.8)] hover:scale-110 transition-transform duration-300 backdrop-blur-md">
+      <div id="center-play-btn" class="h-24 w-24 rounded-full bg-gold/90 text-navy flex items-center justify-center shadow-[0_0_40px_rgba(244,201,93,0.8)] hover:scale-110 transition-transform duration-300">
           <svg class="w-12 h-12 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </div>
 
       <div id="text-box" class="story-text-box">
-          <p id="dynamic-text" class="magical-font karaoke-text">
-              </p>
+          <p id="dynamic-text" class="magical-font karaoke-text"></p>
       </div>
 
       <div class="cinematic-controls">
           <input type="range" id="seek-bar" class="seek-slider" value="0" max="100" step="0.1">
-          
           <div class="flex justify-between items-center px-2 pt-1">
               <div class="flex items-center gap-4">
                   <button id="mini-play-pause" class="ctrl-btn">
@@ -201,23 +134,13 @@
                   </button>
                   <span id="time-display" class="text-xs font-bold text-gray-300">0:00 / 0:00</span>
               </div>
-              
               <div class="flex items-center gap-6">
-                  <button id="skip-back" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="-10s">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/></svg>
-                      -10s
-                  </button>
-                  <button id="skip-forward" class="ctrl-btn flex items-center gap-1 text-sm font-bold" title="+10s">
-                      +10s
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.334-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.334-4z"/></svg>
-                  </button>
+                  <button id="skip-back" class="ctrl-btn text-sm font-bold">-10s</button>
+                  <button id="skip-forward" class="ctrl-btn text-sm font-bold">+10s</button>
               </div>
-
               <div class="flex items-center gap-4">
-                  <button id="speed-btn" class="ctrl-btn text-xs font-bold border border-gray-400/50 rounded px-2 py-1 hover:border-gold">1x</button>
-                  <button id="fullscreen-btn" class="ctrl-btn" title="Full Screen">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                  </button>
+                  <button id="speed-btn" class="ctrl-btn text-xs font-bold border border-gray-400/50 rounded px-2 py-1">1x</button>
+                  <button id="fullscreen-btn" class="ctrl-btn">FS</button>
               </div>
           </div>
       </div>
@@ -227,59 +150,37 @@
   <div id="raw-story-content" class="hidden">{{ story.content }}</div>
 </section>
 
+<!-- THE SAFE & VERIFIED MAGIC LOGIC -->
 <script>
-    // 1. Raw text setup
+    // 1. Text Parsing
     let rawText = document.getElementById('raw-story-content').innerText;
     rawText = rawText.replace(/\*\*/g, '');
     const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
     const audio = document.getElementById('story-audio');
-    
-    // 2. Parse Multiple Images JSON
-    const rawImages = `{{ story.image_url | default('', true) }}`;
-    let storyImages = [];
-    try {
-        if(rawImages.startsWith('[')) {
-            storyImages = JSON.parse(rawImages);
-        } else if(rawImages) {
-            storyImages = [rawImages];
-        }
-    } catch(e) {
-        storyImages = ["https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop"];
-    }
+    const storyTitle = "{{ story.title }}".replace(/["'\\\n\r]/g, ' ');
 
-    if(storyImages.length === 0) {
-        storyImages = ["https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop"];
-    }
-
-    // Preload Images in Browser Memory
-    storyImages.forEach(src => {
-        const img = new Image();
-        img.src = src;
+    // 🚀 SAFE MULTI-IMAGE GENERATION (Supports Hindi, English & all Unicode characters)
+    const storyImages = pages.map((pageText, index) => {
+        // Safe cleaning: removes only quotes and bad breaks, preserves Hindi/Unicode letters
+        let cleanText = pageText.replace(/["'\\\n\r]/g, ' ').substring(0, 75);
+        let imagePrompt = `Magical 3D Pixar Disney style bedtime story, scene action: ${cleanText}, glowing cinematic lighting, highly detailed masterpiece`;
+        return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1024&height=768&nologo=true&seed=${index + 555}`;
     });
 
-    // Elements
-    const storybook = document.getElementById('storybook');
     const bgLayer1 = document.getElementById('bg-layer-1');
     const bgLayer2 = document.getElementById('bg-layer-2');
     let activeLayer = 1;
-
-    // Set Initial Image
-    bgLayer1.src = storyImages[0];
-
+    
+    const storybook = document.getElementById('storybook');
     const centerPlayBtn = document.getElementById('center-play-btn');
     const textBox = document.getElementById('text-box');
     const dynamicText = document.getElementById('dynamic-text');
     const pageIndicator = document.getElementById('page-indicator');
-    
     const seekBar = document.getElementById('seek-bar');
     const timeDisplay = document.getElementById('time-display');
     const miniPlayPause = document.getElementById('mini-play-pause');
     const miniPlay = document.getElementById('mini-play');
     const miniPause = document.getElementById('mini-pause');
-    const skipBackBtn = document.getElementById('skip-back');
-    const skipForwardBtn = document.getElementById('skip-forward');
-    const speedBtn = document.getElementById('speed-btn');
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
     
     let pageTimings = [];
     let currentPageIndex = -1;
@@ -292,20 +193,19 @@
         return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    // Prepare Sync Data
     audio.addEventListener('loadedmetadata', () => {
         const totalChars = pages.reduce((sum, p) => sum + p.length, 0);
         let accumulatedTime = 0;
-        
         pages.forEach((pageText, index) => {
             const duration = (pageText.length / totalChars) * audio.duration; 
             pageTimings.push({ index, start: accumulatedTime, end: accumulatedTime + duration, text: pageText });
             accumulatedTime += duration;
         });
         timeDisplay.innerText = `0:00 / ${formatTime(audio.duration)}`;
+        pageIndicator.innerText = "Ready to Play 🎬";
     });
 
-    // Dual Layer Background Crossfade Function
+    // CROSSFADE FUNCTION
     function changeSceneImage(imageSrc) {
         if (activeLayer === 1) {
             bgLayer2.src = imageSrc;
@@ -324,7 +224,6 @@
         }
     }
 
-    // Play/Pause Logic
     function togglePlay() {
         if(audio.paused) {
             audio.play();
@@ -337,7 +236,7 @@
                 storybook.classList.add('started');
                 centerPlayBtn.classList.add('hidden');
                 textBox.classList.add('visible');
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#f4c95d', '#8b5cf6'] });
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             }
         } else {
             audio.pause();
@@ -346,11 +245,10 @@
             miniPause.classList.add('hidden');
         }
     }
-
     centerPlayBtn.addEventListener('click', togglePlay);
     miniPlayPause.addEventListener('click', togglePlay);
 
-    // Sync Text & Multi-Scene Images
+    // SYNC ENGINE WITH REELS ANIMATION
     audio.addEventListener('timeupdate', () => {
         if(!isNaN(audio.duration)) {
             const progress = (audio.currentTime / audio.duration) * 100;
@@ -363,15 +261,17 @@
             if (activePage && activePage.index !== currentPageIndex) {
                 currentPageIndex = activePage.index;
                 
-                // 1. Change Background Scene Image with Crossfade
-                const targetImage = storyImages[currentPageIndex] || storyImages[0];
-                changeSceneImage(targetImage);
+                // 1. Switch Scene Image smoothly
+                if(storyImages[currentPageIndex]) {
+                    changeSceneImage(storyImages[currentPageIndex]);
+                }
 
-                // 2. Reels Lyrics Style Upward Animation
+                // 2. Reels Lyrics Text Animation (DOM Reflow forced)
                 dynamicText.classList.remove('reels-text-anim');
-                void dynamicText.offsetWidth; // Trigger DOM reflow
+                void dynamicText.offsetWidth; 
                 
                 dynamicText.innerText = activePage.text;
+                dynamicTest = activePage.text;
                 dynamicText.classList.add('reels-text-anim');
                 
                 pageIndicator.innerText = `Scene ${activePage.index + 1} of ${pages.length}`;
@@ -379,40 +279,307 @@
         }
     });
 
-    seekBar.addEventListener('input', () => {
-        const seekTime = (seekBar.value / 100) * audio.duration;
-        audio.currentTime = seekTime;
-    });
+    seekBar.addEventListener('input', () => { audio.currentTime = (seekBar.value / 100) * audio.duration; });
+    document.getElementById('skip-back').addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+    document.getElementById('skip-forward').addEventListener('click', () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); });
 
-    skipBackBtn.addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
-    skipForwardBtn.addEventListener('click', () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); });
-
-    let speedIdx = 0;
-    const speeds = [1, 1.25, 1.5, 2];
-    speedBtn.addEventListener('click', () => {
+    let speedIdx = 0; const speeds = [1, 1.25, 1.5, 2];
+    document.getElementById('speed-btn').addEventListener('click', (e) => {
         speedIdx = (speedIdx + 1) % speeds.length;
         audio.playbackRate = speeds[speedIdx];
-        speedBtn.innerText = speeds[speedIdx] + 'x';
+        e.target.innerText = speeds[speedIdx] + 'x';
+    });
+</script>
+{% endblock %}{% extends "base.html" %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+    .magical-font { font-family: 'Baloo 2', cursive; }
+    
+    .storybook-container {
+        position: relative;
+        width: 100%;
+        height: 80vh; 
+        border-radius: 2rem;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(244,201,93,0.3);
+        background-color: #0f0c29;
+        transition: all 0.3s ease;
+    }
+    .storybook-container:fullscreen { border-radius: 0; height: 100vh; }
+    .storybook-container:-webkit-full-screen { border-radius: 0; height: 100vh; }
+
+    /* DUAL LAYER CROSSFADE */
+    .story-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1);
+        transition: opacity 1.5s ease-in-out, transform 25s linear;
+    }
+    .storybook-container.playing .story-bg {
+        transform: scale(1.15);
+    }
+
+    /* REELS LYRICS TEXT BOX */
+    .story-text-box {
+        position: absolute;
+        bottom: 80px; 
+        left: 5%;
+        right: 5%;
+        background: rgba(15, 12, 41, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(244, 201, 93, 0.4);
+        border-radius: 1.5rem;
+        padding: 1.5rem 2rem;
+        text-align: center;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.7);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none; 
+    }
+    .story-text-box.visible { opacity: 1; }
+
+    /* 🚀 THE REELS ANIMATION EFFECT */
+    @keyframes reelsSlideUp {
+        0% { transform: translateY(40px); opacity: 0; filter: blur(4px); }
+        100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+    }
+
+    .karaoke-text {
+        color: #f4c95d;
+        font-size: 1.6rem;
+        line-height: 1.6;
+        text-shadow: 0 0 15px rgba(244,201,93,0.8), 2px 3px 6px rgba(0,0,0,0.9);
+        display: inline-block;
+    }
+    @media (min-width: 768px) { .karaoke-text { font-size: 2.2rem; } }
+    
+    .reels-text-anim {
+        animation: reelsSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Cinematic Controls */
+    .cinematic-controls {
+        position: absolute;
+        bottom: 0; left: 0; width: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0));
+        padding: 20px 2% 10px 2%;
+        display: flex; flex-direction: column; gap: 10px;
+        z-index: 40; opacity: 0; transform: translateY(10px);
+        transition: all 0.4s ease;
+    }
+    .storybook-container.started .cinematic-controls {
+        opacity: 1; transform: translateY(0);
+    }
+    
+    .top-bar-overlay { position: absolute; top: 4%; left: 4%; right: 4%; display: flex; justify-content: space-between; z-index: 20; }
+    #center-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 30; cursor: pointer; }
+
+    .seek-slider { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; transition: height 0.2s; }
+    .seek-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #f4c95d; cursor: pointer; box-shadow: 0 0 10px rgba(244, 201, 93, 0.8); }
+    .ctrl-btn { color: white; background: none; border: none; cursor: pointer; transition: color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center; }
+    .ctrl-btn:hover { color: #f4c95d; transform: scale(1.1); }
+</style>
+
+<section class="mx-auto max-w-5xl px-4 py-8">
+  <div class="mb-4 flex justify-between items-center px-2">
+    <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-purple-soft hover:text-white transition bg-purple-soft/10 px-4 py-2 rounded-xl border border-purple-soft/30 hover:bg-purple-soft/20">
+      ← Library
+    </a>
+    <h1 class="magical-font text-2xl md:text-3xl font-bold text-white tracking-wide">{{ story.title }}</h1>
+    <div class="w-20"></div> 
+  </div>
+
+  <div id="storybook" class="storybook-container">
+      
+      <!-- LAYERED IMAGES -->
+      <img id="bg-layer-1" class="story-bg opacity-100" src="{{ story.image_url }}" alt="Scene Layer 1">
+      <img id="bg-layer-2" class="story-bg opacity-0" src="{{ story.image_url }}" alt="Scene Layer 2">
+      
+      <div class="top-bar-overlay">
+          <span id="page-indicator" class="bg-black/60 text-gold-soft px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur-md border border-gold/30 shadow-lg">
+              Loading Magic...
+          </span>
+      </div>
+
+      <div id="center-play-btn" class="h-24 w-24 rounded-full bg-gold/90 text-navy flex items-center justify-center shadow-[0_0_40px_rgba(244,201,93,0.8)] hover:scale-110 transition-transform duration-300">
+          <svg class="w-12 h-12 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+
+      <div id="text-box" class="story-text-box">
+          <p id="dynamic-text" class="magical-font karaoke-text"></p>
+      </div>
+
+      <div class="cinematic-controls">
+          <input type="range" id="seek-bar" class="seek-slider" value="0" max="100" step="0.1">
+          <div class="flex justify-between items-center px-2 pt-1">
+              <div class="flex items-center gap-4">
+                  <button id="mini-play-pause" class="ctrl-btn">
+                      <svg id="mini-play" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                      <svg id="mini-pause" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+                  </button>
+                  <span id="time-display" class="text-xs font-bold text-gray-300">0:00 / 0:00</span>
+              </div>
+              <div class="flex items-center gap-6">
+                  <button id="skip-back" class="ctrl-btn text-sm font-bold">-10s</button>
+                  <button id="skip-forward" class="ctrl-btn text-sm font-bold">+10s</button>
+              </div>
+              <div class="flex items-center gap-4">
+                  <button id="speed-btn" class="ctrl-btn text-xs font-bold border border-gray-400/50 rounded px-2 py-1">1x</button>
+                  <button id="fullscreen-btn" class="ctrl-btn">FS</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <audio id="story-audio" src="{% if story.audio_data %}data:audio/wav;base64,{{ story.audio_data }}{% endif %}" preload="metadata"></audio>
+  <div id="raw-story-content" class="hidden">{{ story.content }}</div>
+</section>
+
+<!-- THE SAFE & VERIFIED MAGIC LOGIC -->
+<script>
+    // 1. Text Parsing
+    let rawText = document.getElementById('raw-story-content').innerText;
+    rawText = rawText.replace(/\*\*/g, '');
+    const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
+    const audio = document.getElementById('story-audio');
+    const storyTitle = "{{ story.title }}".replace(/["'\\\n\r]/g, ' ');
+
+    // 🚀 SAFE MULTI-IMAGE GENERATION (Supports Hindi, English & all Unicode characters)
+    const storyImages = pages.map((pageText, index) => {
+        // Safe cleaning: removes only quotes and bad breaks, preserves Hindi/Unicode letters
+        let cleanText = pageText.replace(/["'\\\n\r]/g, ' ').substring(0, 75);
+        let imagePrompt = `Magical 3D Pixar Disney style bedtime story, scene action: ${cleanText}, glowing cinematic lighting, highly detailed masterpiece`;
+        return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1024&height=768&nologo=true&seed=${index + 555}`;
     });
 
-    fullscreenBtn.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            if (storybook.requestFullscreen) { storybook.requestFullscreen(); }
-            else if (storybook.webkitRequestFullscreen) { storybook.webkitRequestFullscreen(); }
+    const bgLayer1 = document.getElementById('bg-layer-1');
+    const bgLayer2 = document.getElementById('bg-layer-2');
+    let activeLayer = 1;
+    
+    const storybook = document.getElementById('storybook');
+    const centerPlayBtn = document.getElementById('center-play-btn');
+    const textBox = document.getElementById('text-box');
+    const dynamicText = document.getElementById('dynamic-text');
+    const pageIndicator = document.getElementById('page-indicator');
+    const seekBar = document.getElementById('seek-bar');
+    const timeDisplay = document.getElementById('time-display');
+    const miniPlayPause = document.getElementById('mini-play-pause');
+    const miniPlay = document.getElementById('mini-play');
+    const miniPause = document.getElementById('mini-pause');
+    
+    let pageTimings = [];
+    let currentPageIndex = -1;
+    let isStarted = false;
+
+    function formatTime(sec) {
+        if (isNaN(sec)) return "0:00";
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+        const totalChars = pages.reduce((sum, p) => sum + p.length, 0);
+        let accumulatedTime = 0;
+        pages.forEach((pageText, index) => {
+            const duration = (pageText.length / totalChars) * audio.duration; 
+            pageTimings.push({ index, start: accumulatedTime, end: accumulatedTime + duration, text: pageText });
+            accumulatedTime += duration;
+        });
+        timeDisplay.innerText = `0:00 / ${formatTime(audio.duration)}`;
+        pageIndicator.innerText = "Ready to Play 🎬";
+    });
+
+    // CROSSFADE FUNCTION
+    function changeSceneImage(imageSrc) {
+        if (activeLayer === 1) {
+            bgLayer2.src = imageSrc;
+            bgLayer2.classList.remove('opacity-0');
+            bgLayer2.classList.add('opacity-100');
+            bgLayer1.classList.remove('opacity-100');
+            bgLayer1.classList.add('opacity-0');
+            activeLayer = 2;
         } else {
-            if (document.exitFullscreen) { document.exitFullscreen(); }
-            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+            bgLayer1.src = imageSrc;
+            bgLayer1.classList.remove('opacity-0');
+            bgLayer1.classList.add('opacity-100');
+            bgLayer2.classList.remove('opacity-100');
+            bgLayer2.classList.add('opacity-0');
+            activeLayer = 1;
+        }
+    }
+
+    function togglePlay() {
+        if(audio.paused) {
+            audio.play();
+            storybook.classList.add('playing');
+            miniPlay.classList.add('hidden');
+            miniPause.classList.remove('hidden');
+            
+            if(!isStarted) {
+                isStarted = true;
+                storybook.classList.add('started');
+                centerPlayBtn.classList.add('hidden');
+                textBox.classList.add('visible');
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+        } else {
+            audio.pause();
+            storybook.classList.remove('playing');
+            miniPlay.classList.remove('hidden');
+            miniPause.classList.add('hidden');
+        }
+    }
+    centerPlayBtn.addEventListener('click', togglePlay);
+    miniPlayPause.addEventListener('click', togglePlay);
+
+    // SYNC ENGINE WITH REELS ANIMATION
+    audio.addEventListener('timeupdate', () => {
+        if(!isNaN(audio.duration)) {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            seekBar.value = progress;
+            seekBar.style.background = `linear-gradient(to right, #f4c95d ${progress}%, rgba(255,255,255,0.2) ${progress}%)`;
+            timeDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+
+            const activePage = pageTimings.find(pt => audio.currentTime >= pt.start && audio.currentTime <= pt.end);
+            
+            if (activePage && activePage.index !== currentPageIndex) {
+                currentPageIndex = activePage.index;
+                
+                // 1. Switch Scene Image smoothly
+                if(storyImages[currentPageIndex]) {
+                    changeSceneImage(storyImages[currentPageIndex]);
+                }
+
+                // 2. Reels Lyrics Text Animation (DOM Reflow forced)
+                dynamicText.classList.remove('reels-text-anim');
+                void dynamicText.offsetWidth; 
+                
+                dynamicText.innerText = activePage.text;
+                dynamicTest = activePage.text;
+                dynamicText.classList.add('reels-text-anim');
+                
+                pageIndicator.innerText = `Scene ${activePage.index + 1} of ${pages.length}`;
+            }
         }
     });
 
-    audio.addEventListener('ended', () => {
-        storybook.classList.remove('playing');
-        miniPlay.classList.remove('hidden');
-        miniPause.classList.add('hidden');
-        dynamicText.classList.remove('reels-text-anim');
-        dynamicText.innerText = "The End ✨";
-        confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#f4c95d', '#ffffff'] });
-        currentPageIndex = -1;
+    seekBar.addEventListener('input', () => { audio.currentTime = (seekBar.value / 100) * audio.duration; });
+    document.getElementById('skip-back').addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+    document.getElementById('skip-forward').addEventListener('click', () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); });
+
+    let speedIdx = 0; const speeds = [1, 1.25, 1.5, 2];
+    document.getElementById('speed-btn').addEventListener('click', (e) => {
+        speedIdx = (speedIdx + 1) % speeds.length;
+        audio.playbackRate = speeds[speedIdx];
+        e.target.innerText = speeds[speedIdx] + 'x';
     });
 </script>
 {% endblock %}
