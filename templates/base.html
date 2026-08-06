@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ETHIC — Magical Bedtime Stories</title>
     
-    <!-- 🚀 Premium Fonts (Plus Jakarta Sans for UI, Baloo 2 for Magical Headings) -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -19,10 +18,8 @@
                     },
                     colors: { 
                         navy: '#050510', 
-                        'navy-light': '#0a0a1a', 
                         gold: '#f4c95d', 
-                        'gold-soft': '#fce29f', 
-                        muted: '#9ca3af' 
+                        'gold-soft': '#fce29f'
                     }
                 }
             }
@@ -32,142 +29,148 @@
     <style>
         body { background-color: #050510; color: #ffffff; }
         
-        /* 🚀 FLOATING GLASS NAVBAR */
-        .premium-nav {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        /* 🚀 TOP TIER: Edge-to-Edge Frosted Glass Navbar */
+        .glass-header {
+            background: rgba(5, 5, 16, 0.4); /* Very subtle dark tint */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Hairline border */
             transition: all 0.3s ease;
         }
 
-        /* Nav Link Hover Animation */
+        /* Clean Nav Links */
         .nav-link {
             position: relative;
-            color: #9ca3af;
+            color: #a1a1aa; /* text-gray-400 */
+            font-size: 0.875rem;
+            font-weight: 600;
             transition: color 0.3s ease;
             padding: 0.5rem 0;
         }
         .nav-link:hover { color: #ffffff; }
+        
         .nav-link::after {
             content: ''; position: absolute; width: 0; height: 2px;
             bottom: 0; left: 0; background-color: #f4c95d;
             transition: width 0.3s ease;
-            border-radius: 2px;
         }
         .nav-link:hover::after { width: 100%; }
         
-        /* Premium Glow Button */
+        /* High-End Button */
         .btn-glow {
-            background: linear-gradient(135deg, #f4c95d, #eab308);
+            background: #ffffff;
             color: #050510;
-            box-shadow: 0 0 15px rgba(244, 201, 93, 0.2);
             transition: all 0.3s ease;
+            box-shadow: 0 0 0 0 rgba(255,255,255,0.2);
         }
         .btn-glow:hover {
-            box-shadow: 0 0 25px rgba(244, 201, 93, 0.5);
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.25);
         }
 
-        /* Mobile Menu Animations */
-        #mobile-menu { 
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; 
-            max-height: 0; 
-            opacity: 0; 
-            overflow: hidden; 
+        /* Mobile Menu Panel */
+        #mobile-menu {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: rgba(5, 5, 16, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transform-origin: top;
+            transform: scaleY(0);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         }
-        #mobile-menu.open { max-height: 500px; opacity: 1; }
+        #mobile-menu.open {
+            transform: scaleY(1);
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="font-sans min-h-screen antialiased flex flex-col selection:bg-gold/30">
 
-    <!-- 🌟 FLOATING GLASS NAVBAR 🌟 -->
-    <header class="fixed w-full z-50 top-0 pt-4 px-4 sm:px-6 pointer-events-none">
-        <div class="max-w-6xl mx-auto premium-nav rounded-2xl md:rounded-full px-5 py-3 pointer-events-auto">
-            <div class="flex items-center justify-between">
-                
-                <!-- Logo -->
-                <a href="/" class="font-magical text-2xl md:text-3xl font-extrabold text-white tracking-wider flex items-center hover:scale-105 transition-transform">
-                    ETHIC<span class="text-gold">.</span>
-                </a>
-                
-                <!-- Desktop Navigation -->
-                <nav class="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide">
-                    <a href="/" class="nav-link">Home</a>
-                    <a href="/pricing" class="nav-link">Plans & Pricing</a>
-                </nav>
-
-                <!-- Desktop Auth & Actions -->
-                <div class="hidden md:flex items-center gap-5">
-                    {% if session.get('user_name') %}
-                        <!-- CMS Portal Button (ONLY FOR ADMINS) -->
-                        {% if session.get('is_admin') %}
-                        <a href="/admin/upload" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition text-xs uppercase tracking-wider font-bold">
-                            ⚙️ CMS Portal
-                        </a>
-                        {% endif %}
-
-                        <a href="/dashboard" class="nav-link text-sm font-semibold">Dashboard</a>
-                        
-                        <div class="flex items-center gap-4 border-l border-white/20 pl-4">
-                            <span class="text-gold-soft text-sm font-semibold">👋 {{ session.get('user_name') }}</span>
-                            <a href="/logout" class="text-xs font-semibold text-gray-400 hover:text-white transition">Logout</a>
-                        </div>
-                        
-                        <a href="/studio" class="btn-glow px-6 py-2.5 rounded-full text-sm font-extrabold flex items-center gap-2">
-                            Create Story ✨
-                        </a>
-                    {% else %}
-                        <a href="/login" class="nav-link text-sm font-semibold">Log In</a>
-                        <a href="/login" class="btn-glow px-6 py-2.5 rounded-full text-sm font-extrabold shadow-lg">
-                            Get Started
-                        </a>
-                    {% endif %}
-                </div>
-
-                <!-- Mobile Menu Toggle Button -->
-                <button id="mobile-menu-btn" class="md:hidden text-white p-2 focus:outline-none hover:text-gold transition">
-                    <svg id="icon-menu" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                    <svg id="icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-
-            <!-- Mobile Dropdown Menu -->
-            <div id="mobile-menu" class="md:hidden flex flex-col gap-4 border-t border-white/10 mt-3 pt-4 pb-2 px-2">
-                <a href="/" class="text-white font-semibold hover:text-gold transition">Home</a>
-                <a href="/pricing" class="text-white font-semibold hover:text-gold transition">Plans & Pricing</a>
-                
-                <div class="h-px w-full bg-white/10 my-1"></div>
-                
+    <header class="fixed w-full z-50 top-0 left-0 glass-header h-[72px] flex items-center">
+        <div class="w-full max-w-7xl mx-auto px-6 flex items-center justify-between">
+            
+            <a href="/" class="font-magical text-2xl md:text-3xl font-extrabold text-white tracking-wider flex items-center hover:opacity-80 transition-opacity">
+                ETHIC<span class="text-gold">.</span>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-10">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/pricing" class="nav-link">Plans & Pricing</a>
                 {% if session.get('user_name') %}
-                    <div class="text-gold-soft font-semibold text-sm mb-1">👋 Hi, {{ session.get('user_name') }}</div>
+                    <a href="/dashboard" class="nav-link">Dashboard</a>
+                {% endif %}
+            </nav>
+
+            <div class="hidden md:flex items-center gap-6">
+                {% if session.get('user_name') %}
                     
                     {% if session.get('is_admin') %}
-                    <a href="/admin/upload" class="flex items-center gap-2 text-red-400 font-bold hover:text-red-300 transition">
+                    <a href="/admin/upload" class="text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 rounded-md bg-red-500/10 transition">
+                        ⚙️ Admin
+                    </a>
+                    {% endif %}
+
+                    <div class="flex items-center gap-4">
+                        <span class="text-gold-soft text-sm font-semibold border-r border-white/10 pr-4">👋 {{ session.get('user_name') }}</span>
+                        <a href="/logout" class="text-sm font-semibold text-gray-400 hover:text-white transition">Logout</a>
+                    </div>
+                    
+                    <a href="/studio" class="btn-glow px-6 py-2.5 rounded-full text-sm font-bold flex items-center gap-2">
+                        Create Story ✨
+                    </a>
+                {% else %}
+                    <a href="/login" class="nav-link text-sm font-semibold">Log In</a>
+                    <a href="/login" class="btn-glow px-6 py-2.5 rounded-full text-sm font-bold">
+                        Get Started
+                    </a>
+                {% endif %}
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden text-white p-2 -mr-2 focus:outline-none hover:text-gold transition">
+                <svg id="icon-menu" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg id="icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="md:hidden flex flex-col px-6 py-6 gap-6 shadow-2xl">
+            <div class="flex flex-col gap-4">
+                <a href="/" class="text-xl font-semibold text-gray-300 hover:text-white transition">Home</a>
+                <a href="/pricing" class="text-xl font-semibold text-gray-300 hover:text-white transition">Plans & Pricing</a>
+                {% if session.get('user_name') %}
+                    <a href="/dashboard" class="text-xl font-semibold text-gray-300 hover:text-white transition">Dashboard</a>
+                {% endif %}
+            </div>
+            
+            <div class="h-px w-full bg-white/10"></div>
+            
+            <div class="flex flex-col gap-4">
+                {% if session.get('user_name') %}
+                    <div class="text-gold-soft font-semibold text-lg">👋 Hi, {{ session.get('user_name') }}</div>
+                    
+                    {% if session.get('is_admin') %}
+                    <a href="/admin/upload" class="text-red-400 font-bold uppercase tracking-wider text-sm hover:text-red-300 transition">
                         ⚙️ CMS Portal
                     </a>
                     {% endif %}
 
-                    <a href="/dashboard" class="flex items-center gap-2 text-white font-semibold hover:text-gold transition">
-                        📊 Dashboard
-                    </a>
-                    <a href="/logout" class="text-gray-400 text-sm font-semibold hover:text-white transition">Logout</a>
+                    <a href="/logout" class="text-gray-400 text-lg font-medium hover:text-white transition">Logout</a>
                     
-                    <a href="/studio" class="mt-3 text-center btn-glow rounded-xl px-5 py-3 text-sm font-bold shadow-lg">
+                    <a href="/studio" class="mt-2 text-center btn-glow rounded-full px-5 py-3.5 text-base font-bold shadow-lg">
                         Create Story ✨
                     </a>
                 {% else %}
-                    <a href="/login" class="flex items-center gap-2 text-white font-semibold hover:text-gold transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        Log in / Create Account
+                    <a href="/login" class="text-xl font-semibold text-gray-300 hover:text-white transition">Log In</a>
+                    <a href="/login" class="mt-2 text-center btn-glow rounded-full px-5 py-3.5 text-base font-bold shadow-lg">
+                        Get Started
                     </a>
                 {% endif %}
             </div>
         </div>
     </header>
 
-    <!-- Mobile Menu Script -->
     <script>
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
@@ -181,8 +184,7 @@
         });
     </script>
 
-    <!-- 🔔 Flash Messages -->
-    <div class="fixed top-28 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-md px-4 pointer-events-none">
+    <div class="fixed top-24 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-md px-4 pointer-events-none">
         {% with messages = get_flashed_messages(category_filter=["error"]) %}
             {% if messages %}
                 <div class="pointer-events-auto bg-red-900/80 border border-red-500/50 text-red-100 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center justify-between font-medium text-sm mb-2">
@@ -201,17 +203,13 @@
         {% endwith %}
     </div>
 
-    <!-- 🎬 MAIN CONTENT -->
     <main class="flex-grow pt-28">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- 🌟 GLOBAL FOOTER -->
-    <footer class="border-t border-white/10 mt-12 bg-[#03000a]">
-        <div class="mx-auto max-w-6xl px-5 py-10 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4">
-            <!-- Logo -->
+    <footer class="border-t border-white/10 mt-12 bg-[#050510]">
+        <div class="mx-auto max-w-7xl px-6 py-10 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4">
             <div class="font-magical text-2xl font-bold text-white opacity-80 hover:opacity-100 transition">ETHIC<span class="text-gold">.</span></div>
-            <!-- Copyright -->
             <p class="font-medium">© 2026 ETHIC. Build Character, Not Screen Addiction.</p>
         </div>
     </footer>
