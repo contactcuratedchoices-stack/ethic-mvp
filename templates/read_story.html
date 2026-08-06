@@ -10,10 +10,10 @@
     .storybook-container {
         position: relative;
         width: 100%;
-        height: 80vh; 
+        height: 85vh; 
         border-radius: 2rem;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(244,201,93,0.3);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 0 2px rgba(244,201,93,0.4);
         background-color: #050510;
         transition: all 0.3s ease;
     }
@@ -21,28 +21,53 @@
     .storybook-container:fullscreen { border-radius: 0; height: 100vh; }
     .storybook-container:-webkit-full-screen { border-radius: 0; height: 100vh; }
 
-    /* DUAL LAYER CROSSFADE */
+    /* KEN BURNS DUAL LAYER CROSSFADE */
     .story-bg {
         position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
+        inset: -5%; /* Thoda extra space zoom ke liye */
+        width: 110%;
+        height: 110%;
         object-fit: cover;
         transform: scale(1);
-        transition: opacity 1.5s ease-in-out, transform 25s linear;
+        transition: opacity 2s ease-in-out;
+    }
+    
+    /* Smooth Zoom Animation */
+    @keyframes kenBurns {
+        0% { transform: scale(1) translate(0, 0); }
+        100% { transform: scale(1.15) translate(-1%, -1%); }
     }
     .storybook-container.playing .story-bg {
-        transform: scale(1.15);
+        animation: kenBurns 30s infinite alternate linear;
     }
 
-    /* 🚀 NEW: REELS/NETFLIX STYLE SUBTITLES BOX (Minimal & Clean) */
+    /* 🚀 MAGICAL DUST PARTICLES */
+    .dust-particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: 
+            radial-gradient(circle, rgba(244,201,93,0.8) 1px, transparent 1px),
+            radial-gradient(circle, rgba(244,201,93,0.8) 1px, transparent 1px);
+        background-size: 100px 100px;
+        background-position: 0 0, 50px 50px;
+        opacity: 0.3;
+        animation: floatDust 20s linear infinite;
+        z-index: 10;
+    }
+    @keyframes floatDust {
+        0% { transform: translateY(0) translateX(0); }
+        100% { transform: translateY(-100px) translateX(-50px); }
+    }
+
+    /* PREMIUM SUBTITLE BOX */
     .story-text-box {
         position: absolute;
-        bottom: 95px; /* Thoda upar taaki controls se na takraye */
+        bottom: 12%; 
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
-        max-width: 800px;
+        max-width: 900px;
         text-align: center;
         pointer-events: none; 
         display: flex;
@@ -50,32 +75,33 @@
         z-index: 35;
     }
 
-    /* 🚀 NEW: THE SUBTITLE PILL */
     .karaoke-text {
         color: #ffffff;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         font-weight: 700;
-        line-height: 1.4;
-        background: rgba(0, 0, 0, 0.7); /* Netflix style dark background */
-        backdrop-filter: blur(8px);
-        padding: 10px 24px;
-        border-radius: 20px;
-        border: 1px solid rgba(244, 201, 93, 0.4); /* Gold border */
-        text-shadow: 0px 2px 5px rgba(0,0,0,1);
+        line-height: 1.5;
+        background: rgba(10, 10, 20, 0.65);
+        backdrop-filter: blur(10px);
+        padding: 15px 30px;
+        border-radius: 25px;
+        border: 1px solid rgba(244, 201, 93, 0.3);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(244, 201, 93, 0.1);
         display: inline-block;
         opacity: 0;
     }
-    @media (min-width: 768px) { .karaoke-text { font-size: 2.2rem; } }
+    @media (min-width: 768px) { .karaoke-text { font-size: 2.4rem; } }
     
-    /* Subtitle highlight color (Gold) */
-    .karaoke-highlight { color: #f4c95d; }
+    .karaoke-highlight { 
+        color: #f4c95d; 
+        text-shadow: 0 0 15px rgba(244,201,93,0.6);
+    }
 
-    @keyframes reelsSlideUp {
-        0% { transform: translateY(20px); opacity: 0; filter: blur(2px); }
-        100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+    @keyframes subtitlePop {
+        0% { transform: translateY(15px) scale(0.95); opacity: 0; }
+        100% { transform: translateY(0) scale(1); opacity: 1; }
     }
     .reels-text-anim {
-        animation: reelsSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: subtitlePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
     /* Cinematic Controls */
@@ -83,8 +109,8 @@
         position: absolute;
         bottom: 0; left: 0; width: 100%;
         background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0));
-        padding: 20px 2% 10px 2%;
-        display: flex; flex-direction: column; gap: 10px;
+        padding: 25px 3% 15px 3%;
+        display: flex; flex-direction: column; gap: 12px;
         z-index: 40; opacity: 0; transform: translateY(10px);
         transition: all 0.4s ease;
     }
@@ -111,6 +137,8 @@
   </div>
 
   <div id="storybook" class="storybook-container">
+      <div class="dust-particles"></div>
+
       <img id="bg-layer-1" class="story-bg opacity-100" src="{{ story.image_url }}" alt="Scene Layer 1">
       <img id="bg-layer-2" class="story-bg opacity-0" src="{{ story.image_url }}" alt="Scene Layer 2">
       
@@ -164,22 +192,33 @@
     
     const storyTitle = {{ story.title | tojson | safe }}.replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
 
-    // 🚀 NEW: FLUX MODEL (Ultra HD, Perfect Faces, Widescreen)
+    // Generate URLs
     const storyImages = pages.map((pageText, index) => {
         let randomSeed = Math.floor(Math.random() * 9999999);
         let cleanText = pageText.replace(/["'\\\n\r]/g, ' ').substring(0, 80);
-        // Prompt ko bahut powerful bana diya hai
         let imagePrompt = `Ultra-detailed 3D CGI Pixar style masterpiece, ${cleanText}, vibrant colors, extremely cute, perfect symmetric face, glowing cinematic lighting, 8k resolution`;
-        
-        // model=flux & width=1280 (HD) add kar diya
         return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1280&height=720&nologo=true&model=flux&seed=${randomSeed}`;
     });
 
-    // Preload Images
-    storyImages.forEach(url => {
-        const img = new Image();
-        img.src = url;
-    });
+    // 🚀 NEW: SEQUENTIAL LAZY LOADER (Black Screen Bug Fix)
+    // Ek saath sab load nahi karenge. Pehle 2 load karenge, fir baaki dheere-dheere.
+    async function preloadImagesSequentially() {
+        for (let i = 0; i < storyImages.length; i++) {
+            await new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve();
+                img.onerror = () => {
+                    // Agar API block karde, toh default magical image dikhayega (black nahi hoga)
+                    storyImages[i] = "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop";
+                    resolve();
+                };
+                img.src = storyImages[i];
+            });
+            // Har image ke baad 500ms ka gap taaki API gussa na ho
+            await new Promise(r => setTimeout(r, 500));
+        }
+    }
+    preloadImagesSequentially();
 
     const bgLayer1 = document.getElementById('bg-layer-1');
     const bgLayer2 = document.getElementById('bg-layer-2');
@@ -195,7 +234,6 @@
     const miniPlay = document.getElementById('mini-play');
     const miniPause = document.getElementById('mini-pause');
     
-    // 🚀 NEW: CHUNKING ALGORITHM (For Reels/Subtitles)
     let subtitleTimings = [];
     let currentSubtitleIndex = -1;
     let currentPageIndex = -1;
@@ -207,14 +245,12 @@
         let chunkIndex = 0;
 
         pages.forEach((pageText, pageIndex) => {
-            // Har paragraph ko 6-7 shabdo (words) ki lines me todna
             let words = pageText.split(/\s+/);
             let chunks = [];
             let currentChunk = [];
 
             for(let i = 0; i < words.length; i++) {
                 currentChunk.push(words[i]);
-                // Break line at 7 words OR punctuation marks (। ? ! . ,)
                 if(currentChunk.length >= 7 || words[i].match(/[।?!.,|]$/)) {
                     chunks.push(currentChunk.join(' '));
                     currentChunk = [];
@@ -222,18 +258,10 @@
             }
             if(currentChunk.length > 0) chunks.push(currentChunk.join(' '));
 
-            // Har chhote chunk (line) ko apna ek exact time dena
             chunks.forEach((chunk) => {
-                const chunkLength = chunk.length + 1; // +1 space ke liye
+                const chunkLength = chunk.length + 1;
                 const duration = (chunkLength / totalChars) * audio.duration;
-                
-                subtitleTimings.push({
-                    chunkIndex: chunkIndex++,
-                    pageIndex: pageIndex,
-                    start: accumulatedTime,
-                    end: accumulatedTime + duration,
-                    text: chunk
-                });
+                subtitleTimings.push({ chunkIndex: chunkIndex++, pageIndex: pageIndex, start: accumulatedTime, end: accumulatedTime + duration, text: chunk });
                 accumulatedTime += duration;
             });
         });
@@ -249,7 +277,6 @@
         return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    // CROSSFADE SCENES
     function changeSceneImage(imageSrc) {
         if (activeLayer === 1) {
             bgLayer2.src = imageSrc;
@@ -291,7 +318,6 @@
     centerPlayBtn.addEventListener('click', togglePlay);
     miniPlayPause.addEventListener('click', togglePlay);
 
-    // 🚀 NEW: SYNC ENGINE (Subtitles & Scene Changer)
     audio.addEventListener('timeupdate', () => {
         if(!isNaN(audio.duration)) {
             const progress = (audio.currentTime / audio.duration) * 100;
@@ -299,26 +325,20 @@
             seekBar.style.background = `linear-gradient(to right, #f4c95d ${progress}%, rgba(255,255,255,0.2) ${progress}%)`;
             timeDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
 
-            // Check which SUBTITLE line is active right now
             const activeSubtitle = subtitleTimings.find(st => audio.currentTime >= st.start && audio.currentTime <= st.end);
             
             if (activeSubtitle && activeSubtitle.chunkIndex !== currentSubtitleIndex) {
                 currentSubtitleIndex = activeSubtitle.chunkIndex;
                 
-                // 1. Scene Switch (Sirf tab jab naya paragraph aaye)
                 if (activeSubtitle.pageIndex !== currentPageIndex) {
                     currentPageIndex = activeSubtitle.pageIndex;
-                    if(storyImages[currentPageIndex]) {
-                        changeSceneImage(storyImages[currentPageIndex]);
-                    }
+                    if(storyImages[currentPageIndex]) changeSceneImage(storyImages[currentPageIndex]);
                     pageIndicator.innerText = `Scene ${currentPageIndex + 1} of ${pages.length}`;
                 }
 
-                // 2. Reels Lyrics Text Animation
                 dynamicText.classList.remove('reels-text-anim');
-                void dynamicText.offsetWidth; // DOM Reflow
+                void dynamicText.offsetWidth; 
                 
-                // Thoda golden style add karte hue
                 dynamicText.innerHTML = `<span class="karaoke-highlight">${activeSubtitle.text}</span>`;
                 dynamicText.classList.add('reels-text-anim');
             }
@@ -339,11 +359,11 @@
     const fullscreenBtn = document.getElementById('fullscreen-btn');
     fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
-            if (storybook.requestFullscreen) { storybook.requestFullscreen(); }
-            else if (storybook.webkitRequestFullscreen) { storybook.webkitRequestFullscreen(); }
+            if (storybook.requestFullscreen) storybook.requestFullscreen();
+            else if (storybook.webkitRequestFullscreen) storybook.webkitRequestFullscreen();
         } else {
-            if (document.exitFullscreen) { document.exitFullscreen(); }
-            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
         }
     });
     
