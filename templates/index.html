@@ -12,7 +12,7 @@
 
     /* The Premium Gradients */
     .text-gradient-premium {
-        background: linear-gradient(to right bottom, #ffffff 30%, rgba(255, 255, 255, 0.5));
+        background: linear-gradient(to right bottom, #ffffff 20%, rgba(255, 255, 255, 0.6));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -25,16 +25,24 @@
         background-clip: text;
     }
 
-    /* 🌌 1. THE MAGICAL CINEMATIC BACKGROUND */
+    /* 🌌 1. THE ABSOLUTE MAGICAL BACKGROUND (Fixes the Black Gap) */
+    .magical-bg-container {
+        position: absolute;
+        top: 0; /* Starts from the absolute top of the webpage */
+        left: 0;
+        width: 100%;
+        height: 120vh; /* Covers the hero section and smoothly fades out below */
+        z-index: -2;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
     .magical-hero-bg {
         position: absolute; 
-        inset: 0; 
-        z-index: -2;
-        /* Wahi best wali magical starry night image */
+        inset: -5%; /* Extra space to prevent borders from showing during zoom */
         background-image: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop');
         background-size: cover; 
         background-position: center top;
-        /* Slow Hollywood style zoom */
         animation: cinematicZoom 30s infinite alternate ease-in-out;
     }
     
@@ -43,21 +51,17 @@
         100% { transform: scale(1.15) translateY(-2%); }
     }
 
-    /* 2. OVERLAY (Taaki Text ekdam saaf padhne me aaye) */
+    /* Seamless Fade Overlay (Top is clear, Bottom becomes completely dark) */
     .hero-overlay {
         position: absolute; 
         inset: 0; 
-        z-index: -1;
-        /* Upar halka transparent, niche aate aate full dark */
-        background: linear-gradient(to bottom, rgba(5,5,16,0.3) 0%, rgba(5,5,16,0.8) 60%, #050510 100%);
+        background: linear-gradient(to bottom, rgba(5,5,16,0.1) 0%, rgba(5,5,16,0.6) 60%, #050510 95%, #050510 100%);
     }
 
-    /* ✨ 3. FLOATING FIREFLIES (Interactive Particles) */
+    /* ✨ 3. FLOATING FIREFLIES */
     .fireflies {
         position: absolute; 
         inset: 0; 
-        z-index: 0; 
-        pointer-events: none;
         background-image:
             radial-gradient(2px 2px at 20px 30px, #f4c95d, rgba(0,0,0,0)),
             radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
@@ -66,7 +70,7 @@
             radial-gradient(2px 2px at 200px 120px, #f4c95d, rgba(0,0,0,0));
         background-size: 250px 250px;
         animation: fireflyMove 25s linear infinite;
-        opacity: 0.5;
+        opacity: 0.6;
     }
     
     @keyframes fireflyMove {
@@ -112,35 +116,36 @@
     }
 </style>
 
-<header class="relative w-full min-h-[95vh] flex items-center justify-center pt-32 pb-20 overflow-hidden">
-    
+<div class="magical-bg-container">
     <div class="magical-hero-bg"></div>
-    <div class="hero-overlay"></div>
     <div class="fireflies"></div>
-    
-    <div class="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center">
+    <div class="hero-overlay"></div>
+</div>
+
+<header class="relative w-full min-h-[85vh] flex items-center justify-center pt-20 pb-16">
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
         
-        <a href="#features" class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-gray-300 text-xs md:text-sm font-medium hover:bg-white/10 hover:text-white transition-all cursor-pointer">
+        <a href="#features" class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all cursor-pointer">
             <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
             Introducing Cinematic AI Stories
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
         
-        <h1 class="text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold tracking-tighter leading-[1.1] mb-6">
+        <h1 class="text-4xl md:text-5xl lg:text-[4.5rem] font-extrabold tracking-tight leading-[1.15] mb-6">
             <span class="text-gradient-premium">Turn Screen Time into</span><br>
-            <span class="font-magical text-gradient-gold drop-shadow-2xl">Story Time.</span>
+            <span class="font-magical text-gradient-gold drop-shadow-xl">Story Time.</span>
         </h1>
         
-        <p class="text-gray-200 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md">
+        <p class="text-gray-200 text-base md:text-lg mb-10 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md">
             Generate highly personalized, 3D animated bedtime stories with cinematic audio. Build character and ignite imagination without the mindless scrolling.
         </p>
         
-        <div class="flex flex-col sm:flex-row gap-5 items-center justify-center w-full sm:w-auto">
-            <a href="{{ url_for('main.studio') }}" class="btn-premium-primary w-full sm:w-auto px-10 py-4 text-base font-bold rounded-full flex items-center justify-center gap-2">
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center w-full sm:w-auto">
+            <a href="{{ url_for('main.studio') }}" class="btn-premium-primary w-full sm:w-auto px-8 py-3.5 text-base font-bold rounded-full flex items-center justify-center gap-2">
                 Start Creating Free
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </a>
-            <a href="{{ url_for('main.dashboard') }}" class="w-full sm:w-auto px-10 py-4 bg-black/40 backdrop-blur-md border border-white/20 text-white text-base font-bold rounded-full hover:bg-white/10 transition flex items-center justify-center gap-2">
+            <a href="{{ url_for('main.dashboard') }}" class="w-full sm:w-auto px-8 py-3.5 bg-black/40 backdrop-blur-md border border-white/20 text-white text-base font-bold rounded-full hover:bg-white/10 transition flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 View Library
             </a>
@@ -153,14 +158,13 @@
 <section id="features" class="py-24 relative z-10 bg-[#050510]">
     <div class="max-w-6xl mx-auto px-6">
         <div class="mb-16 md:mb-24 text-center md:text-left">
-            <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">Magic happens in <span class="text-gradient-gold">seconds.</span></h2>
-            <p class="text-gray-400 text-lg max-w-xl font-medium mx-auto md:mx-0">A completely frictionless experience. You provide the hero, our AI engine handles the cinematic rendering.</p>
+            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-4">Magic happens in <span class="text-gradient-gold">seconds.</span></h2>
+            <p class="text-gray-400 text-base md:text-lg max-w-xl font-medium mx-auto md:mx-0">A completely frictionless experience. You provide the hero, our AI engine handles the cinematic rendering.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
             <div class="bento-card p-8 md:p-10 flex flex-col justify-between group">
-                <div class="w-16 h-16 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <div class="w-14 h-14 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     🦸‍♂️
                 </div>
                 <div>
@@ -170,7 +174,7 @@
             </div>
 
             <div class="bento-card p-8 md:p-10 flex flex-col justify-between group">
-                <div class="w-16 h-16 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
+                <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
                     🪄
                 </div>
                 <div>
@@ -180,7 +184,7 @@
             </div>
 
             <div class="bento-card p-8 md:p-10 flex flex-col justify-between group">
-                <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     🎬
                 </div>
                 <div>
@@ -191,7 +195,7 @@
             
             <div class="bento-card md:col-span-3 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 mt-2">
                 <div class="max-w-xl">
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-gold/10 border border-gold/30 text-gold-soft text-xs font-bold uppercase tracking-widest">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-gold/10 border border-gold/30 text-gold-soft text-xs font-bold uppercase tracking-widest">
                         Performance
                     </div>
                     <h3 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-4">Powered by Next-Gen AI</h3>
@@ -237,7 +241,7 @@
     </div>
 </section>
 
-<section class="py-32 relative z-10 text-center px-6 bg-gradient-to-b from-[#050510] to-[#0a0a1a]">
+<section class="py-32 relative z-10 text-center px-6 bg-[#050510]">
     <div class="max-w-3xl mx-auto">
         <h2 class="text-4xl md:text-6xl font-extrabold text-white tracking-tighter mb-6">Build character.<br><span class="text-gray-500">Not screen addiction.</span></h2>
         <p class="text-gray-400 text-lg font-medium mb-10">Start your journey with Ethic today and redefine bedtime.</p>
