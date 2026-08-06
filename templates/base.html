@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <meta name="description" content="Generate highly personalized, 3D animated bedtime stories with cinematic audio. Build character, ignite imagination, and turn screen time into story time with Ethic." />
+    <meta name="theme-color" content="#050510" />
     <title>ETHIC — Magical Bedtime Stories</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" />
+    
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
@@ -29,26 +35,24 @@
     <style>
         body { background-color: #050510; color: #ffffff; }
         
-        /* 🚀 TOP TIER: Edge-to-Edge Frosted Glass Navbar */
+        /* Edge-to-Edge Frosted Glass Navbar */
         .glass-header {
-            background: rgba(5, 5, 16, 0.4); /* Very subtle dark tint */
+            background: rgba(5, 5, 16, 0.4);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Hairline border */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.3s ease;
         }
 
-        /* Clean Nav Links */
         .nav-link {
             position: relative;
-            color: #a1a1aa; /* text-gray-400 */
+            color: #a1a1aa;
             font-size: 0.875rem;
             font-weight: 600;
             transition: color 0.3s ease;
             padding: 0.5rem 0;
         }
         .nav-link:hover { color: #ffffff; }
-        
         .nav-link::after {
             content: ''; position: absolute; width: 0; height: 2px;
             bottom: 0; left: 0; background-color: #f4c95d;
@@ -56,7 +60,6 @@
         }
         .nav-link:hover::after { width: 100%; }
         
-        /* High-End Button */
         .btn-glow {
             background: #ffffff;
             color: #050510;
@@ -68,7 +71,6 @@
             box-shadow: 0 4px 15px rgba(255, 255, 255, 0.25);
         }
 
-        /* Mobile Menu Panel */
         #mobile-menu {
             position: absolute;
             top: 100%; left: 0; right: 0;
@@ -92,7 +94,7 @@
     <header class="fixed w-full z-50 top-0 left-0 glass-header h-[72px] flex items-center">
         <div class="w-full max-w-7xl mx-auto px-6 flex items-center justify-between">
             
-            <a href="/" class="font-magical text-2xl md:text-3xl font-extrabold text-white tracking-wider flex items-center hover:opacity-80 transition-opacity">
+            <a href="/" aria-label="Ethic Home" class="font-magical text-2xl md:text-3xl font-extrabold text-white tracking-wider flex items-center hover:opacity-80 transition-opacity">
                 ETHIC<span class="text-gold">.</span>
             </a>
             
@@ -106,7 +108,6 @@
 
             <div class="hidden md:flex items-center gap-6">
                 {% if session.get('user_name') %}
-                    
                     {% if session.get('is_admin') %}
                     <a href="/admin/upload" class="text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 rounded-md bg-red-500/10 transition">
                         ⚙️ Admin
@@ -129,9 +130,9 @@
                 {% endif %}
             </div>
 
-            <button id="mobile-menu-btn" class="md:hidden text-white p-2 -mr-2 focus:outline-none hover:text-gold transition">
-                <svg id="icon-menu" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                <svg id="icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <button id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" class="md:hidden text-white p-2 -mr-2 focus:outline-none hover:text-gold transition">
+                <svg id="icon-menu" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg id="icon-close" aria-hidden="true" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
 
@@ -178,7 +179,8 @@
         const iconClose = document.getElementById('icon-close');
 
         btn.addEventListener('click', () => {
-            menu.classList.toggle('open');
+            const isOpen = menu.classList.toggle('open');
+            btn.setAttribute('aria-expanded', isOpen);
             iconMenu.classList.toggle('hidden');
             iconClose.classList.toggle('hidden');
         });
@@ -189,7 +191,7 @@
             {% if messages %}
                 <div class="pointer-events-auto bg-red-900/80 border border-red-500/50 text-red-100 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center justify-between font-medium text-sm mb-2">
                     <span>{{ messages[0] }}</span>
-                    <button onclick="this.parentElement.style.display='none'" class="text-white opacity-60 hover:opacity-100 text-lg ml-4">&times;</button>
+                    <button aria-label="Close message" onclick="this.parentElement.style.display='none'" class="text-white opacity-60 hover:opacity-100 text-lg ml-4">&times;</button>
                 </div>
             {% endif %}
         {% endwith %}
@@ -197,7 +199,7 @@
             {% if messages %}
                 <div class="pointer-events-auto bg-emerald-900/80 border border-emerald-500/50 text-emerald-100 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center justify-between font-medium text-sm mb-2">
                     <span>{{ messages[0] }}</span>
-                    <button onclick="this.parentElement.style.display='none'" class="text-white opacity-60 hover:opacity-100 text-lg ml-4">&times;</button>
+                    <button aria-label="Close message" onclick="this.parentElement.style.display='none'" class="text-white opacity-60 hover:opacity-100 text-lg ml-4">&times;</button>
                 </div>
             {% endif %}
         {% endwith %}
