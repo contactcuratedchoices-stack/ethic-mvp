@@ -2,17 +2,19 @@
 
 {% block content %}
 <style>
-    /* 🚀 PREMIUM, CINEMATIC & MAGICAL AESTHETIC */
+    /* 🚀 PREMIUM, CLEAN & NATURAL AESTHETIC */
     
     html { scroll-behavior: smooth; }
+    body { background-color: #050510; } /* Set pure dark base for the whole site */
+    
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #050510; }
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
-    /* The Premium Gradients */
+    /* Premium Gradients for Text */
     .text-gradient-premium {
-        background: linear-gradient(to right bottom, #ffffff 20%, rgba(255, 255, 255, 0.6));
+        background: linear-gradient(to right bottom, #ffffff 30%, rgba(255, 255, 255, 0.6));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -25,98 +27,98 @@
         background-clip: text;
     }
 
-    /* 🌌 1. THE FIXED MAGICAL BACKGROUND (Ab ye kabhi nahi ktega!) */
-    .magical-fixed-bg {
-        position: fixed; 
-        top: 0; left: 0; right: 0; bottom: 0;
-        z-index: -5; /* Subse peeche */
-        background-color: #050510;
-        overflow: hidden;
-    }
-
-    .magical-hero-bg {
-        position: absolute; 
-        inset: -5%; 
+    /* 🌌 1. NATURAL HERO BACKGROUND (NO FIXED BLUR NONSENSE) */
+    .hero-natural-bg {
+        position: absolute;
+        inset: -2%; /* Slightly larger to allow smooth zooming */
+        z-index: -3;
         background-image: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop');
         background-size: cover; 
-        background-position: center top;
-        opacity: 0.85; /* Thoda transparent taaki dark feel aaye */
-        animation: cinematicZoom 30s infinite alternate ease-in-out;
+        background-position: center 20%;
+        animation: subtleZoom 30s infinite alternate ease-in-out;
     }
     
-    @keyframes cinematicZoom {
-        0% { transform: scale(1) translateY(0); }
-        100% { transform: scale(1.15) translateY(-2%); }
+    @keyframes subtleZoom {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.1); }
     }
 
-    /* ✨ 2. FLOATING FIREFLIES (Ye bhi pure page par rahenge) */
+    /* ✨ 2. FIREFLIES (Only in the Hero Section for Magic) */
     .fireflies {
         position: absolute; 
         inset: 0; 
-        z-index: -4;
+        z-index: -2;
         background-image:
             radial-gradient(2px 2px at 20px 30px, #f4c95d, rgba(0,0,0,0)),
             radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
             radial-gradient(3px 3px at 90px 160px, #fce29f, rgba(0,0,0,0)),
             radial-gradient(2px 2px at 150px 40px, #ffffff, rgba(0,0,0,0)),
             radial-gradient(2px 2px at 200px 120px, #f4c95d, rgba(0,0,0,0));
-        background-size: 250px 250px;
-        animation: fireflyMove 25s linear infinite;
-        opacity: 0.7; 
+        background-size: 200px 200px;
+        animation: fireflyMove 20s linear infinite;
+        opacity: 0.8; 
     }
     
     @keyframes fireflyMove {
         0% { transform: translateY(0) translateX(0); }
-        100% { transform: translateY(-250px) translateX(-50px); }
+        100% { transform: translateY(-200px) translateX(-40px); }
     }
 
-    /* Ultra-Clean Glass Cards (Apple Bento Style) */
+    /* 🌊 3. THE SEAMLESS MELT (This makes the transition to black perfect) */
+    .hero-fade-bottom {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 35vh; /* A long, smooth fade out at the bottom of the image */
+        background: linear-gradient(to bottom, rgba(5,5,16,0) 0%, #050510 100%);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* 📦 4. PREMIUM BENTO BOXES (Apple Style) */
     .bento-card {
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(255, 255, 255, 0.02); /* Very subtle glass */
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 24px;
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        overflow: hidden;
         position: relative;
+        overflow: hidden;
     }
     
-    /* Interactive Mouse Glow */
+    /* Interactive Mouse Glow inside cards */
     .bento-card::before {
         content: ''; position: absolute; inset: 0;
-        background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(244, 201, 93, 0.08), transparent 40%);
+        background: radial-gradient(500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(244, 201, 93, 0.08), transparent 40%);
         opacity: 0; transition: opacity 0.4s; z-index: 1; pointer-events: none;
     }
     .bento-card:hover::before { opacity: 1; }
     
     .bento-card:hover {
-        transform: translateY(-5px);
-        border-color: rgba(244, 201, 93, 0.3);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(244,201,93,0.05);
+        transform: translateY(-6px);
+        border-color: rgba(244, 201, 93, 0.25);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     }
 
-    /* Premium Button */
+    /* Buttons */
     .btn-premium-primary {
         background: #ffffff; color: #050510;
         transition: all 0.3s ease;
-        box-shadow: 0 0 20px rgba(255,255,255,0.15);
+        box-shadow: 0 0 15px rgba(255,255,255,0.1);
     }
     .btn-premium-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 15px 30px rgba(255, 255, 255, 0.3);
+        box-shadow: 0 15px 30px rgba(255, 255, 255, 0.25);
     }
 </style>
 
-<div class="magical-fixed-bg">
-    <div class="magical-hero-bg"></div>
+<header class="relative w-full min-h-[90vh] flex items-center justify-center pt-32 pb-16 overflow-hidden">
+    
+    <div class="hero-natural-bg"></div>
     <div class="fireflies"></div>
-</div>
+    <div class="hero-fade-bottom"></div>
 
-<header class="relative w-full min-h-[85vh] flex items-center justify-center pt-28 pb-16 bg-transparent">
-    <div class="absolute inset-0 bg-gradient-to-b from-[#050510]/60 via-transparent to-transparent pointer-events-none"></div>
-
-    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center mt-8">
         
         <a href="#features" class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all cursor-pointer">
             <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
@@ -124,12 +126,12 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
         
-        <h1 class="text-4xl md:text-5xl lg:text-[4.5rem] font-extrabold tracking-tight leading-[1.15] mb-6 [text-shadow:0_2px_10px_rgba(0,0,0,0.8)]">
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6 [text-shadow:0_2px_15px_rgba(0,0,0,0.8)]">
             <span class="text-gradient-premium">Turn Screen Time into</span><br>
             <span class="font-magical text-gradient-gold drop-shadow-xl">Story Time.</span>
         </h1>
         
-        <p class="text-gray-200 text-base md:text-lg mb-10 max-w-2xl mx-auto font-medium leading-relaxed [text-shadow:0_2px_4px_rgba(0,0,0,0.8)]">
+        <p class="text-gray-100 text-base md:text-lg mb-10 max-w-2xl mx-auto font-medium leading-relaxed [text-shadow:0_2px_8px_rgba(0,0,0,0.9)]">
             Generate highly personalized, 3D animated bedtime stories with cinematic audio. Build character and ignite imagination without the mindless scrolling.
         </p>
         
@@ -138,7 +140,7 @@
                 Start Creating Free
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </a>
-            <a href="{{ url_for('main.dashboard') }}" class="w-full sm:w-auto px-8 py-3.5 bg-black/50 backdrop-blur-md border border-white/20 text-white text-base font-bold rounded-full hover:bg-white/10 transition flex items-center justify-center gap-2">
+            <a href="{{ url_for('main.dashboard') }}" class="w-full sm:w-auto px-8 py-3.5 bg-black/60 backdrop-blur-md border border-white/20 text-white text-base font-bold rounded-full hover:bg-white/10 transition flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 View Library
             </a>
@@ -147,13 +149,11 @@
     </div>
 </header>
 
-<section id="features" class="py-24 relative z-10 bg-[#050510]/80 backdrop-blur-[2px]">
-    <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-transparent to-[#050510]/0 -translate-y-full"></div>
-
+<section id="features" class="py-24 relative z-10 bg-[#050510]">
     <div class="max-w-6xl mx-auto px-6">
         <div class="mb-16 md:mb-24 text-center md:text-left">
             <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-4">Magic happens in <span class="text-gradient-gold">seconds.</span></h2>
-            <p class="text-gray-300 text-base md:text-lg max-w-xl font-medium mx-auto md:mx-0">A completely frictionless experience. You provide the hero, our AI engine handles the cinematic rendering.</p>
+            <p class="text-gray-400 text-base md:text-lg max-w-xl font-medium mx-auto md:mx-0">A completely frictionless experience. You provide the hero, our AI engine handles the cinematic rendering.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -163,7 +163,7 @@
                 </div>
                 <div>
                     <h3 class="font-magical text-2xl font-bold text-white mb-2 tracking-wide">1. Define the Hero</h3>
-                    <p class="text-gray-300 text-sm font-medium leading-relaxed">Enter your child's name, age, and cultural setting to instantly make them the star of their own universe.</p>
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">Enter your child's name, age, and cultural setting to instantly make them the star of their own universe.</p>
                 </div>
             </div>
 
@@ -173,7 +173,7 @@
                 </div>
                 <div>
                     <h3 class="font-magical text-2xl font-bold text-white mb-2 tracking-wide">2. Set the Theme</h3>
-                    <p class="text-gray-300 text-sm font-medium leading-relaxed">From deep space to magical forests. Choose a world and attach a core moral value like honesty or bravery.</p>
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">From deep space to magical forests. Choose a world and attach a core moral value like honesty or bravery.</p>
                 </div>
             </div>
 
@@ -183,7 +183,7 @@
                 </div>
                 <div>
                     <h3 class="font-magical text-2xl font-bold text-white mb-2 tracking-wide">3. Cinema Ready</h3>
-                    <p class="text-gray-300 text-sm font-medium leading-relaxed">Our engine outputs a gorgeous 3D storybook complete with Netflix-style synchronized subtitles and rich audio.</p>
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">Our engine outputs a gorgeous 3D storybook complete with Netflix-style synchronized subtitles and rich audio.</p>
                 </div>
             </div>
             
@@ -193,16 +193,16 @@
                         Performance
                     </div>
                     <h3 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-4">Powered by Next-Gen AI</h3>
-                    <p class="text-gray-300 text-base font-medium leading-relaxed">
+                    <p class="text-gray-400 text-base font-medium leading-relaxed">
                         Ethic utilizes state-of-the-art LLMs for narrative generation, Flux models for hyper-realistic 3D rendering, and Neural TTS for life-like voice acting. All compiled in real-time.
                     </p>
                 </div>
                 <div class="flex-shrink-0 w-full md:w-auto grid grid-cols-2 gap-4">
-                    <div class="bg-black/40 border border-white/10 p-6 rounded-2xl text-center shadow-inner">
+                    <div class="bg-white/5 border border-white/10 p-6 rounded-2xl text-center shadow-inner">
                         <div class="text-3xl font-bold text-gold mb-1">4K</div>
                         <div class="text-xs text-gray-400 font-bold uppercase tracking-widest">Resolution</div>
                     </div>
-                    <div class="bg-black/40 border border-white/10 p-6 rounded-2xl text-center shadow-inner">
+                    <div class="bg-white/5 border border-white/10 p-6 rounded-2xl text-center shadow-inner">
                         <div class="text-3xl font-bold text-gold mb-1">&lt;15s</div>
                         <div class="text-xs text-gray-400 font-bold uppercase tracking-widest">Render Time</div>
                     </div>
@@ -212,7 +212,7 @@
     </div>
 </section>
 
-<section class="py-20 relative z-10 border-t border-white/5 bg-[#050510]/90 backdrop-blur-[4px]">
+<section class="py-20 relative z-10 border-t border-white/5 bg-[#050510]">
     <div class="max-w-6xl mx-auto px-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
             <div>
@@ -235,7 +235,7 @@
     </div>
 </section>
 
-<section class="py-32 relative z-10 text-center px-6 bg-[#050510]/95 backdrop-blur-[6px] border-t border-white/5">
+<section class="py-32 relative z-10 text-center px-6 bg-[#050510] border-t border-white/5">
     <div class="max-w-3xl mx-auto">
         <h2 class="text-4xl md:text-6xl font-extrabold text-white tracking-tighter mb-6">Build character.<br><span class="text-gray-500">Not screen addiction.</span></h2>
         <p class="text-gray-400 text-lg font-medium mb-10">Start your journey with Ethic today and redefine bedtime.</p>
