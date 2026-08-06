@@ -2,7 +2,7 @@
 
 {% block content %}
 <style>
-    /* 🚀 PREMIUM & MAGICAL AESTHETIC */
+    /* 🚀 PREMIUM, CINEMATIC & MAGICAL AESTHETIC */
     
     html { scroll-behavior: smooth; }
     ::-webkit-scrollbar { width: 8px; }
@@ -25,21 +25,18 @@
         background-clip: text;
     }
 
-    /* 🌌 1. THE ABSOLUTE MAGICAL BACKGROUND (Fixes the Black Gap) */
-    .magical-bg-container {
-        position: absolute;
-        top: 0; /* Starts from the absolute top of the webpage */
-        left: 0;
-        width: 100%;
-        height: 120vh; /* Covers the hero section and smoothly fades out below */
+    /* 🌌 1. THE ABSOLUTE MAGICAL BACKGROUND (Fixes Gap & Made Fixed) */
+    .magical-fixed-bg {
+        position: fixed; /* Fixed layer for the magical experience */
+        inset: 0;
         z-index: -2;
         overflow: hidden;
-        pointer-events: none;
+        pointer-events: none; /* Text and buttons remain interactable */
     }
 
     .magical-hero-bg {
         position: absolute; 
-        inset: -5%; /* Extra space to prevent borders from showing during zoom */
+        inset: -5%; 
         background-image: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop');
         background-size: cover; 
         background-position: center top;
@@ -51,14 +48,15 @@
         100% { transform: scale(1.15) translateY(-2%); }
     }
 
-    /* Seamless Fade Overlay (Top is clear, Bottom becomes completely dark) */
+    /* Seamless Fade Overlay (Top is clear, Bottom becomes completely dark very smoothly) */
     .hero-overlay {
         position: absolute; 
         inset: 0; 
-        background: linear-gradient(to bottom, rgba(5,5,16,0.1) 0%, rgba(5,5,16,0.6) 60%, #050510 95%, #050510 100%);
+        /* Ultra-smooth transition for a premium feel */
+        background: linear-gradient(to bottom, rgba(5,5,16,0.1) 0%, rgba(5,5,16,0.7) 70%, #050510 100%);
     }
 
-    /* ✨ 3. FLOATING FIREFLIES */
+    /* ✨ 3. FLOATING FIREFLIES (More Magical & Deeper) */
     .fireflies {
         position: absolute; 
         inset: 0; 
@@ -70,7 +68,7 @@
             radial-gradient(2px 2px at 200px 120px, #f4c95d, rgba(0,0,0,0));
         background-size: 250px 250px;
         animation: fireflyMove 25s linear infinite;
-        opacity: 0.6;
+        opacity: 0.7; /* Deeper and more pronounced for a magical feel */
     }
     
     @keyframes fireflyMove {
@@ -116,30 +114,36 @@
     }
 </style>
 
-<div class="magical-bg-container">
+<!-- 🌌 MAGICAL FIXED BACKGROUND (Elements scroll over this) -->
+<div class="fixed inset-0 z-[-1] overflow-hidden magical-fixed-bg pointer-events-none">
     <div class="magical-hero-bg"></div>
     <div class="fireflies"></div>
     <div class="hero-overlay"></div>
 </div>
 
-<header class="relative w-full min-h-[85vh] flex items-center justify-center pt-20 pb-16">
+<!-- 🌟 1. THE HERO SECTION (Content flows over the background) -->
+<header class="relative w-full min-h-[70vh] flex items-center justify-center pt-28 pb-16">
     <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
         
+        <!-- Subtle Top Badge -->
         <a href="#features" class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all cursor-pointer">
             <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
             Introducing Cinematic AI Stories
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
         
-        <h1 class="text-4xl md:text-5xl lg:text-[4.5rem] font-extrabold tracking-tight leading-[1.15] mb-6">
+        <!-- CRISP & BALANCED HEADING with light shadow for readability over background -->
+        <h1 class="text-4xl md:text-5xl lg:text-[4.5rem] font-extrabold tracking-tight leading-[1.15] mb-6 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
             <span class="text-gradient-premium">Turn Screen Time into</span><br>
             <span class="font-magical text-gradient-gold drop-shadow-xl">Story Time.</span>
         </h1>
         
-        <p class="text-gray-200 text-base md:text-lg mb-10 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md">
+        <!-- Crisp Subheading with light shadow -->
+        <p class="text-gray-200 text-base md:text-lg mb-10 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
             Generate highly personalized, 3D animated bedtime stories with cinematic audio. Build character and ignite imagination without the mindless scrolling.
         </p>
         
+        <!-- High-Contrast Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 items-center justify-center w-full sm:w-auto">
             <a href="{{ url_for('main.studio') }}" class="btn-premium-primary w-full sm:w-auto px-8 py-3.5 text-base font-bold rounded-full flex items-center justify-center gap-2">
                 Start Creating Free
@@ -151,10 +155,11 @@
             </a>
         </div>
         
-        <p class="mt-8 text-xs text-gray-400 font-medium tracking-wide uppercase drop-shadow-lg">No credit card required • 100% Kid Safe AI</p>
+        <p class="mt-8 text-xs text-gray-400 font-medium tracking-wide uppercase drop-shadow-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">No credit card required • 100% Kid Safe AI</p>
     </div>
 </header>
 
+<!-- 🎬 2. BENTO-BOX FEATURES (Deep Dark Background seamlessly connects) -->
 <section id="features" class="py-24 relative z-10 bg-[#050510]">
     <div class="max-w-6xl mx-auto px-6">
         <div class="mb-16 md:mb-24 text-center md:text-left">
@@ -218,6 +223,7 @@
     </div>
 </section>
 
+<!-- 🌟 3. SOCIAL PROOF / METRICS -->
 <section class="py-20 relative z-10 border-t border-white/5 bg-[#050510]">
     <div class="max-w-6xl mx-auto px-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
@@ -241,7 +247,8 @@
     </div>
 </section>
 
-<section class="py-32 relative z-10 text-center px-6 bg-[#050510]">
+<!-- 🚀 4. BOTTOM CTA -->
+<section class="py-32 relative z-10 text-center px-6 bg-gradient-to-t from-black to-navy">
     <div class="max-w-3xl mx-auto">
         <h2 class="text-4xl md:text-6xl font-extrabold text-white tracking-tighter mb-6">Build character.<br><span class="text-gray-500">Not screen addiction.</span></h2>
         <p class="text-gray-400 text-lg font-medium mb-10">Start your journey with Ethic today and redefine bedtime.</p>
@@ -252,6 +259,7 @@
     </div>
 </section>
 
+<!-- Interactive Card Glow Script -->
 <script>
     document.getElementById("features").onmousemove = e => {
         for(const card of document.getElementsByClassName("bento-card")) {
