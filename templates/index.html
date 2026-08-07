@@ -3,19 +3,18 @@
 {% block content %}
 <style>
     /* 🚀 PREMIUM, CLEAN & NATURAL AESTHETIC */
-    
     html { scroll-behavior: smooth; }
-    body { background-color: #050510; } /* Pure dark base */
+    body { background-color: transparent; } /* Base.html will handle the dark bg and noise */
     
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #050510; }
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
-    /* 🌌 1. NATURAL HERO BACKGROUND (Fixed top gap) */
+    /* 🌌 1. NATURAL HERO BACKGROUND */
     .hero-natural-bg {
         position: absolute;
-        inset: -2%; /* Slightly larger for smooth zooming */
+        inset: -2%;
         z-index: -3;
         background-image: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop');
         background-size: cover; 
@@ -30,9 +29,7 @@
 
     /* ✨ 2. FIREFLIES (Magical Particles) */
     .fireflies {
-        position: absolute; 
-        inset: 0; 
-        z-index: -2;
+        position: absolute; inset: 0; z-index: -2;
         background-image:
             radial-gradient(2px 2px at 20px 30px, #f4c95d, rgba(0,0,0,0)),
             radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
@@ -49,49 +46,36 @@
         100% { transform: translateY(-200px) translateX(-40px); }
     }
 
-    /* 🌊 3. THE SEAMLESS MELT (Ekdam smooth dark transition) */
+    /* 🌊 3. THE SEAMLESS MELT */
     .hero-fade-bottom {
-        position: absolute;
-        inset: 0; 
-        /* Yeh upar se transparent rahega aur neeche aate-aate slowly dark hoke background me mix ho jayega */
+        position: absolute; inset: 0; 
         background: linear-gradient(to bottom, rgba(5,5,16,0) 40%, rgba(5,5,16,0.85) 85%, #050510 100%);
-        z-index: -1;
-        pointer-events: none;
+        z-index: -1; pointer-events: none;
     }
 
-    /* 📦 4. PREMIUM BENTO BOXES */
+    /* 📦 4. PREMIUM BENTO BOXES (Editorial Style) */
     .bento-card {
         background: rgba(255, 255, 255, 0.02); 
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border-radius: 32px; /* Smoother, larger radius for premium feel */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
         overflow: hidden;
     }
     
     .bento-card::before {
         content: ''; position: absolute; inset: 0;
-        background: radial-gradient(500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(244, 201, 93, 0.08), transparent 40%);
-        opacity: 0; transition: opacity 0.4s; z-index: 1; pointer-events: none;
+        background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(244, 201, 93, 0.1), transparent 40%);
+        opacity: 0; transition: opacity 0.5s; z-index: 1; pointer-events: none;
     }
     .bento-card:hover::before { opacity: 1; }
     
     .bento-card:hover {
-        transform: translateY(-6px);
-        border-color: rgba(244, 201, 93, 0.25);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    }
-
-    .btn-premium-primary {
-        background: #ffffff; color: #050510;
-        transition: all 0.3s ease;
-        box-shadow: 0 0 15px rgba(255,255,255,0.1);
-    }
-    .btn-premium-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 15px 30px rgba(255, 255, 255, 0.25);
+        transform: translateY(-4px);
+        border-color: rgba(244, 201, 93, 0.3);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
     }
 </style>
 
@@ -101,25 +85,26 @@
     <div class="fireflies"></div>
     <div class="hero-fade-bottom"></div>
 
-    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center pt-28 mt-8">
+    <div class="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center pt-28 mt-8">
         
-        <a href="#features" class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all cursor-pointer">
+        <!-- Staggered Entry Animations using AOS -->
+        <a data-aos="fade-down" data-aos-delay="100" href="#features" class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all cursor-pointer">
             <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
             Introducing Cinematic AI Stories
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
         
-        <h1 class="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold tracking-tight leading-[1.1] mb-6 [text-shadow:0_4px_20px_rgba(0,0,0,0.6)]">
+        <h1 data-aos="fade-up" data-aos-delay="200" class="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-[5.5rem] font-extrabold tracking-tight leading-[1.05] mb-6 [text-shadow:0_4px_20px_rgba(0,0,0,0.6)]">
             <span class="text-white">Turn Screen Time into</span><br>
             <span class="font-magical text-gold drop-shadow-2xl">Story Time.</span>
         </h1>
         
-        <p class="text-gray-100 text-base md:text-lg mb-10 max-w-2xl mx-auto font-medium leading-relaxed [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
+        <p data-aos="fade-up" data-aos-delay="300" class="text-gray-300 text-base md:text-xl mb-10 max-w-2xl mx-auto font-medium leading-relaxed [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
             Generate highly personalized, 3D animated bedtime stories with cinematic audio. Build character and ignite imagination without the mindless scrolling.
         </p>
         
-        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center w-full sm:w-auto">
-            <a href="{{ url_for('main.studio') }}" class="btn-premium-primary w-full sm:w-auto px-8 py-3.5 text-base font-bold rounded-full flex items-center justify-center gap-2">
+        <div data-aos="zoom-in" data-aos-delay="400" class="flex flex-col sm:flex-row gap-4 items-center justify-center w-full sm:w-auto">
+            <a href="{{ url_for('main.studio') }}" class="btn-glow w-full sm:w-auto px-8 py-3.5 text-base font-bold rounded-full flex items-center justify-center gap-2 bg-white text-navy">
                 Start Creating Free
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </a>
@@ -128,107 +113,126 @@
                 View Library
             </a>
         </div>
-        <p class="mt-8 text-xs text-gray-300 font-medium tracking-wide uppercase [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]">No credit card required • 100% Kid Safe AI</p>
+        <p data-aos="fade-up" data-aos-delay="500" class="mt-8 text-xs text-gray-500 font-bold tracking-widest uppercase [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]">No credit card required • 100% Kid Safe AI</p>
     </div>
 </div>
 
-<section id="features" class="py-24 relative z-10 bg-[#050510]">
+<!-- 🚀 ASYMMETRICAL BENTO GRID -->
+<section id="features" class="py-24 relative z-10 bg-transparent">
     <div class="max-w-6xl mx-auto px-6">
-        <div class="mb-16 md:mb-24 text-center md:text-left">
-            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-4">Magic happens in <span class="text-gold">seconds.</span></h2>
-            <p class="text-gray-400 text-base md:text-lg max-w-xl font-medium mx-auto md:mx-0">A completely frictionless experience. You provide the hero, our AI engine handles the cinematic rendering.</p>
+        
+        <div class="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <h2 data-aos="fade-right" class="text-4xl md:text-5xl font-extrabold tracking-tight text-white max-w-lg">
+                Magic happens in <span class="text-gold">seconds.</span>
+            </h2>
+            <p data-aos="fade-left" data-aos-delay="100" class="text-gray-400 text-base md:text-lg max-w-sm font-medium">
+                A completely frictionless experience. You provide the hero, our AI engine handles the cinematic rendering.
+            </p>
         </div>
 
+        <!-- The Bento Layout -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bento-card p-8 md:p-10 flex flex-col justify-between group">
-                <div class="w-14 h-14 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    🦸‍♂️
-                </div>
+            
+            <!-- Card 1: Wide (Span 2) -->
+            <div data-aos="fade-up" data-aos-delay="100" class="bento-card md:col-span-2 p-8 md:p-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 group">
                 <div>
-                    <h3 class="font-magical text-2xl font-bold text-white mb-2 tracking-wide">1. Define the Hero</h3>
-                    <p class="text-gray-400 text-sm font-medium leading-relaxed">Enter your child's name, age, and cultural setting to instantly make them the star of their own universe.</p>
+                    <div class="w-14 h-14 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500">🦸‍♂️</div>
+                    <h3 class="font-magical text-3xl font-bold text-white mb-3 tracking-wide">1. Define the Hero</h3>
+                    <p class="text-gray-400 text-base font-medium leading-relaxed max-w-sm">Enter your child's name, age, and cultural setting to instantly make them the star of their own unique universe.</p>
+                </div>
+                <!-- Abstract UI element to make it look techy -->
+                <div class="hidden md:flex w-40 h-40 rounded-full border border-white/5 bg-gradient-to-tr from-purple-900/20 to-transparent items-center justify-center relative">
+                    <div class="w-20 h-20 rounded-full border border-white/10 bg-white/5 absolute animate-pulse"></div>
                 </div>
             </div>
 
-            <div class="bento-card p-8 md:p-10 flex flex-col justify-between group">
-                <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
-                    🪄
-                </div>
+            <!-- Card 2: Square (Span 1) -->
+            <div data-aos="fade-up" data-aos-delay="200" class="bento-card p-8 md:p-10 flex flex-col justify-between group">
+                <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500">🪄</div>
                 <div>
                     <h3 class="font-magical text-2xl font-bold text-white mb-2 tracking-wide">2. Set the Theme</h3>
-                    <p class="text-gray-400 text-sm font-medium leading-relaxed">From deep space to magical forests. Choose a world and attach a core moral value like honesty or bravery.</p>
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">From deep space to magical forests. Choose a world and attach a core moral value.</p>
                 </div>
             </div>
 
-            <div class="bento-card p-8 md:p-10 flex flex-col justify-between group">
-                <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    🎬
-                </div>
+            <!-- Card 3: Square (Span 1) -->
+            <div data-aos="fade-up" data-aos-delay="300" class="bento-card p-8 md:p-10 flex flex-col justify-between group">
+                <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500">🎬</div>
                 <div>
                     <h3 class="font-magical text-2xl font-bold text-white mb-2 tracking-wide">3. Cinema Ready</h3>
-                    <p class="text-gray-400 text-sm font-medium leading-relaxed">Our engine outputs a gorgeous 3D storybook complete with Netflix-style synchronized subtitles and rich audio.</p>
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">Our engine outputs a gorgeous 3D storybook complete with Netflix-style audio.</p>
                 </div>
             </div>
             
-            <div class="bento-card md:col-span-3 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 mt-2">
-                <div class="max-w-xl">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-gold/10 border border-gold/30 text-gold-soft text-xs font-bold uppercase tracking-widest">
+            <!-- Card 4: Wide Bottom (Span 2) -->
+            <div data-aos="fade-up" data-aos-delay="400" class="bento-card md:col-span-2 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-md">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 mb-5 rounded-full bg-gold/10 border border-gold/30 text-gold-soft text-xs font-bold uppercase tracking-widest">
                         Performance
                     </div>
                     <h3 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-4">Powered by Next-Gen AI</h3>
-                    <p class="text-gray-400 text-base font-medium leading-relaxed">
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">
                         Ethic utilizes state-of-the-art LLMs for narrative generation, Flux models for hyper-realistic 3D rendering, and Neural TTS for life-like voice acting. All compiled in real-time.
                     </p>
                 </div>
                 <div class="flex-shrink-0 w-full md:w-auto grid grid-cols-2 gap-4">
-                    <div class="bg-white/5 border border-white/10 p-6 rounded-2xl text-center shadow-inner">
-                        <div class="text-3xl font-bold text-gold mb-1">4K</div>
-                        <div class="text-xs text-gray-400 font-bold uppercase tracking-widest">Resolution</div>
+                    <div class="bg-white/5 border border-white/10 p-6 rounded-3xl text-center shadow-inner hover:bg-white/10 transition-colors">
+                        <div class="text-3xl font-extrabold text-gold mb-1 tracking-tighter">4K</div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Resolution</div>
                     </div>
-                    <div class="bg-white/5 border border-white/10 p-6 rounded-2xl text-center shadow-inner">
-                        <div class="text-3xl font-bold text-gold mb-1">&lt;15s</div>
-                        <div class="text-xs text-gray-400 font-bold uppercase tracking-widest">Render Time</div>
+                    <div class="bg-white/5 border border-white/10 p-6 rounded-3xl text-center shadow-inner hover:bg-white/10 transition-colors">
+                        <div class="text-3xl font-extrabold text-gold mb-1 tracking-tighter">&lt;15s</div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Render Time</div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
 
-<section class="py-20 relative z-10 border-t border-white/5 bg-[#050510]">
+<!-- 📊 STAGGERED STATS SECTION -->
+<section class="py-24 relative z-10 border-t border-white/5 bg-transparent">
     <div class="max-w-6xl mx-auto px-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
-            <div>
-                <h4 class="text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tighter">10k+</h4>
-                <p class="text-gray-400 text-xs uppercase tracking-widest font-bold">Stories Generated</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-4 text-center">
+            <div data-aos="fade-up" data-aos-delay="100">
+                <h4 class="text-5xl md:text-6xl font-extrabold text-white mb-3 tracking-tighter">10k+</h4>
+                <p class="text-gray-500 text-xs uppercase tracking-widest font-bold">Stories Generated</p>
             </div>
-            <div>
-                <h4 class="text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tighter">100%</h4>
-                <p class="text-gray-400 text-xs uppercase tracking-widest font-bold">Kid Safe Content</p>
+            <div data-aos="fade-up" data-aos-delay="200">
+                <h4 class="text-5xl md:text-6xl font-extrabold text-white mb-3 tracking-tighter">100%</h4>
+                <p class="text-gray-500 text-xs uppercase tracking-widest font-bold">Kid Safe Content</p>
             </div>
-            <div>
-                <h4 class="text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tighter">50+</h4>
-                <p class="text-gray-400 text-xs uppercase tracking-widest font-bold">Moral Lessons</p>
+            <div data-aos="fade-up" data-aos-delay="300">
+                <h4 class="text-5xl md:text-6xl font-extrabold text-white mb-3 tracking-tighter">50+</h4>
+                <p class="text-gray-500 text-xs uppercase tracking-widest font-bold">Moral Lessons</p>
             </div>
-            <div>
-                <h4 class="text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tighter">24/7</h4>
-                <p class="text-gray-400 text-xs uppercase tracking-widest font-bold">Magic Available</p>
+            <div data-aos="fade-up" data-aos-delay="400">
+                <h4 class="text-5xl md:text-6xl font-extrabold text-white mb-3 tracking-tighter">24/7</h4>
+                <p class="text-gray-500 text-xs uppercase tracking-widest font-bold">Magic Available</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-32 relative z-10 text-center px-6 bg-[#050510] border-t border-white/5">
+<!-- 🎯 CTA SECTION -->
+<section class="py-32 relative z-10 text-center px-6 bg-transparent border-t border-white/5">
     <div class="max-w-3xl mx-auto">
-        <h2 class="text-4xl md:text-6xl font-extrabold text-white tracking-tighter mb-6">Build character.<br><span class="text-gray-500">Not screen addiction.</span></h2>
-        <p class="text-gray-400 text-lg font-medium mb-10">Start your journey with Ethic today and redefine bedtime.</p>
-        <a href="{{ url_for('main.studio') }}" class="btn-premium-primary inline-flex items-center gap-2 px-10 py-4 text-lg font-bold rounded-full">
-            Create Your First Story
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-        </a>
+        <h2 data-aos="fade-up" class="text-5xl md:text-7xl font-extrabold text-white tracking-tighter mb-6 leading-tight">
+            Build character.<br><span class="text-gray-600">Not screen addiction.</span>
+        </h2>
+        <p data-aos="fade-up" data-aos-delay="100" class="text-gray-400 text-lg font-medium mb-10 max-w-lg mx-auto">Start your journey with Ethic today and redefine bedtime.</p>
+        
+        <div data-aos="zoom-in" data-aos-delay="200">
+            <a href="{{ url_for('main.studio') }}" class="btn-glow inline-flex items-center gap-2 px-10 py-4 text-lg font-bold rounded-full bg-white text-navy">
+                Create Your First Story
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+        </div>
     </div>
 </section>
 
+<!-- Mouse Glow Script -->
 <script>
     document.getElementById("features").onmousemove = e => {
         for(const card of document.getElementsByClassName("bento-card")) {
