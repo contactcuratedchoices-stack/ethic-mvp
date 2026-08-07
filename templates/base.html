@@ -4,13 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- SEO Optimization -->
     <meta name="description" content="Generate highly personalized, 3D animated bedtime stories with cinematic audio. Build character, ignite imagination, and turn screen time into story time with Ethic." />
     <meta name="theme-color" content="#050510" />
     <title>ETHIC — Magical Bedtime Stories</title>
     
+    <!-- Font Loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" />
+    
+    <!-- 🚀 NEW: AOS (Animate On Scroll) Library for Apple-like reveals -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -26,6 +31,9 @@
                         navy: '#050510', 
                         gold: '#f4c95d', 
                         'gold-soft': '#fce29f'
+                    },
+                    transitionTimingFunction: {
+                        'spring': 'cubic-bezier(0.16, 1, 0.3, 1)', /* Apple's smooth spring easing */
                     }
                 }
             }
@@ -33,15 +41,29 @@
     </script>
 
     <style>
-        body { background-color: #050510; color: #ffffff; }
+        body { 
+            background-color: #050510; 
+            color: #ffffff; 
+            position: relative;
+        }
+        
+        /* 🚀 NEW: FILM GRAIN / NOISE TEXTURE (The Designer Secret) */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.035; /* Just enough to feel real, not distracting */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
         
         /* Edge-to-Edge Frosted Glass Navbar */
         .glass-header {
             background: rgba(5, 5, 16, 0.4);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .nav-link {
@@ -56,32 +78,36 @@
         .nav-link::after {
             content: ''; position: absolute; width: 0; height: 2px;
             bottom: 0; left: 0; background-color: #f4c95d;
-            transition: width 0.3s ease;
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .nav-link:hover::after { width: 100%; }
         
+        /* 🚀 NEW: MICRO-INTERACTIONS (Spring Physics on buttons) */
         .btn-glow {
             background: #ffffff;
             color: #050510;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 0 0 0 rgba(255,255,255,0.2);
         }
         .btn-glow:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+        }
+        .btn-glow:active {
+            transform: scale(0.96) translateY(0); /* The Squish Effect */
         }
 
         #mobile-menu {
             position: absolute;
             top: 100%; left: 0; right: 0;
             background: rgba(5, 5, 16, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             transform-origin: top;
             transform: scaleY(0);
             opacity: 0;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
         }
         #mobile-menu.open {
             transform: scaleY(1);
@@ -90,6 +116,9 @@
     </style>
 </head>
 <body class="font-sans min-h-screen antialiased flex flex-col selection:bg-gold/30">
+
+    <!-- THE MAGIC GRAIN OVERLAY -->
+    <div class="noise-overlay"></div>
 
     <header class="fixed w-full z-50 top-0 left-0 glass-header h-[72px] flex items-center">
         <div class="w-full max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -109,7 +138,7 @@
             <div class="hidden md:flex items-center gap-6">
                 {% if session.get('user_name') %}
                     {% if session.get('is_admin') %}
-                    <a href="/admin/upload" class="text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 rounded-md bg-red-500/10 transition">
+                    <a href="/admin/upload" class="text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 rounded-md bg-red-500/10 transition hover:bg-red-500/20">
                         ⚙️ Admin
                     </a>
                     {% endif %}
@@ -130,7 +159,7 @@
                 {% endif %}
             </div>
 
-            <button id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" class="md:hidden text-white p-2 -mr-2 focus:outline-none hover:text-gold transition">
+            <button id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" class="md:hidden text-white p-2 -mr-2 focus:outline-none hover:text-gold transition active:scale-90">
                 <svg id="icon-menu" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 <svg id="icon-close" aria-hidden="true" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
@@ -150,15 +179,7 @@
             <div class="flex flex-col gap-4">
                 {% if session.get('user_name') %}
                     <div class="text-gold-soft font-semibold text-lg">👋 Hi, {{ session.get('user_name') }}</div>
-                    
-                    {% if session.get('is_admin') %}
-                    <a href="/admin/upload" class="text-red-400 font-bold uppercase tracking-wider text-sm hover:text-red-300 transition">
-                        ⚙️ CMS Portal
-                    </a>
-                    {% endif %}
-
                     <a href="/logout" class="text-gray-400 text-lg font-medium hover:text-white transition">Logout</a>
-                    
                     <a href="/studio" class="mt-2 text-center btn-glow rounded-full px-5 py-3.5 text-base font-bold shadow-lg">
                         Create Story ✨
                     </a>
@@ -189,7 +210,7 @@
     <div class="fixed top-24 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-md px-4 pointer-events-none">
         {% with messages = get_flashed_messages(category_filter=["error"]) %}
             {% if messages %}
-                <div class="pointer-events-auto bg-red-900/80 border border-red-500/50 text-red-100 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center justify-between font-medium text-sm mb-2">
+                <div data-aos="fade-down" class="pointer-events-auto bg-red-900/80 border border-red-500/50 text-red-100 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center justify-between font-medium text-sm mb-2">
                     <span>{{ messages[0] }}</span>
                     <button aria-label="Close message" onclick="this.parentElement.style.display='none'" class="text-white opacity-60 hover:opacity-100 text-lg ml-4">&times;</button>
                 </div>
@@ -197,7 +218,7 @@
         {% endwith %}
         {% with messages = get_flashed_messages(category_filter=["success"]) %}
             {% if messages %}
-                <div class="pointer-events-auto bg-emerald-900/80 border border-emerald-500/50 text-emerald-100 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center justify-between font-medium text-sm mb-2">
+                <div data-aos="fade-down" class="pointer-events-auto bg-emerald-900/80 border border-emerald-500/50 text-emerald-100 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center justify-between font-medium text-sm mb-2">
                     <span>{{ messages[0] }}</span>
                     <button aria-label="Close message" onclick="this.parentElement.style.display='none'" class="text-white opacity-60 hover:opacity-100 text-lg ml-4">&times;</button>
                 </div>
@@ -205,16 +226,26 @@
         {% endwith %}
     </div>
 
-    <main class="flex-grow pt-28">
+    <main class="flex-grow pt-28 relative z-10">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="border-t border-white/10 mt-12 bg-[#050510]">
+    <footer class="border-t border-white/5 mt-12 bg-transparent relative z-10">
         <div class="mx-auto max-w-7xl px-6 py-10 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 gap-4">
             <div class="font-magical text-2xl font-bold text-white opacity-80 hover:opacity-100 transition">ETHIC<span class="text-gold">.</span></div>
             <p class="font-medium">© 2026 ETHIC. Build Character, Not Screen Addiction.</p>
         </div>
     </footer>
 
+    <!-- 🚀 NEW: Initialize AOS Engine -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)', // Apple smooth easing
+            once: true, // Only animate once when scrolling down
+            offset: 40, // Trigger animation a bit earlier
+        });
+    </script>
 </body>
 </html>
