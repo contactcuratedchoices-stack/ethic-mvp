@@ -4,17 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- SEO Optimization -->
     <meta name="description" content="Generate highly personalized, 3D animated bedtime stories with cinematic audio. Build character, ignite imagination, and turn screen time into story time with Ethic." />
     <meta name="theme-color" content="#050510" />
     <title>ETHIC — Magical Bedtime Stories</title>
     
-    <!-- Font Loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" />
     
-    <!-- 🚀 NEW: AOS (Animate On Scroll) Library for Apple-like reveals -->
+    <!-- AOS (Animate On Scroll) Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,9 +29,6 @@
                         navy: '#050510', 
                         gold: '#f4c95d', 
                         'gold-soft': '#fce29f'
-                    },
-                    transitionTimingFunction: {
-                        'spring': 'cubic-bezier(0.16, 1, 0.3, 1)', /* Apple's smooth spring easing */
                     }
                 }
             }
@@ -45,16 +40,6 @@
             background-color: #050510; 
             color: #ffffff; 
             position: relative;
-        }
-        
-        /* 🚀 NEW: FILM GRAIN / NOISE TEXTURE (The Designer Secret) */
-        .noise-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.035; /* Just enough to feel real, not distracting */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
         
         /* Edge-to-Edge Frosted Glass Navbar */
@@ -82,7 +67,7 @@
         }
         .nav-link:hover::after { width: 100%; }
         
-        /* 🚀 NEW: MICRO-INTERACTIONS (Spring Physics on buttons) */
+        /* PREMIUM MICRO-INTERACTIONS (Spring Physics on buttons) */
         .btn-glow {
             background: #ffffff;
             color: #050510;
@@ -94,7 +79,7 @@
             box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
         }
         .btn-glow:active {
-            transform: scale(0.96) translateY(0); /* The Squish Effect */
+            transform: scale(0.96) translateY(0);
         }
 
         #mobile-menu {
@@ -116,9 +101,6 @@
     </style>
 </head>
 <body class="font-sans min-h-screen antialiased flex flex-col selection:bg-gold/30">
-
-    <!-- THE MAGIC GRAIN OVERLAY -->
-    <div class="noise-overlay"></div>
 
     <header class="fixed w-full z-50 top-0 left-0 glass-header h-[72px] flex items-center">
         <div class="w-full max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -237,14 +219,14 @@
         </div>
     </footer>
 
-    <!-- 🚀 NEW: Initialize AOS Engine -->
+    <!-- Initialize AOS Engine -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({
             duration: 800,
-            easing: 'cubic-bezier(0.16, 1, 0.3, 1)', // Apple smooth easing
-            once: true, // Only animate once when scrolling down
-            offset: 40, // Trigger animation a bit earlier
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+            once: true,
+            offset: 40,
         });
     </script>
 </body>
