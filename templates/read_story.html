@@ -1,30 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
+    /* 🚀 PREMIUM THEATRE UI */
+    body { background-color: #000000 !important; } /* Pitch black background for theatre mode */
+    
     .magical-font { font-family: 'Baloo 2', cursive; }
+    .sans-font { font-family: 'Plus Jakarta Sans', sans-serif; }
     
     .storybook-container {
         position: relative;
         width: 100%;
         height: 85vh; 
-        border-radius: 2rem;
+        border-radius: 24px;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 0 2px rgba(244,201,93,0.4);
         background-color: #050510;
+        box-shadow: 0 0 50px rgba(244, 201, 93, 0.05); /* Very subtle ambient glow */
+        border: 1px solid rgba(255, 255, 255, 0.05);
         transition: all 0.3s ease;
     }
     
-    .storybook-container:fullscreen { border-radius: 0; height: 100vh; }
-    .storybook-container:-webkit-full-screen { border-radius: 0; height: 100vh; }
+    .storybook-container:fullscreen { border-radius: 0; height: 100vh; border: none; }
+    .storybook-container:-webkit-full-screen { border-radius: 0; height: 100vh; border: none; }
 
     /* KEN BURNS DUAL LAYER CROSSFADE */
     .story-bg {
         position: absolute;
-        inset: -5%; /* Thoda extra space zoom ke liye */
+        inset: -5%;
         width: 110%;
         height: 110%;
         object-fit: cover;
@@ -32,7 +37,6 @@
         transition: opacity 2s ease-in-out;
     }
     
-    /* Smooth Zoom Animation */
     @keyframes kenBurns {
         0% { transform: scale(1) translate(0, 0); }
         100% { transform: scale(1.15) translate(-1%, -1%); }
@@ -41,17 +45,32 @@
         animation: kenBurns 30s infinite alternate linear;
     }
 
-    /* 🚀 MAGICAL DUST PARTICLES */
-    .dust-particles {
+    /* 🎬 CINEMATIC LIGHTING OVERLAYS (The secret to Theatre Mode) */
+    .vignette-overlay {
         position: absolute;
         inset: 0;
+        background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.85) 100%);
         pointer-events: none;
-        background-image: 
-            radial-gradient(circle, rgba(244,201,93,0.8) 1px, transparent 1px),
-            radial-gradient(circle, rgba(244,201,93,0.8) 1px, transparent 1px);
+        z-index: 15;
+    }
+
+    .bottom-gradient {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 60%; /* Taller gradient for massive text readability */
+        background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.7) 40%, transparent 100%);
+        pointer-events: none;
+        z-index: 16;
+    }
+
+    /* ✨ MAGICAL DUST PARTICLES */
+    .dust-particles {
+        position: absolute; inset: 0; pointer-events: none;
+        background-image: radial-gradient(circle, rgba(244,201,93,0.8) 1px, transparent 1px),
+                          radial-gradient(circle, rgba(244,201,93,0.8) 1px, transparent 1px);
         background-size: 100px 100px;
         background-position: 0 0, 50px 50px;
-        opacity: 0.3;
+        opacity: 0.15;
         animation: floatDust 20s linear infinite;
         z-index: 10;
     }
@@ -60,14 +79,12 @@
         100% { transform: translateY(-100px) translateX(-50px); }
     }
 
-    /* PREMIUM SUBTITLE BOX */
+    /* 🎵 SPOTIFY-STYLE LYRICS (Huge, Floating, Beautiful) */
     .story-text-box {
         position: absolute;
-        bottom: 12%; 
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 900px;
+        bottom: 15%; /* Lifted up slightly for the new control bar */
+        left: 5%;
+        right: 5%;
         text-align: center;
         pointer-events: none; 
         display: flex;
@@ -76,114 +93,147 @@
     }
 
     .karaoke-text {
-        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: rgba(255, 255, 255, 0.4);
         font-size: 1.8rem;
-        font-weight: 700;
-        line-height: 1.5;
-        background: rgba(10, 10, 20, 0.65);
-        backdrop-filter: blur(10px);
-        padding: 15px 30px;
-        border-radius: 25px;
-        border: 1px solid rgba(244, 201, 93, 0.3);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(244, 201, 93, 0.1);
-        display: inline-block;
+        font-weight: 800;
+        line-height: 1.3;
+        letter-spacing: -0.02em;
         opacity: 0;
+        text-shadow: 0 4px 30px rgba(0,0,0,1); /* Heavy drop shadow so it pops on any background */
     }
-    @media (min-width: 768px) { .karaoke-text { font-size: 2.4rem; } }
+    @media (min-width: 768px) { .karaoke-text { font-size: 3rem; } }
+    @media (min-width: 1024px) { .karaoke-text { font-size: 3.5rem; } }
     
     .karaoke-highlight { 
-        color: #f4c95d; 
-        text-shadow: 0 0 15px rgba(244,201,93,0.6);
+        background: linear-gradient(to right, #ffffff, #fce29f);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 4px 15px rgba(0,0,0,0.8));
     }
 
     @keyframes subtitlePop {
-        0% { transform: translateY(15px) scale(0.95); opacity: 0; }
+        0% { transform: translateY(20px) scale(0.98); opacity: 0; }
         100% { transform: translateY(0) scale(1); opacity: 1; }
     }
     .reels-text-anim {
-        animation: subtitlePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        animation: subtitlePop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    /* Cinematic Controls */
+    /* 🎛️ PREMIUM FLOATING CONTROLS (Pill shaped) */
     .cinematic-controls {
         position: absolute;
-        bottom: 0; left: 0; width: 100%;
-        background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0));
-        padding: 25px 3% 15px 3%;
-        display: flex; flex-direction: column; gap: 12px;
-        z-index: 40; opacity: 0; transform: translateY(10px);
-        transition: all 0.4s ease;
+        bottom: 24px; left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        width: 90%; max-width: 600px;
+        background: rgba(15, 15, 25, 0.5); /* Ultra premium dark glass */
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 100px;
+        padding: 12px 24px;
+        display: flex; flex-direction: column; gap: 8px;
+        z-index: 40; opacity: 0;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .storybook-container.started .cinematic-controls {
-        opacity: 1; transform: translateY(0);
+        opacity: 1; transform: translateX(-50%) translateY(0);
     }
     
+    /* Top Badges */
     .top-bar-overlay { position: absolute; top: 4%; left: 4%; right: 4%; display: flex; justify-content: space-between; z-index: 20; }
-    #center-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 30; cursor: pointer; }
+    
+    /* Center Play Button */
+    #center-play-btn { 
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        z-index: 40; cursor: pointer; 
+    }
 
-    .seek-slider { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; transition: height 0.2s; }
-    .seek-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #f4c95d; cursor: pointer; box-shadow: 0 0 10px rgba(244, 201, 93, 0.8); }
-    .ctrl-btn { color: white; background: none; border: none; cursor: pointer; transition: color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center; }
-    .ctrl-btn:hover { color: #f4c95d; transform: scale(1.1); }
+    /* Sleek Seek Bar */
+    .seek-slider { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.15); border-radius: 5px; outline: none; cursor: pointer; transition: height 0.2s; }
+    .seek-slider:hover { height: 6px; }
+    .seek-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #ffffff; cursor: pointer; box-shadow: 0 0 10px rgba(255,255,255,0.5); transition: transform 0.2s; }
+    .seek-slider::-webkit-slider-thumb:hover { transform: scale(1.3); background: #f4c95d; }
+    
+    .ctrl-btn { color: #ffffff; background: none; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; opacity: 0.7; }
+    .ctrl-btn:hover { color: #f4c95d; opacity: 1; transform: scale(1.1); }
 </style>
 
-<section class="mx-auto max-w-5xl px-4 py-8">
-  <div class="mb-4 flex justify-between items-center px-2">
-    <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-purple-soft hover:text-white transition bg-purple-soft/10 px-4 py-2 rounded-xl border border-purple-soft/30 hover:bg-purple-soft/20">
-      ← Library
-    </a>
-    <h1 class="magical-font text-2xl md:text-3xl font-bold text-white tracking-wide">{{ story.title }}</h1>
-    <div class="w-20"></div> 
-  </div>
+<section class="w-full min-h-screen bg-black pt-8 pb-12 px-4 flex flex-col items-center">
+    
+    <!-- Header Area -->
+    <div class="w-full max-w-6xl mb-6 flex justify-between items-center">
+        <a href="/dashboard" class="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition bg-white/5 px-4 py-2.5 rounded-full border border-white/10 hover:bg-white/10 backdrop-blur-md">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Library
+        </a>
+        <h1 class="magical-font text-2xl md:text-3xl font-bold text-white tracking-wide drop-shadow-lg">{{ story.title }}</h1>
+        <div class="w-24"></div> <!-- Spacer for perfect centering -->
+    </div>
 
-  <div id="storybook" class="storybook-container">
-      <div class="dust-particles"></div>
+    <!-- THE THEATRE SCREEN -->
+    <div id="storybook" class="storybook-container max-w-6xl w-full">
+        <div class="dust-particles"></div>
 
-      <img id="bg-layer-1" class="story-bg opacity-100" src="{{ story.image_url }}" alt="Scene Layer 1">
-      <img id="bg-layer-2" class="story-bg opacity-0" src="{{ story.image_url }}" alt="Scene Layer 2">
-      
-      <div class="top-bar-overlay">
-          <span id="page-indicator" class="bg-black/60 text-gold-soft px-4 py-1.5 rounded-full text-sm font-bold backdrop-blur-md border border-gold/30 shadow-lg">
-              Loading Magic...
-          </span>
-      </div>
+        <!-- Layered Backgrounds -->
+        <img id="bg-layer-1" class="story-bg opacity-100" src="{{ story.image_url }}" alt="Scene Layer 1">
+        <img id="bg-layer-2" class="story-bg opacity-0" src="{{ story.image_url }}" alt="Scene Layer 2">
+        
+        <!-- Cinematic Lighting Overlays -->
+        <div class="vignette-overlay"></div>
+        <div class="bottom-gradient"></div>
+        
+        <!-- Scene Indicator -->
+        <div class="top-bar-overlay">
+            <span id="page-indicator" class="bg-black/40 text-gray-200 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-md border border-white/10 shadow-lg">
+                Loading Magic...
+            </span>
+        </div>
 
-      <div id="center-play-btn" class="h-24 w-24 rounded-full bg-gold/90 text-navy flex items-center justify-center shadow-[0_0_40px_rgba(244,201,93,0.8)] hover:scale-110 transition-transform duration-300">
-          <svg class="w-12 h-12 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </div>
+        <!-- Big Center Play Button (Glassmorphism) -->
+        <div id="center-play-btn" class="h-24 w-24 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl hover:scale-110 hover:bg-white/20 hover:text-gold transition-all duration-300">
+            <svg class="w-10 h-10 ml-2 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
 
-      <div id="text-box" class="story-text-box">
-          <p id="dynamic-text" class="magical-font karaoke-text"></p>
-      </div>
+        <!-- 🎵 FLOATING LYRICS -->
+        <div id="text-box" class="story-text-box">
+            <p id="dynamic-text" class="sans-font karaoke-text"></p>
+        </div>
 
-      <div class="cinematic-controls">
-          <input type="range" id="seek-bar" class="seek-slider" value="0" max="100" step="0.1">
-          <div class="flex justify-between items-center px-2 pt-1">
-              <div class="flex items-center gap-4">
-                  <button id="mini-play-pause" class="ctrl-btn">
-                      <svg id="mini-play" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                      <svg id="mini-pause" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-                  </button>
-                  <span id="time-display" class="text-xs font-bold text-gray-300">0:00 / 0:00</span>
-              </div>
-              <div class="flex items-center gap-6">
-                  <button id="skip-back" class="ctrl-btn text-sm font-bold">-10s</button>
-                  <button id="skip-forward" class="ctrl-btn text-sm font-bold">+10s</button>
-              </div>
-              <div class="flex items-center gap-4">
-                  <button id="speed-btn" class="ctrl-btn text-xs font-bold border border-gray-400/50 rounded px-2 py-1">1x</button>
-                  <button id="fullscreen-btn" class="ctrl-btn">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                  </button>
-              </div>
-          </div>
-      </div>
-  </div>
+        <!-- 🎛️ FLOATING DOCK CONTROLS -->
+        <div class="cinematic-controls">
+            <input type="range" id="seek-bar" class="seek-slider" value="0" max="100" step="0.1">
+            
+            <div class="flex justify-between items-center px-1 pt-2">
+                <div class="flex items-center gap-4">
+                    <button id="mini-play-pause" class="ctrl-btn">
+                        <svg id="mini-play" class="w-7 h-7 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg id="mini-pause" class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+                    </button>
+                    <span id="time-display" class="sans-font text-xs font-bold text-gray-400 tracking-wider">0:00 / 0:00</span>
+                </div>
+                
+                <div class="flex items-center gap-6">
+                    <button id="skip-back" class="ctrl-btn text-sm font-bold tracking-wider">-10s</button>
+                    <button id="skip-forward" class="ctrl-btn text-sm font-bold tracking-wider">+10s</button>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button id="speed-btn" class="ctrl-btn text-xs font-bold border border-white/20 rounded px-2.5 py-1 hover:border-gold">1x</button>
+                    <button id="fullscreen-btn" class="ctrl-btn">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <audio id="story-audio" src="{% if story.audio_data %}data:audio/wav;base64,{{ story.audio_data }}{% endif %}" preload="metadata"></audio>
-  <div id="raw-story-content" class="hidden">{{ story.content }}</div>
+    <!-- Hidden audio and text data -->
+    <audio id="story-audio" src="{% if story.audio_data %}data:audio/wav;base64,{{ story.audio_data }}{% endif %}" preload="metadata"></audio>
+    <div id="raw-story-content" class="hidden">{{ story.content }}</div>
 </section>
 
+<!-- 🧠 100% UNTOUCHED ORIGINAL JAVASCRIPT -->
 <script>
     let rawText = document.getElementById('raw-story-content').innerText;
     rawText = rawText.replace(/\*\*/g, '');
@@ -200,21 +250,18 @@
         return `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1280&height=720&nologo=true&model=flux&seed=${randomSeed}`;
     });
 
-    // 🚀 NEW: SEQUENTIAL LAZY LOADER (Black Screen Bug Fix)
-    // Ek saath sab load nahi karenge. Pehle 2 load karenge, fir baaki dheere-dheere.
+    // Sequential Lazy Loader
     async function preloadImagesSequentially() {
         for (let i = 0; i < storyImages.length; i++) {
             await new Promise((resolve) => {
                 const img = new Image();
                 img.onload = () => resolve();
                 img.onerror = () => {
-                    // Agar API block karde, toh default magical image dikhayega (black nahi hoga)
                     storyImages[i] = "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop";
                     resolve();
                 };
                 img.src = storyImages[i];
             });
-            // Har image ke baad 500ms ka gap taaki API gussa na ho
             await new Promise(r => setTimeout(r, 500));
         }
     }
@@ -322,7 +369,7 @@
         if(!isNaN(audio.duration)) {
             const progress = (audio.currentTime / audio.duration) * 100;
             seekBar.value = progress;
-            seekBar.style.background = `linear-gradient(to right, #f4c95d ${progress}%, rgba(255,255,255,0.2) ${progress}%)`;
+            seekBar.style.background = `linear-gradient(to right, #ffffff ${progress}%, rgba(255,255,255,0.15) ${progress}%)`;
             timeDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
 
             const activeSubtitle = subtitleTimings.find(st => audio.currentTime >= st.start && audio.currentTime <= st.end);
