@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- 🚀 Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
     /* 🚀 PREMIUM AUTHENTICATION UI */
     .auth-glass-card {
@@ -21,7 +24,7 @@
     
     .auth-input:focus {
         background: rgba(255, 255, 255, 0.08);
-        border-color: #f4c95d;
+        border-color: #f4c95d; /* Gold */
         box-shadow: 0 0 15px rgba(244, 201, 93, 0.15);
         outline: none;
     }
@@ -35,6 +38,19 @@
         transform: translateY(-2px);
         box-shadow: 0 15px 30px rgba(255, 255, 255, 0.25);
     }
+
+    /* 💎 New Google Button Style */
+    .btn-google {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: all 0.3s ease;
+    }
+    .btn-google:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
 </style>
 
 <section class="relative flex flex-col items-center justify-center min-h-[85vh] px-5 py-12 overflow-hidden">
@@ -45,106 +61,99 @@
     <!-- Header Text -->
     <div class="text-center mb-8 relative z-10">
         <h1 class="font-magical text-4xl font-bold text-white tracking-wide mb-2">Welcome to ETHIC<span class="text-gold">.</span></h1>
-        <p class="text-gray-400 font-medium">Join mindful parents building character.</p>
+        <p class="text-gray-400 font-medium">Passwordless entry for mindful parents.</p>
     </div>
 
     <!-- 📦 THE GLASS CARD -->
     <div class="auth-glass-card w-full max-w-md p-8 sm:p-10 relative z-10">
-        
-        <!-- ✨ TABS (Login vs Signup) -->
-        <div class="flex gap-4 mb-8 border-b border-white/10 pb-4">
-            <button onclick="showTab('login')" id="tab-login" class="flex-1 text-center text-sm font-bold text-white border-b-2 border-gold pb-2 transition-all">
-                Log In
-            </button>
-            <button onclick="showTab('signup')" id="tab-signup" class="flex-1 text-center text-sm font-bold text-gray-500 border-b-2 border-transparent pb-2 transition-all hover:text-gray-300">
-                Create Account
+
+        <!-- 1. Continue with Google -->
+        <button onclick="signInWithGoogle()" class="btn-google w-full flex items-center justify-center gap-3 py-3.5 rounded-xl font-bold text-sm mb-6">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.16v2.84A10.997 10.997 0 0 0 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.16A10.993 10.993 0 0 0 1 12c0 1.77.42 3.45 1.16 4.93l3.68-2.84z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.16 7.07l3.68 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+        </button>
+
+        <!-- Divider -->
+        <div class="relative flex items-center py-2 mb-6">
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink-0 mx-4 text-gray-500 text-xs font-bold uppercase tracking-widest">Or Magic Link</span>
+            <div class="flex-grow border-t border-white/10"></div>
+        </div>
+
+        <!-- 2. Email Magic Link Form -->
+        <div class="flex flex-col gap-5">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Email Address</label>
+                <input type="email" id="email-input" required placeholder="mom@example.com" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm placeholder-gray-600" />
+            </div>
+            
+            <button onclick="signInWithEmail()" id="email-btn" class="btn-premium-primary w-full rounded-xl px-7 py-3.5 text-base font-bold flex items-center justify-center gap-2">
+                Send Magic Link ✨
             </button>
         </div>
 
-        <!-- 🔐 LOGIN FORM -->
-        <form id="form-login" action="/login" method="POST" class="flex flex-col gap-5">
-            <input type="hidden" name="action" value="login">
-            
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Email Address</label>
-                <input type="email" name="email" required placeholder="mom@example.com" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm placeholder-gray-600" />
-            </div>
-            
-            <div>
-                <div class="flex justify-between items-center mb-2 ml-1 pr-1">
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Password</label>
-                </div>
-                <input type="password" name="password" required placeholder="••••••••" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm placeholder-gray-600" />
-            </div>
-            
-            <button type="submit" class="btn-premium-primary mt-4 w-full rounded-xl px-7 py-3.5 text-base font-bold flex items-center justify-center gap-2">
-                Log In <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            </button>
-        </form>
-
-        <!-- 🚀 SIGNUP FORM (Hidden by default) -->
-        <form id="form-signup" action="/login" method="POST" class="flex flex-col gap-5 hidden">
-            <input type="hidden" name="action" value="signup">
-            
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Parent's Name</label>
-                <input type="text" name="name" required placeholder="E.g. Priya Sharma" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm placeholder-gray-600" />
-            </div>
-            
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Email Address</label>
-                <input type="email" name="email" required placeholder="mom@example.com" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm placeholder-gray-600" />
-            </div>
-            
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Create Password</label>
-                <input type="password" name="password" required placeholder="Min 6 characters" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm placeholder-gray-600" />
-            </div>
-            
-            <button type="submit" class="mt-4 w-full rounded-xl border-2 border-gold text-gold bg-gold/5 px-7 py-3.5 text-base font-bold hover:bg-gold hover:text-navy transition shadow-[0_0_15px_rgba(244,201,93,0.2)]">
-                Create Account
-            </button>
-        </form>
+        <!-- Status Message -->
+        <p id="status-message" class="mt-5 text-sm font-medium text-center hidden"></p>
 
     </div>
 </section>
 
-<!-- ⚙️ Smart JS to toggle forms and update styles safely -->
+<!-- ⚙️ SUPABASE JS LOGIC -->
 <script>
-    function showTab(tabName) {
-        const formLogin = document.getElementById('form-login');
-        const formSignup = document.getElementById('form-signup');
-        const tabLogin = document.getElementById('tab-login');
-        const tabSignup = document.getElementById('tab-signup');
+    // Flask से आई हुई Keys
+    const supabaseUrl = "{{ supabase_url }}";
+    const supabaseKey = "{{ supabase_key }}";
+    
+    // Initialize Supabase Client
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Classes for Active and Inactive states
-        const activeClasses = ['text-white', 'border-gold'];
-        const inactiveClasses = ['text-gray-500', 'border-transparent', 'hover:text-gray-300'];
+    // 1. Google Login Logic
+    async function signInWithGoogle() {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/dashboard'
+            }
+        });
+        if (error) console.error("Error: ", error.message);
+    }
 
-        if(tabName === 'login') {
-            // Show Login, Hide Signup
-            formLogin.classList.remove('hidden');
-            formSignup.classList.add('hidden');
-            
-            // Update Login Tab Style
-            tabLogin.classList.remove(...inactiveClasses);
-            tabLogin.classList.add(...activeClasses);
-            
-            // Update Signup Tab Style
-            tabSignup.classList.remove(...activeClasses);
-            tabSignup.classList.add(...inactiveClasses);
+    // 2. Email Magic Link Logic
+    async function signInWithEmail() {
+        const email = document.getElementById('email-input').value;
+        const btn = document.getElementById('email-btn');
+        const msg = document.getElementById('status-message');
+
+        if (!email) {
+            msg.textContent = "Please enter a valid email address.";
+            msg.className = "mt-5 text-sm font-medium text-red-400 text-center block";
+            return;
+        }
+
+        btn.innerHTML = "Sending... ⏳";
+        btn.disabled = true;
+
+        const { data, error } = await supabase.auth.signInWithOtp({
+            email: email,
+            options: {
+                emailRedirectTo: window.location.origin + '/dashboard'
+            }
+        });
+
+        if (error) {
+            msg.textContent = error.message;
+            msg.className = "mt-5 text-sm font-medium text-red-400 text-center block";
+            btn.innerHTML = "Send Magic Link ✨";
+            btn.disabled = false;
         } else {
-            // Show Signup, Hide Login
-            formSignup.classList.remove('hidden');
-            formLogin.classList.add('hidden');
-            
-            // Update Signup Tab Style
-            tabSignup.classList.remove(...inactiveClasses);
-            tabSignup.classList.add(...activeClasses);
-            
-            // Update Login Tab Style
-            tabLogin.classList.remove(...activeClasses);
-            tabLogin.classList.add(...inactiveClasses);
+            msg.textContent = "✨ Magic link sent! Please check your inbox.";
+            msg.className = "mt-5 text-sm font-medium text-emerald-400 text-center block";
+            btn.innerHTML = "Check your Email 📧";
         }
     }
 </script>
