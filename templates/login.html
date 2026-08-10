@@ -31,6 +31,7 @@
 </style>
 
 <section class="relative flex flex-col items-center justify-center min-h-[85vh] px-5 py-12 overflow-hidden">
+    <!-- Ambient Orb -->
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-gold/10 rounded-full blur-[100px] pointer-events-none"></div>
 
     <div class="text-center mb-8 relative z-10">
@@ -108,17 +109,18 @@
     </div>
 </section>
 
+<!-- ⚙️ BULLETPROOF JAVASCRIPT -->
 <script>
-    // System Variables
-    const supabaseUrl = "{{ supabase_url }}";
-    const supabaseKey = "{{ supabase_key }}";
-    let supabase = null;
-    let currentAuthEmail = "";
-    let currentAuthType = ""; 
+    // Using 'var' and renaming variables to prevent ANY redeclaration syntax errors
+    var mySupabaseUrl = "{{ supabase_url }}";
+    var mySupabaseKey = "{{ supabase_key }}";
+    var supabaseApp = null;
+    var currentAuthEmail = "";
+    var currentAuthType = ""; 
 
     // --- Core Functions ---
     function showMessage(text, type) {
-        const msgDiv = document.getElementById('status-message');
+        var msgDiv = document.getElementById('status-message');
         msgDiv.textContent = text;
         msgDiv.className = `mt-5 p-3 rounded-xl text-sm font-medium text-center block border ${type === 'error' ? 'bg-red-900/50 text-red-400 border-red-500/30' : 'bg-emerald-900/50 text-emerald-400 border-emerald-500/30'}`;
     }
@@ -139,8 +141,8 @@
         if(view === 'login' || view === 'signup') {
             document.getElementById('auth-tabs').classList.remove('hidden');
             document.getElementById('header-desc').textContent = "Log in or create your account to begin.";
-            const activeClass = ['text-white', 'border-gold'];
-            const inactiveClass = ['text-gray-500', 'border-transparent'];
+            var activeClass = ['text-white', 'border-gold'];
+            var inactiveClass = ['text-gray-500', 'border-transparent'];
             if (view === 'login') {
                 document.getElementById('tab-login').classList.add(...activeClass); document.getElementById('tab-login').classList.remove(...inactiveClass);
                 document.getElementById('tab-signup').classList.add(...inactiveClass); document.getElementById('tab-signup').classList.remove(...activeClass);
@@ -157,18 +159,18 @@
     }
 
     function checkSupabase() {
-        if (!supabase) { showMessage("⚠️ System error: Unable to connect to database.", "error"); return false; }
+        if (!supabaseApp) { showMessage("⚠️ System error: Unable to connect to database.", "error"); return false; }
         return true;
     }
 
     async function syncAndRedirect(email, name="User") {
         try {
-            const response = await fetch('/sync_session', {
+            var response = await fetch('/sync_session', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, name: name })
             });
-            const data = await response.json();
+            var data = await response.json();
             if (data.success) { window.location.href = '/dashboard'; } 
             else { showMessage("Backend sync failed. Try again.", "error"); }
         } catch (e) { showMessage("Server connection error.", "error"); }
@@ -177,30 +179,30 @@
     // --- Action Handlers ---
     async function handleLogin() {
         if (!checkSupabase()) return;
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
+        var email = document.getElementById('login-email').value;
+        var password = document.getElementById('login-password').value;
         if (!email || !password) return showMessage("Please enter email and password.", "error");
 
-        const btn = document.getElementById('btn-login');
+        var btn = document.getElementById('btn-login');
         btn.textContent = "Verifying..."; btn.disabled = true;
 
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        var { error } = await supabaseApp.auth.signInWithPassword({ email: email, password: password });
         if (error) { showMessage(error.message, "error"); btn.textContent = "Log In"; btn.disabled = false; } 
         else { syncAndRedirect(email); }
     }
 
     async function handleSignup() {
         if (!checkSupabase()) return;
-        const name = document.getElementById('signup-name').value;
-        const email = document.getElementById('signup-email').value;
-        const password = document.getElementById('signup-password').value;
+        var name = document.getElementById('signup-name').value;
+        var email = document.getElementById('signup-email').value;
+        var password = document.getElementById('signup-password').value;
         if (!name || !email || !password) return showMessage("Please fill all fields.", "error");
         if (password.length < 6) return showMessage("Password must be at least 6 characters.", "error");
 
-        const btn = document.getElementById('btn-signup');
+        var btn = document.getElementById('btn-signup');
         btn.textContent = "Sending OTP..."; btn.disabled = true;
 
-        const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } }});
+        var { error } = await supabaseApp.auth.signUp({ email: email, password: password, options: { data: { full_name: name } }});
         if (error) { showMessage(error.message, "error"); btn.textContent = "Create Account"; btn.disabled = false; } 
         else {
             currentAuthEmail = email; currentAuthType = 'signup'; showView('otp');
@@ -211,13 +213,13 @@
 
     async function handleLoginWithOTP() {
         if (!checkSupabase()) return;
-        const email = document.getElementById('login-email').value;
+        var email = document.getElementById('login-email').value;
         if (!email) return showMessage("Please enter your email above to login with OTP.", "error");
 
-        const btn = document.getElementById('btn-login-otp');
+        var btn = document.getElementById('btn-login-otp');
         btn.textContent = "Sending OTP..."; btn.disabled = true;
 
-        const { error } = await supabase.auth.signInWithOtp({ email });
+        var { error } = await supabaseApp.auth.signInWithOtp({ email: email });
         if (error) { showMessage(error.message, "error"); btn.textContent = "Log in with OTP instead"; btn.disabled = false; } 
         else {
             currentAuthEmail = email; currentAuthType = 'magiclink'; showView('otp');
@@ -228,26 +230,26 @@
 
     async function handleVerifyOTP() {
         if (!checkSupabase()) return;
-        const otp = document.getElementById('otp-input').value;
+        var otp = document.getElementById('otp-input').value;
         if (!otp) return showMessage("Please enter the OTP.", "error");
 
-        const btn = document.getElementById('btn-verify-otp');
+        var btn = document.getElementById('btn-verify-otp');
         btn.textContent = "Verifying..."; btn.disabled = true;
 
-        const { error } = await supabase.auth.verifyOtp({ email: currentAuthEmail, token: otp, type: currentAuthType });
+        var { error } = await supabaseApp.auth.verifyOtp({ email: currentAuthEmail, token: otp, type: currentAuthType });
         if (error) { showMessage("Invalid or expired OTP. Please try again.", "error"); btn.textContent = "Verify & Proceed"; btn.disabled = false; } 
         else { syncAndRedirect(currentAuthEmail); }
     }
 
     async function handleForgotPassword() {
         if (!checkSupabase()) return;
-        const email = document.getElementById('reset-email').value;
+        var email = document.getElementById('reset-email').value;
         if (!email) return showMessage("Please enter your email.", "error");
 
-        const btn = document.getElementById('btn-reset');
+        var btn = document.getElementById('btn-reset');
         btn.textContent = "Sending..."; btn.disabled = true;
 
-        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/dashboard' });
+        var { error } = await supabaseApp.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/dashboard' });
         if (error) { showMessage(error.message, "error"); } 
         else { showMessage("✅ Password reset link sent to your email.", "success"); }
         btn.textContent = "Send Reset Link"; btn.disabled = false;
@@ -256,7 +258,7 @@
     async function signInWithGoogle() {
         if (!checkSupabase()) return;
         try {
-            const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/login' } });
+            var { error } = await supabaseApp.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/login' } });
             if (error) throw error;
         } catch (error) { showMessage("Google Login Failed: " + error.message, "error"); }
     }
@@ -264,18 +266,19 @@
     // --- Initialization (Runs when page loads) ---
     window.addEventListener('DOMContentLoaded', async () => {
         try {
-            if (window.supabase && supabaseUrl && supabaseKey && supabaseUrl !== "None") {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            if (window.supabase && mySupabaseUrl && mySupabaseKey && mySupabaseUrl !== "None") {
+                // Instantiating to our crash-proof variable
+                supabaseApp = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
             } else {
                 console.error("Supabase Init Error: Missing JS or Keys");
-                showMessage("⚠️ Dashboard connection missing. Please contact admin.", "error");
             }
 
-            if (supabase) {
-                const { data: { session } } = await supabase.auth.getSession();
+            if (supabaseApp) {
+                var { data: { session } } = await supabaseApp.auth.getSession();
                 if (session) {
                     document.getElementById('header-desc').textContent = "Securing your session... ⏳";
-                    syncAndRedirect(session.user.email, session.user.user_metadata?.full_name || "User");
+                    var fullName = session.user.user_metadata ? session.user.user_metadata.full_name : "User";
+                    syncAndRedirect(session.user.email, fullName);
                 }
             }
         } catch(e) { console.error("Global JS Error:", e); }
