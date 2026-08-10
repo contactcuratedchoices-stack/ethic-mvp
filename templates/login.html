@@ -5,69 +5,45 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-    /* 🚀 PREMIUM AUTHENTICATION UI */
     .auth-glass-card {
-        background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
         box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255,255,255,0.02);
     }
-    
     .auth-input {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #ffffff;
-        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #ffffff; transition: all 0.3s ease;
     }
-    
     .auth-input:focus {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: #f4c95d; /* Gold */
-        box-shadow: 0 0 15px rgba(244, 201, 93, 0.15);
-        outline: none;
+        background: rgba(255, 255, 255, 0.08); border-color: #f4c95d; box-shadow: 0 0 15px rgba(244, 201, 93, 0.15); outline: none;
     }
-    
     .btn-premium-primary {
-        background: #ffffff; color: #050510;
-        transition: all 0.3s ease;
-        box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        background: #ffffff; color: #050510; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255,255,255,0.1);
     }
-    .btn-premium-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 15px 30px rgba(255, 255, 255, 0.25);
-    }
-
-    /* 💎 New Google Button Style */
-    .btn-google {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: white;
-        transition: all 0.3s ease;
-    }
-    .btn-google:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
+    .btn-premium-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(255, 255, 255, 0.25); }
+    .btn-premium-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+    
+    .btn-google { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: all 0.3s ease; }
+    .btn-google:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
 </style>
 
 <section class="relative flex flex-col items-center justify-center min-h-[85vh] px-5 py-12 overflow-hidden">
-    
-    <!-- 🌟 Ambient Glowing Orb Behind the Card -->
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-gold/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-    <!-- Header Text -->
     <div class="text-center mb-8 relative z-10">
         <h1 class="font-magical text-4xl font-bold text-white tracking-wide mb-2">Welcome to ETHIC<span class="text-gold">.</span></h1>
-        <p class="text-gray-400 font-medium">Passwordless entry for mindful parents.</p>
+        <p class="text-gray-400 font-medium">Log in or create your account to begin.</p>
     </div>
 
-    <!-- 📦 THE GLASS CARD -->
     <div class="auth-glass-card w-full max-w-md p-8 sm:p-10 relative z-10">
+        
+        <!-- ✨ TABS -->
+        <div class="flex gap-4 mb-6 border-b border-white/10 pb-4">
+            <button onclick="switchTab('login')" id="tab-login" class="flex-1 text-center text-sm font-bold text-white border-b-2 border-gold pb-2 transition-all">Log In</button>
+            <button onclick="switchTab('signup')" id="tab-signup" class="flex-1 text-center text-sm font-bold text-gray-500 border-b-2 border-transparent pb-2 transition-all hover:text-gray-300">Create Account</button>
+        </div>
 
-        <!-- 1. Continue with Google -->
+        <!-- Google Login Button -->
         <button onclick="signInWithGoogle()" class="btn-google w-full flex items-center justify-center gap-3 py-3.5 rounded-xl font-bold text-sm mb-6">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -78,83 +54,165 @@
             Continue with Google
         </button>
 
-        <!-- Divider -->
         <div class="relative flex items-center py-2 mb-6">
             <div class="flex-grow border-t border-white/10"></div>
-            <span class="flex-shrink-0 mx-4 text-gray-500 text-xs font-bold uppercase tracking-widest">Or Magic Link</span>
+            <span class="flex-shrink-0 mx-4 text-gray-500 text-xs font-bold uppercase tracking-widest">Or with Email</span>
             <div class="flex-grow border-t border-white/10"></div>
         </div>
 
-        <!-- 2. Email Magic Link Form -->
-        <div class="flex flex-col gap-5">
+        <!-- 🔐 LOGIN FORM -->
+        <form id="form-login" onsubmit="handleLogin(event)" class="flex flex-col gap-5">
             <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Email Address</label>
-                <input type="email" id="email-input" required placeholder="mom@example.com" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm placeholder-gray-600" />
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Email Address</label>
+                <input type="email" id="login-email" required placeholder="name@example.com" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
             </div>
-            
-            <button onclick="signInWithEmail()" id="email-btn" class="btn-premium-primary w-full rounded-xl px-7 py-3.5 text-base font-bold flex items-center justify-center gap-2">
-                Send Magic Link ✨
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Password</label>
+                <input type="password" id="login-password" required placeholder="••••••••" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
+            </div>
+            <button type="submit" id="btn-login" class="btn-premium-primary mt-2 w-full rounded-xl px-7 py-3.5 text-base font-bold">
+                Log In Securely
             </button>
-        </div>
+        </form>
 
-        <!-- Status Message -->
-        <p id="status-message" class="mt-5 text-sm font-medium text-center hidden"></p>
+        <!-- 🚀 SIGNUP FORM (Hidden by default) -->
+        <form id="form-signup" onsubmit="handleSignup(event)" class="flex flex-col gap-5 hidden">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Parent's Name</label>
+                <input type="text" id="signup-name" required placeholder="E.g. Priya Sharma" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Email Address</label>
+                <input type="email" id="signup-email" required placeholder="name@example.com" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Create Password</label>
+                <input type="password" id="signup-password" required placeholder="Min 6 characters" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
+            </div>
+            <button type="submit" id="btn-signup" class="mt-2 w-full rounded-xl border-2 border-gold text-gold bg-gold/5 px-7 py-3.5 text-base font-bold hover:bg-gold hover:text-navy transition shadow-[0_0_15px_rgba(244,201,93,0.2)]">
+                Create Account & Get OTP
+            </button>
+        </form>
 
+        <!-- Dynamic Status Message -->
+        <div id="status-message" class="mt-5 p-3 rounded-xl text-sm font-medium text-center hidden border"></div>
     </div>
 </section>
 
-<!-- ⚙️ SUPABASE JS LOGIC -->
 <script>
-    // Flask से आई हुई Keys
+    // ⚠️ Security Check: Make sure Flask passed the keys properly
     const supabaseUrl = "{{ supabase_url }}";
     const supabaseKey = "{{ supabase_key }}";
     
-    // Initialize Supabase Client
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    // 1. Google Login Logic
-    async function signInWithGoogle() {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin + '/dashboard'
-            }
-        });
-        if (error) console.error("Error: ", error.message);
+    if (!supabaseUrl || supabaseUrl.includes("None") || supabaseUrl.trim() === "") {
+        console.error("CRITICAL ERROR: Supabase Keys are missing. Check Render Environment Variables.");
+        alert("System Configuration Error. Please contact admin.");
     }
 
-    // 2. Email Magic Link Logic
-    async function signInWithEmail() {
-        const email = document.getElementById('email-input').value;
-        const btn = document.getElementById('email-btn');
-        const msg = document.getElementById('status-message');
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        if (!email) {
-            msg.textContent = "Please enter a valid email address.";
-            msg.className = "mt-5 text-sm font-medium text-red-400 text-center block";
-            return;
+    // --- 1. Tab Switching Logic ---
+    function switchTab(tab) {
+        document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
+        document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
+        
+        const activeClass = ['text-white', 'border-gold'];
+        const inactiveClass = ['text-gray-500', 'border-transparent'];
+        
+        if (tab === 'login') {
+            document.getElementById('tab-login').classList.add(...activeClass);
+            document.getElementById('tab-login').classList.remove(...inactiveClass);
+            document.getElementById('tab-signup').classList.add(...inactiveClass);
+            document.getElementById('tab-signup').classList.remove(...activeClass);
+        } else {
+            document.getElementById('tab-signup').classList.add(...activeClass);
+            document.getElementById('tab-signup').classList.remove(...inactiveClass);
+            document.getElementById('tab-login').classList.add(...inactiveClass);
+            document.getElementById('tab-login').classList.remove(...activeClass);
         }
+        hideMessage();
+    }
 
-        btn.innerHTML = "Sending... ⏳";
-        btn.disabled = true;
+    // --- 2. Google Login ---
+    async function signInWithGoogle() {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.origin + '/dashboard' }
+            });
+            if (error) throw error;
+        } catch (error) {
+            showMessage("Google Login Failed: " + error.message, "error");
+        }
+    }
 
-        const { data, error } = await supabase.auth.signInWithOtp({
+    // --- 3. Traditional Email/Password Login ---
+    async function handleLogin(e) {
+        e.preventDefault(); // Prevents page reload
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const btn = document.getElementById('btn-login');
+        
+        btn.textContent = "Verifying..."; btn.disabled = true;
+
+        const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
-            options: {
-                emailRedirectTo: window.location.origin + '/dashboard'
-            }
+            password: password,
         });
 
         if (error) {
-            msg.textContent = error.message;
-            msg.className = "mt-5 text-sm font-medium text-red-400 text-center block";
-            btn.innerHTML = "Send Magic Link ✨";
-            btn.disabled = false;
+            showMessage(error.message, "error");
+            btn.textContent = "Log In Securely"; btn.disabled = false;
         } else {
-            msg.textContent = "✨ Magic link sent! Please check your inbox.";
-            msg.className = "mt-5 text-sm font-medium text-emerald-400 text-center block";
-            btn.innerHTML = "Check your Email 📧";
+            window.location.href = '/dashboard';
         }
     }
+
+    // --- 4. Signup with OTP Verification ---
+    async function handleSignup(e) {
+        e.preventDefault();
+        const name = document.getElementById('signup-name').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const btn = document.getElementById('btn-signup');
+
+        if (password.length < 6) {
+            showMessage("Password must be at least 6 characters.", "error");
+            return;
+        }
+
+        btn.textContent = "Creating Account..."; btn.disabled = true;
+
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: { data: { full_name: name } }
+        });
+
+        if (error) {
+            showMessage(error.message, "error");
+            btn.textContent = "Create Account & Get OTP"; btn.disabled = false;
+        } else {
+            // Success! Supabase sent the OTP/Link to their email.
+            showMessage("✅ Account created! We've sent a 6-digit OTP and verification link to your email. Please verify to continue.", "success");
+            btn.textContent = "Check your Email 📧";
+            document.getElementById('form-signup').reset();
+        }
+    }
+
+    // --- UI Helper Function ---
+    function showMessage(text, type) {
+        const msgDiv = document.getElementById('status-message');
+        msgDiv.textContent = text;
+        msgDiv.classList.remove('hidden', 'bg-red-900/50', 'text-red-400', 'border-red-500/30', 'bg-emerald-900/50', 'text-emerald-400', 'border-emerald-500/30');
+        
+        if (type === 'error') {
+            msgDiv.classList.add('bg-red-900/50', 'text-red-400', 'border-red-500/30');
+        } else {
+            msgDiv.classList.add('bg-emerald-900/50', 'text-emerald-400', 'border-emerald-500/30');
+        }
+    }
+    
+    function hideMessage() { document.getElementById('status-message').classList.add('hidden'); }
 </script>
 {% endblock %}
