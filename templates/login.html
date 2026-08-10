@@ -31,7 +31,6 @@
 </style>
 
 <section class="relative flex flex-col items-center justify-center min-h-[85vh] px-5 py-12 overflow-hidden">
-    <!-- Ambient Orb -->
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-gold/10 rounded-full blur-[100px] pointer-events-none"></div>
 
     <div class="text-center mb-8 relative z-10">
@@ -47,7 +46,7 @@
             <button type="button" onclick="showView('signup')" id="tab-signup" class="flex-1 text-center text-sm font-bold text-gray-500 border-b-2 border-transparent pb-2 transition-all hover:text-gray-300">Create Account</button>
         </div>
 
-        <!-- 🔴 VIEW 1: LOGIN FORM -->
+        <!-- 🔴 VIEW 1: LOGIN -->
         <div id="view-login" class="block">
             <button type="button" onclick="signInWithGoogle()" class="btn-google w-full flex items-center justify-center gap-3 py-3.5 rounded-xl font-bold text-sm mb-6">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.16v2.84A10.997 10.997 0 0 0 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.16A10.993 10.993 0 0 0 1 12c0 1.77.42 3.45 1.16 4.93l3.68-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.16 7.07l3.68 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
@@ -59,7 +58,7 @@
                 <div class="flex-grow border-t border-white/10"></div>
             </div>
             
-            <form onsubmit="handleLogin(event); return false;" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4">
                 <input type="email" id="login-email" required placeholder="Email Address" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
                 <div>
                     <input type="password" id="login-password" required placeholder="Password" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
@@ -67,103 +66,71 @@
                         <button type="button" onclick="showView('forgot-password')" class="text-xs text-gold hover:text-white transition">Forgot Password?</button>
                     </div>
                 </div>
-                <button type="submit" id="btn-login" class="btn-premium-primary w-full rounded-xl px-7 py-3.5 text-base font-bold">Log In</button>
+                <button type="button" onclick="handleLogin()" id="btn-login" class="btn-premium-primary w-full rounded-xl px-7 py-3.5 text-base font-bold">Log In</button>
                 <button type="button" onclick="handleLoginWithOTP()" id="btn-login-otp" class="btn-outline w-full rounded-xl px-7 py-3.5 text-sm font-bold mt-1">Log in with OTP instead</button>
-            </form>
+            </div>
         </div>
 
-        <!-- 🟢 VIEW 2: SIGNUP FORM -->
+        <!-- 🟢 VIEW 2: SIGNUP -->
         <div id="view-signup" class="hidden">
-            <form onsubmit="handleSignup(event); return false;" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4">
                 <input type="text" id="signup-name" required placeholder="Parent's Name" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
                 <input type="email" id="signup-email" required placeholder="Email Address" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
                 <input type="password" id="signup-password" required placeholder="Create Password (Min 6 chars)" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
-                <button type="submit" id="btn-signup" class="mt-2 w-full rounded-xl border-2 border-gold text-gold bg-gold/5 px-7 py-3.5 text-base font-bold hover:bg-gold hover:text-navy transition shadow-[0_0_15px_rgba(244,201,93,0.2)]">
+                <button type="button" onclick="handleSignup()" id="btn-signup" class="mt-2 w-full rounded-xl border-2 border-gold text-gold bg-gold/5 px-7 py-3.5 text-base font-bold hover:bg-gold hover:text-navy transition shadow-[0_0_15px_rgba(244,201,93,0.2)]">
                     Create Account
                 </button>
-            </form>
+            </div>
         </div>
 
         <!-- 🟠 VIEW 3: FORGOT PASSWORD -->
         <div id="view-forgot-password" class="hidden">
             <p class="text-sm text-gray-400 mb-6 text-center">Enter your email and we'll send you a password reset link.</p>
-            <form onsubmit="handleForgotPassword(event); return false;" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4">
                 <input type="email" id="reset-email" required placeholder="Email Address" class="auth-input w-full rounded-xl px-5 py-3.5 text-sm" />
-                <button type="submit" id="btn-reset" class="btn-premium-primary w-full rounded-xl px-7 py-3.5 text-base font-bold">Send Reset Link</button>
+                <button type="button" onclick="handleForgotPassword()" id="btn-reset" class="btn-premium-primary w-full rounded-xl px-7 py-3.5 text-base font-bold">Send Reset Link</button>
                 <button type="button" onclick="showView('login')" class="text-sm text-gray-400 hover:text-white mt-3 transition text-center">Back to Login</button>
-            </form>
+            </div>
         </div>
 
-        <!-- 🔵 VIEW 4: ENTER OTP (Verification) -->
+        <!-- 🔵 VIEW 4: ENTER OTP -->
         <div id="view-otp" class="hidden">
             <p class="text-sm text-gray-400 mb-6 text-center">We've sent a 6-digit code to <strong id="otp-display-email" class="text-white"></strong>. Please enter it below.</p>
-            <form onsubmit="handleVerifyOTP(event); return false;" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4">
                 <input type="text" id="otp-input" required placeholder="Enter 6-digit OTP" class="auth-input w-full rounded-xl px-5 py-3.5 text-center text-2xl tracking-widest font-bold" maxlength="6" />
-                <button type="submit" id="btn-verify-otp" class="btn-premium-primary w-full rounded-xl px-7 py-3.5 text-base font-bold">Verify & Proceed</button>
+                <button type="button" onclick="handleVerifyOTP()" id="btn-verify-otp" class="btn-premium-primary w-full rounded-xl px-7 py-3.5 text-base font-bold">Verify & Proceed</button>
                 <button type="button" onclick="showView('login')" class="text-sm text-gray-400 hover:text-white mt-3 transition text-center">Cancel</button>
-            </form>
+            </div>
         </div>
 
-        <!-- Dynamic Status Message -->
+        <!-- Status Message -->
         <div id="status-message" class="mt-5 p-3 rounded-xl text-sm font-medium text-center hidden border"></div>
     </div>
 </section>
 
-<!-- ⚙️ SECURE JAVASCRIPT LOGIC -->
 <script>
-    // ⚠️ Initialization
+    // System Variables
     const supabaseUrl = "{{ supabase_url }}";
     const supabaseKey = "{{ supabase_key }}";
     let supabase = null;
-
-    if (supabaseUrl && supabaseKey && supabaseUrl !== "None" && supabaseUrl !== "") {
-        try {
-            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        } catch(e) { console.error("Supabase Init Error:", e); }
-    } else {
-        setTimeout(() => { showMessage("⚠️ SYSTEM ERROR: API Keys missing in Render. Check Env Variables.", "error"); }, 500);
-    }
-
     let currentAuthEmail = "";
     let currentAuthType = ""; 
 
-    // --- 🚀 NEW: Bridge Supabase Session with Flask Backend ---
-    async function syncAndRedirect(email, name="User") {
-        try {
-            const response = await fetch('/sync_session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, name: name })
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                window.location.href = '/dashboard'; 
-            } else {
-                showMessage("Backend sync failed. Please contact admin.", "error");
-            }
-        } catch (e) {
-            showMessage("Server connection error during sync.", "error");
-        }
+    // --- Core Functions ---
+    function showMessage(text, type) {
+        const msgDiv = document.getElementById('status-message');
+        msgDiv.textContent = text;
+        msgDiv.className = `mt-5 p-3 rounded-xl text-sm font-medium text-center block border ${type === 'error' ? 'bg-red-900/50 text-red-400 border-red-500/30' : 'bg-emerald-900/50 text-emerald-400 border-emerald-500/30'}`;
+    }
+    
+    function hideMessage() { 
+        document.getElementById('status-message').classList.add('hidden'); 
     }
 
-    // Capture Google OAuth redirect automatically
-    window.onload = async function() {
-        if (!supabase) return;
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (session) {
-            document.getElementById('header-desc').textContent = "Securing your session... ⏳";
-            const userName = session.user.user_metadata?.full_name || "User";
-            syncAndRedirect(session.user.email, userName);
-        }
-    };
-
-    // --- UI State Manager ---
     function showView(view) {
-        document.getElementById('view-login').classList.add('hidden');
-        document.getElementById('view-signup').classList.add('hidden');
-        document.getElementById('view-forgot-password').classList.add('hidden');
-        document.getElementById('view-otp').classList.add('hidden');
+        ['login', 'signup', 'forgot-password', 'otp'].forEach(v => {
+            document.getElementById(`view-${v}`).classList.add('hidden');
+        });
         document.getElementById('auth-tabs').classList.add('hidden');
         hideMessage();
 
@@ -172,7 +139,6 @@
         if(view === 'login' || view === 'signup') {
             document.getElementById('auth-tabs').classList.remove('hidden');
             document.getElementById('header-desc').textContent = "Log in or create your account to begin.";
-            
             const activeClass = ['text-white', 'border-gold'];
             const inactiveClass = ['text-gray-500', 'border-transparent'];
             if (view === 'login') {
@@ -191,122 +157,128 @@
     }
 
     function checkSupabase() {
-        if (!supabase) { showMessage("System is misconfigured. Keys missing from Server.", "error"); return false; }
+        if (!supabase) { showMessage("⚠️ System error: Unable to connect to database.", "error"); return false; }
         return true;
     }
 
-    // --- 1. Traditional Login ---
-    async function handleLogin(e) {
-        e.preventDefault();
-        if (!checkSupabase()) return;
-        
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        const btn = document.getElementById('btn-login');
-        
-        btn.textContent = "Verifying..."; btn.disabled = true;
-        const { data, error } = await supabase.auth.signInWithPassword({ email: email, password: password });
-
-        if (error) {
-            showMessage(error.message, "error");
-            btn.textContent = "Log In"; btn.disabled = false;
-        } else {
-            syncAndRedirect(email); // 👈 FIXED: Syncs session before sending to dashboard
-        }
+    async function syncAndRedirect(email, name="User") {
+        try {
+            const response = await fetch('/sync_session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, name: name })
+            });
+            const data = await response.json();
+            if (data.success) { window.location.href = '/dashboard'; } 
+            else { showMessage("Backend sync failed. Try again.", "error"); }
+        } catch (e) { showMessage("Server connection error.", "error"); }
     }
 
-    // --- 2. Signup ---
-    async function handleSignup(e) {
-        e.preventDefault();
+    // --- Action Handlers ---
+    async function handleLogin() {
         if (!checkSupabase()) return;
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        if (!email || !password) return showMessage("Please enter email and password.", "error");
 
+        const btn = document.getElementById('btn-login');
+        btn.textContent = "Verifying..."; btn.disabled = true;
+
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { showMessage(error.message, "error"); btn.textContent = "Log In"; btn.disabled = false; } 
+        else { syncAndRedirect(email); }
+    }
+
+    async function handleSignup() {
+        if (!checkSupabase()) return;
         const name = document.getElementById('signup-name').value;
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
-        const btn = document.getElementById('btn-signup');
-
+        if (!name || !email || !password) return showMessage("Please fill all fields.", "error");
         if (password.length < 6) return showMessage("Password must be at least 6 characters.", "error");
+
+        const btn = document.getElementById('btn-signup');
         btn.textContent = "Sending OTP..."; btn.disabled = true;
 
-        const { data, error } = await supabase.auth.signUp({ email: email, password: password, options: { data: { full_name: name } }});
-
-        if (error) {
-            showMessage(error.message, "error");
-            btn.textContent = "Create Account"; btn.disabled = false;
-        } else {
+        const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } }});
+        if (error) { showMessage(error.message, "error"); btn.textContent = "Create Account"; btn.disabled = false; } 
+        else {
             currentAuthEmail = email; currentAuthType = 'signup'; showView('otp');
             showMessage("✅ Account created! Enter the OTP sent to your email.", "success");
             btn.textContent = "Create Account"; btn.disabled = false;
         }
     }
 
-    // --- 3. Login with OTP ---
     async function handleLoginWithOTP() {
         if (!checkSupabase()) return;
         const email = document.getElementById('login-email').value;
-        const btn = document.getElementById('btn-login-otp');
         if (!email) return showMessage("Please enter your email above to login with OTP.", "error");
 
+        const btn = document.getElementById('btn-login-otp');
         btn.textContent = "Sending OTP..."; btn.disabled = true;
-        const { error } = await supabase.auth.signInWithOtp({ email: email });
 
-        if (error) {
-            showMessage(error.message, "error"); btn.textContent = "Log in with OTP instead"; btn.disabled = false;
-        } else {
+        const { error } = await supabase.auth.signInWithOtp({ email });
+        if (error) { showMessage(error.message, "error"); btn.textContent = "Log in with OTP instead"; btn.disabled = false; } 
+        else {
             currentAuthEmail = email; currentAuthType = 'magiclink'; showView('otp');
             showMessage("✅ OTP sent to your email for secure login.", "success");
             btn.textContent = "Log in with OTP instead"; btn.disabled = false;
         }
     }
 
-    // --- 4. Verify OTP ---
-    async function handleVerifyOTP(e) {
-        e.preventDefault();
+    async function handleVerifyOTP() {
         if (!checkSupabase()) return;
         const otp = document.getElementById('otp-input').value;
+        if (!otp) return showMessage("Please enter the OTP.", "error");
+
         const btn = document.getElementById('btn-verify-otp');
-
         btn.textContent = "Verifying..."; btn.disabled = true;
-        const { data, error } = await supabase.auth.verifyOtp({ email: currentAuthEmail, token: otp, type: currentAuthType });
 
-        if (error) {
-            showMessage("Invalid or expired OTP. Please try again.", "error");
-            btn.textContent = "Verify & Proceed"; btn.disabled = false;
-        } else {
-            syncAndRedirect(currentAuthEmail); // 👈 FIXED: Syncs session before sending to dashboard
-        }
+        const { error } = await supabase.auth.verifyOtp({ email: currentAuthEmail, token: otp, type: currentAuthType });
+        if (error) { showMessage("Invalid or expired OTP. Please try again.", "error"); btn.textContent = "Verify & Proceed"; btn.disabled = false; } 
+        else { syncAndRedirect(currentAuthEmail); }
     }
 
-    // --- 5. Forgot Password ---
-    async function handleForgotPassword(e) {
-        e.preventDefault();
+    async function handleForgotPassword() {
         if (!checkSupabase()) return;
         const email = document.getElementById('reset-email').value;
-        const btn = document.getElementById('btn-reset');
-        
-        btn.textContent = "Sending..."; btn.disabled = true;
-        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/dashboard' });
+        if (!email) return showMessage("Please enter your email.", "error");
 
-        if (error) { showMessage(error.message, "error"); } else { showMessage("✅ Password reset link sent to your email.", "success"); }
+        const btn = document.getElementById('btn-reset');
+        btn.textContent = "Sending..."; btn.disabled = true;
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/dashboard' });
+        if (error) { showMessage(error.message, "error"); } 
+        else { showMessage("✅ Password reset link sent to your email.", "success"); }
         btn.textContent = "Send Reset Link"; btn.disabled = false;
     }
 
-    // --- 6. Google Login ---
     async function signInWithGoogle() {
         if (!checkSupabase()) return;
         try {
-            // 👈 FIXED: Redirect to /login so window.onload can catch it and sync with backend
             const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/login' } });
             if (error) throw error;
         } catch (error) { showMessage("Google Login Failed: " + error.message, "error"); }
     }
 
-    // --- UI Helper ---
-    function showMessage(text, type) {
-        const msgDiv = document.getElementById('status-message');
-        msgDiv.textContent = text;
-        msgDiv.className = `mt-5 p-3 rounded-xl text-sm font-medium text-center block border ${type === 'error' ? 'bg-red-900/50 text-red-400 border-red-500/30' : 'bg-emerald-900/50 text-emerald-400 border-emerald-500/30'}`;
-    }
-    function hideMessage() { document.getElementById('status-message').classList.add('hidden'); }
+    // --- Initialization (Runs when page loads) ---
+    window.addEventListener('DOMContentLoaded', async () => {
+        try {
+            if (window.supabase && supabaseUrl && supabaseKey && supabaseUrl !== "None") {
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            } else {
+                console.error("Supabase Init Error: Missing JS or Keys");
+                showMessage("⚠️ Dashboard connection missing. Please contact admin.", "error");
+            }
+
+            if (supabase) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    document.getElementById('header-desc').textContent = "Securing your session... ⏳";
+                    syncAndRedirect(session.user.email, session.user.user_metadata?.full_name || "User");
+                }
+            }
+        } catch(e) { console.error("Global JS Error:", e); }
+    });
 </script>
 {% endblock %}
