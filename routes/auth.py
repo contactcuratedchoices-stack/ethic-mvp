@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+import os # 👈 YEH IMPORT ADD KIYA HAI
 from models import User
 from extensions import db
 
@@ -47,7 +48,11 @@ def login():
                 flash('Invalid email or password!', 'error')
                 return redirect(url_for('auth.login'))
 
-    return render_template('login.html')
+    # 🚀 SUPABASE KEYS FIX (Yahan se keys login.html mein jayengi)
+    supabase_url = os.getenv("SUPABASE_URL", "")
+    supabase_key = os.getenv("SUPABASE_ANON_KEY", "")
+    
+    return render_template('login.html', supabase_url=supabase_url, supabase_key=supabase_key)
 
 @auth_bp.route('/logout')
 def logout():
