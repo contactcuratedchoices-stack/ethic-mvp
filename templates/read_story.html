@@ -120,13 +120,13 @@
     
     .seek-slider::-webkit-slider-thumb {
         -webkit-appearance: none; appearance: none;
-        width: 0px; height: 0px; /* Hidden initially */
+        width: 0px; height: 0px;
         border-radius: 50%; background: #f4c95d;
         box-shadow: 0 0 10px rgba(244,201,93,0.5);
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .cinematic-controls:hover .seek-slider::-webkit-slider-thumb {
-        width: 16px; height: 16px; /* Appears on hover */
+        width: 16px; height: 16px;
     }
     
     .ctrl-btn { color: #ffffff; background: none; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; opacity: 0.7; }
@@ -204,6 +204,11 @@
     rawText = rawText.replace(/\*\*/g, '');
     const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
     const audio = document.getElementById('story-audio');
+    
+    // 🎵 NEW: Background Lullaby Music Setup
+    const bgMusic = new Audio('https://cdn.pixabay.com/audio/2022/05/16/audio_b2f9012a68.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.08; // Volume level so it doesn't overpower the story voice
     
     const storyTitle = {{ story.title | tojson | safe }}.replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
 
@@ -317,9 +322,11 @@
         }
     }
 
+    // 🚀 MODIFIED: Toggles main audio AND background music together
     function togglePlay() {
         if(audio.paused) {
             audio.play();
+            bgMusic.play().catch(e => console.log("Background music autoplay prevented by browser")); // Play BG Music
             storybook.classList.add('playing');
             miniPlay.classList.add('hidden');
             miniPause.classList.remove('hidden');
@@ -333,6 +340,7 @@
             }
         } else {
             audio.pause();
+            bgMusic.pause(); // Pause BG Music
             storybook.classList.remove('playing');
             storybook.classList.remove('idle'); // Show controls when paused
             clearTimeout(idleTimeout);
@@ -341,17 +349,15 @@
         }
     }
 
-    // 🚀 NEW: Click Screen to Play/Pause
     storybook.addEventListener('click', (e) => {
         // Prevent click if clicking on the control bar or top bar
         if(e.target.closest('.cinematic-controls') || e.target.closest('.top-bar-overlay')) return;
         togglePlay();
     });
     
-    // 🚀 NEW: Keyboard Shortcuts (Space, Arrows, F)
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
-            e.preventDefault(); // Prevents page from scrolling down
+            e.preventDefault(); 
             togglePlay();
         } else if (e.code === 'ArrowRight') {
             e.preventDefault();
@@ -427,7 +433,11 @@
     }
     document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
     
+    // 🚀 MODIFIED: Stop background music when story ends
     audio.addEventListener('ended', () => {
+        bgMusic.pause(); // Stop background music
+        bgMusic.currentTime = 0; // Reset it to beginning
+        
         storybook.classList.remove('playing');
         storybook.classList.remove('idle');
         clearTimeout(idleTimeout);
