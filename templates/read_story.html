@@ -120,13 +120,13 @@
     
     .seek-slider::-webkit-slider-thumb {
         -webkit-appearance: none; appearance: none;
-        width: 0px; height: 0px; /* Hidden initially */
+        width: 0px; height: 0px;
         border-radius: 50%; background: #f4c95d;
         box-shadow: 0 0 10px rgba(244,201,93,0.5);
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .cinematic-controls:hover .seek-slider::-webkit-slider-thumb {
-        width: 16px; height: 16px; /* Appears on hover */
+        width: 16px; height: 16px;
     }
     
     .ctrl-btn { color: #ffffff; background: none; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; opacity: 0.7; }
@@ -195,7 +195,14 @@
         </div>
     </div>
 
+    <!-- MAIN STORY AUDIO -->
     <audio id="story-audio" src="{% if story.audio_data %}data:audio/wav;base64,{{ story.audio_data }}{% endif %}" preload="metadata"></audio>
+    
+    <!-- 🎵 BULLETPROOF BACKGROUND MUSIC AUDIO TAG -->
+    <audio id="bgMusic-audio" loop preload="auto">
+        <source src="https://actions.google.com/sounds/v1/water/rain_on_roof.ogg" type="audio/ogg">
+    </audio>
+
     <div id="raw-story-content" class="hidden">{{ story.content }}</div>
 </section>
 
@@ -204,11 +211,10 @@
     rawText = rawText.replace(/\*\*/g, '');
     const pages = rawText.split(/\n+/).filter(p => p.trim().length > 0);
     const audio = document.getElementById('story-audio');
+    const bgMusicAudio = document.getElementById('bgMusic-audio');
     
-    // 🎵 NEW: Background Lullaby Music Setup
-    const bgMusic = new Audio('https://cdn.pixabay.com/audio/2022/05/16/audio_b2f9012a68.mp3');
-    bgMusic.loop = true;
-    bgMusic.volume = 0.08; // 8% volume so it doesn't overpower the voice
+    // Set very low volume for background music so the voice is clear
+    bgMusicAudio.volume = 0.05; 
     
     const storyTitle = {{ story.title | tojson | safe }}.replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
 
@@ -255,14 +261,13 @@
     let isStarted = false;
     let idleTimeout;
 
-    // 🚀 NEW: Netflix Style Auto-Hide Logic
     function resetIdleTimer() {
         if(storybook.classList.contains('playing')) {
             storybook.classList.remove('idle');
             clearTimeout(idleTimeout);
             idleTimeout = setTimeout(() => {
                 storybook.classList.add('idle');
-            }, 3000); // 3 seconds of inactivity
+            }, 3000);
         }
     }
     storybook.addEventListener('mousemove', resetIdleTimer);
@@ -322,11 +327,14 @@
         }
     }
 
-    // 🚀 MODIFIED: Toggles main audio AND background music together
+    // 🚀 FIXED: Background music starts properly on direct user interaction
     function togglePlay() {
         if(audio.paused) {
             audio.play();
-            bgMusic.play().catch(e => console.log("Background music autoplay prevented by browser")); // Play BG Music
+            // Start background music
+            if(bgMusicAudio.paused) {
+                bgMusicAudio.play().catch(e => console.log("BG Music error:", e));
+            }
             storybook.classList.add('playing');
             miniPlay.classList.add('hidden');
             miniPause.classList.remove('hidden');
@@ -340,9 +348,9 @@
             }
         } else {
             audio.pause();
-            bgMusic.pause(); // Pause BG Music
+            bgMusicAudio.pause(); // Stop background music
             storybook.classList.remove('playing');
-            storybook.classList.remove('idle'); // Show controls when paused
+            storybook.classList.remove('idle');
             clearTimeout(idleTimeout);
             miniPlay.classList.remove('hidden');
             miniPause.classList.add('hidden');
@@ -350,7 +358,6 @@
     }
 
     storybook.addEventListener('click', (e) => {
-        // Prevent click if clicking on the control bar or top bar
         if(e.target.closest('.cinematic-controls') || e.target.closest('.top-bar-overlay')) return;
         togglePlay();
     });
@@ -433,10 +440,9 @@
     }
     document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
     
-    // 🚀 MODIFIED: Stop background music when story ends
     audio.addEventListener('ended', () => {
-        bgMusic.pause(); // Stop background music
-        bgMusic.currentTime = 0; // Reset it to beginning
+        bgMusicAudio.pause();
+        bgMusicAudio.currentTime = 0; 
         
         storybook.classList.remove('playing');
         storybook.classList.remove('idle');
