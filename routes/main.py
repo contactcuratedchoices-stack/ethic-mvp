@@ -154,6 +154,7 @@ def generate_story():
         story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
+        # 🚀 NORMAL IMAGE LOGIC (Sirf 1 cover image, baki JS handle karega)
         safe_theme = theme.replace("&", "and")
         safe_place = native_place.replace("&", "and")
         image_prompt = f"Magical bedtime story illustration, {safe_theme}, cute {age} year old Indian {gender} in {safe_place}, 3D Pixar Disney animated style, masterpiece"
@@ -175,7 +176,7 @@ def generate_story():
                     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
                     speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Raw16Khz16BitMonoPcm)
                     
-                    # 🚀 UPGRADED VOICE: Using SwaraNeural for extreme sweetness and emotion
+                    # 🚀 UPGRADED VOICE: SwaraNeural provides a deeply emotional & maternal tone
                     voice_name = "en-IN-NeerjaNeural" if language == 'English' else "hi-IN-SwaraNeural"
                     synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
                     
@@ -183,7 +184,6 @@ def generate_story():
                     combined_pcm_bytes = b""
                     
                     for para in paragraphs:
-                        # XML Escaping
                         formatted_para = para.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                         
                         # 🚀 ADVANCED SSML: Adding human-like breathing and natural pauses
