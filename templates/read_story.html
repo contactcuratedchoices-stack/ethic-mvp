@@ -120,13 +120,13 @@
     
     .seek-slider::-webkit-slider-thumb {
         -webkit-appearance: none; appearance: none;
-        width: 0px; height: 0px;
+        width: 0px; height: 0px; /* Hidden initially */
         border-radius: 50%; background: #f4c95d;
         box-shadow: 0 0 10px rgba(244,201,93,0.5);
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .cinematic-controls:hover .seek-slider::-webkit-slider-thumb {
-        width: 16px; height: 16px;
+        width: 16px; height: 16px; /* Appears on hover */
     }
     
     .ctrl-btn { color: #ffffff; background: none; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; opacity: 0.7; }
@@ -208,7 +208,7 @@
     // 🎵 NEW: Background Lullaby Music Setup
     const bgMusic = new Audio('https://cdn.pixabay.com/audio/2022/05/16/audio_b2f9012a68.mp3');
     bgMusic.loop = true;
-    bgMusic.volume = 0.08; // Volume level so it doesn't overpower the story voice
+    bgMusic.volume = 0.08; // 8% volume so it doesn't overpower the voice
     
     const storyTitle = {{ story.title | tojson | safe }}.replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
 
