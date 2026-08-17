@@ -13,14 +13,14 @@ def get_current_user():
 def admin_upload():
     user = get_current_user()
     
-    # 🔒 CLEANED: अब सिर्फ role चेक होगा, is_admin का नामोनिशान मिटा दिया
     if not user or user.role not in ['super_admin', 'editor']:
         flash('ACCESS DENIED: You do not have permission to view this page.', 'error')
         return redirect(url_for('main.dashboard'))
 
     if request.method == 'POST':
+        title = request.form.get('title', 'Untitled').strip() # 🚀 TITLE RECEIVED
         state = request.form.get('state').strip()
-        moral = request.form.get('moral')
+        moral = request.form.get('moral').strip()
         core_story = request.form.get('core_story').strip()
         target_gender = request.form.get('target_gender', 'Any')
         min_age = request.form.get('min_age', 3)
@@ -28,6 +28,7 @@ def admin_upload():
         theme = request.form.get('theme', 'General')
         
         new_regional_story = RegionalStory(
+            title=title,
             state=state, 
             moral=moral, 
             core_story=core_story,
@@ -39,16 +40,13 @@ def admin_upload():
         db.session.add(new_regional_story)
         db.session.commit()
         
-        flash(f'Success! {theme} story for {target_gender} added.', 'success')
+        flash(f'Success! "{title}" added to the database.', 'success')
         return redirect(url_for('admin.admin_upload'))
         
     all_regional_stories = RegionalStory.query.order_by(RegionalStory.id.desc()).all()
-    
-    # Editors list (Only passed to UI if user is super_admin)
     editors = User.query.filter_by(role='editor').all() if user.role == 'super_admin' else []
     
     return render_template('admin_upload.html', stories=all_regional_stories, current_user=user, editors=editors)
-
 
 @admin_bp.route('/admin/delete_story/<int:story_id>', methods=['POST'])
 def delete_story(story_id):
@@ -63,7 +61,6 @@ def delete_story(story_id):
 
     flash('Story successfully removed from database!', 'success')
     return redirect(url_for('admin.admin_upload'))
-
 
 @admin_bp.route('/admin/add_editor', methods=['POST'])
 def add_editor():
@@ -87,7 +84,6 @@ def add_editor():
         flash(f'{email} has been given Editor access successfully!', 'success')
         
     return redirect(url_for('admin.admin_upload'))
-
 
 @admin_bp.route('/admin/remove_editor/<int:editor_id>', methods=['POST'])
 def remove_editor(editor_id):
