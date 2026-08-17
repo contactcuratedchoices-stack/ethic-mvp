@@ -34,13 +34,9 @@ class RegionalStory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=True, default='Untitled')
     state = db.Column(db.String(100), nullable=False)
-    
-    # 🚀 FIX: Dropdown se select karne wali Category (e.g. Honesty)
+    region = db.Column(db.String(100), nullable=True, default='') # 🚀 Added Region Column
     moral = db.Column(db.String(200), nullable=False) 
-    
-    # 🚀 FIX: AI ke liye exact lambi sikh (e.g. Bura kaam ka bura natija)
     specific_moral = db.Column(db.Text, nullable=True) 
-    
     core_story = db.Column(db.Text, nullable=False)
     target_gender = db.Column(db.String(50), nullable=True, default='Any')
     theme = db.Column(db.String(100), nullable=True, default='General')
