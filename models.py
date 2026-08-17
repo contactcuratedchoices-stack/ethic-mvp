@@ -5,11 +5,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    
-    # 🚀 CHANGED: nullable=True कर दिया ताकि Google Login बिना पासवर्ड के हो सके
     password = db.Column(db.String(200), nullable=True) 
-    
-    # 🚀 CLEANED: is_admin हटा दिया है। अब सिर्फ role राज करेगा!
     role = db.Column(db.String(20), default='user')
     
     children = db.relationship('Child', backref='parent', lazy=True)
@@ -36,8 +32,9 @@ class Story(db.Model):
 
 class RegionalStory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=True, default='Untitled') # 🚀 NAYA COLUMN
     state = db.Column(db.String(100), nullable=False)
-    moral = db.Column(db.String(100), nullable=False)
+    moral = db.Column(db.String(200), nullable=False)
     core_story = db.Column(db.Text, nullable=False)
     target_gender = db.Column(db.String(50), nullable=True, default='Any')
     theme = db.Column(db.String(100), nullable=True, default='General')
