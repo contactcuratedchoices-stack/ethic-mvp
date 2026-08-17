@@ -109,7 +109,6 @@
 </head>
 <body class="font-sans min-h-screen antialiased flex flex-col selection:bg-gold/30">
 
-    <!-- 🚀 SLEEK NAVBAR: h-16 (64px) kar diya gaya hai -->
     <header class="fixed w-full z-50 top-0 left-0 glass-header h-16 flex items-center">
         <div class="w-full max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
             
@@ -134,7 +133,8 @@
                     {% endif %}
 
                     <div class="flex items-center gap-3">
-                        <span class="text-gold-soft text-sm font-semibold border-r border-white/10 pr-3 truncate max-w-[120px]">👋 {{ session.get('user_name') }}</span>
+                        <!-- 🚀 FIX: Name Capitalization (ashok -> Ashok) -->
+                        <span class="text-gold-soft text-sm font-semibold border-r border-white/10 pr-3 truncate max-w-[120px]">👋 {{ session.get('user_name') | title }}</span>
                         <a href="/logout" class="text-sm font-semibold text-gray-400 hover:text-white transition">Logout</a>
                     </div>
                     
@@ -168,7 +168,7 @@
             
             <div class="flex flex-col gap-4">
                 {% if session.get('user_name') %}
-                    <div class="text-gold-soft font-semibold text-base">👋 Hi, {{ session.get('user_name') }}</div>
+                    <div class="text-gold-soft font-semibold text-base">👋 Hi, {{ session.get('user_name') | title }}</div>
                     <a href="/logout" class="text-gray-400 text-base font-medium hover:text-white transition">Logout</a>
                     <a href="/studio" class="mt-2 text-center btn-glow rounded-full px-5 py-2.5 text-sm font-bold shadow-lg">
                         Create Story ✨
@@ -216,7 +216,6 @@
         {% endwith %}
     </div>
 
-    <!-- 🚀 MAINS CONTAINER -->
     <main class="flex-grow relative z-10 w-full">
         {% block content %}{% endblock %}
     </main>
