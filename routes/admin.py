@@ -12,7 +12,6 @@ def get_current_user():
 def check_admin(user):
     return user and user.role in ['super_admin', 'editor']
 
-# 🚀 1. MAIN ADMIN HUB (Options screen)
 @admin_bp.route('/admin')
 def admin_dashboard():
     user = get_current_user()
@@ -23,7 +22,6 @@ def admin_dashboard():
     db_count = RegionalStory.query.count()
     return render_template('admin_portal.html', view='dashboard', current_user=user, db_count=db_count)
 
-# 🚀 2. UPLOAD SCREEN
 @admin_bp.route('/admin/upload', methods=['GET', 'POST'])
 def admin_upload():
     user = get_current_user()
@@ -32,8 +30,9 @@ def admin_upload():
     if request.method == 'POST':
         title = request.form.get('title', 'Untitled').strip()
         state = request.form.get('state').strip()
-        moral = request.form.get('moral').strip() # Dropdown category
-        specific_moral = request.form.get('specific_moral').strip() # The actual lesson
+        region = request.form.get('region', '').strip() # 🚀 Handled Region
+        moral = request.form.get('moral').strip()
+        specific_moral = request.form.get('specific_moral').strip()
         core_story = request.form.get('core_story').strip()
         target_gender = request.form.get('target_gender', 'Any')
         min_age = request.form.get('min_age', 3)
@@ -41,7 +40,7 @@ def admin_upload():
         theme = request.form.get('theme', 'General')
         
         new_story = RegionalStory(
-            title=title, state=state, moral=moral, specific_moral=specific_moral, 
+            title=title, state=state, region=region, moral=moral, specific_moral=specific_moral, 
             core_story=core_story, target_gender=target_gender, 
             min_age=int(min_age), max_age=int(max_age), theme=theme
         )
@@ -53,7 +52,6 @@ def admin_upload():
         
     return render_template('admin_portal.html', view='upload', current_user=user)
 
-# 🚀 3. DATABASE SCREEN
 @admin_bp.route('/admin/database')
 def admin_database():
     user = get_current_user()
@@ -62,7 +60,6 @@ def admin_database():
     stories = RegionalStory.query.order_by(RegionalStory.id.desc()).all()
     return render_template('admin_portal.html', view='database', current_user=user, stories=stories)
 
-# 🚀 4. TEAM SCREEN (Super Admin Only)
 @admin_bp.route('/admin/team')
 def admin_team():
     user = get_current_user()
@@ -73,7 +70,6 @@ def admin_team():
     editors = User.query.filter_by(role='editor').all()
     return render_template('admin_portal.html', view='team', current_user=user, editors=editors)
 
-# --- Action Routes ---
 @admin_bp.route('/admin/delete_story/<int:story_id>', methods=['POST'])
 def delete_story(story_id):
     user = get_current_user()
