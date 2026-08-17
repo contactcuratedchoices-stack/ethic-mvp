@@ -1,185 +1,257 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- 🚀 OVERLAP FIX: Added pt-36 and md:pt-40 to push the content safely below the navbar -->
-<section class="mx-auto max-w-6xl px-5 pb-12 pt-36 md:pt-40">
+<style>
+  .glass-panel { background: rgba(5, 5, 16, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a14; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+</style>
+
+<section class="mx-auto max-w-6xl px-4 pb-12 pt-32 md:pt-36">
   
-  <div class="mb-10 text-center">
-    <span class="inline-block px-3 py-1 bg-red-500/20 text-red-400 font-bold rounded-full text-xs uppercase tracking-widest mb-3 border border-red-500/30">
-      {% if session.get('role') == 'super_admin' %}👑 SUPER ADMIN PORTAL{% else %}✍️ EDITOR PORTAL{% endif %}
-    </span>
-    <h1 class="font-serif text-3xl md:text-4xl font-bold text-white">Content Team Upload</h1>
-    <p class="mt-2 text-gray-400">Add authentic regional stories to the AI Database.</p>
+  <!-- 🚀 DYNAMIC FLASH MESSAGES -->
+  <div class="max-w-4xl mx-auto">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+          {% for category, message in messages %}
+            <div class="mb-6 rounded-xl {% if category == 'error' %}bg-red-500/20 border-red-500/30 text-red-400{% else %}bg-green-500/20 border-green-500/30 text-green-400{% endif %} border p-4 font-semibold text-center shadow-lg">
+              {{ message }}
+            </div>
+          {% endfor %}
+      {% endif %}
+    {% endwith %}
   </div>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-          <div class="mb-8 rounded-xl {% if category == 'error' %}bg-red-500/20 border-red-500/30 text-red-400{% else %}bg-green-500/20 border-green-500/30 text-green-400{% endif %} border p-4 font-semibold text-center shadow-lg">
-            {{ message }}
-          </div>
-        {% endfor %}
-    {% endif %}
-  {% endwith %}
+  <!-- ============================================== -->
+  <!-- 🎛️ VIEW 1: THE MAIN DASHBOARD HUB -->
+  <!-- ============================================== -->
+  {% if view == 'dashboard' %}
+  <div class="text-center mb-12">
+    <span class="inline-block px-3 py-1 bg-blue-500/10 text-blue-400 font-bold rounded-full text-[10px] uppercase tracking-widest mb-3 border border-blue-500/20">
+      {% if current_user.role == 'super_admin' %}👑 SUPER ADMIN PORTAL{% else %}✍️ EDITOR PORTAL{% endif %}
+    </span>
+    <h1 class="font-serif text-3xl md:text-5xl font-bold text-white mb-2">Welcome, {{ current_user.name | title if current_user.name else 'Admin' }}</h1>
+    <p class="text-gray-400">Select an action to manage the ETHIC AI Engine.</p>
+  </div>
 
-  <!-- 👥 TEAM MANAGEMENT (ONLY FOR SUPER ADMIN) -->
-  {% if session.get('role') == 'super_admin' %}
-  <div class="glass p-6 md:p-8 rounded-3xl h-fit border border-blue-500/30 mb-10 bg-blue-900/10 shadow-2xl">
-    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">👥 Manage Content Team</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+  <div class="grid grid-cols-1 md:grid-cols-2 {% if current_user.role == 'super_admin' %}lg:grid-cols-3{% endif %} gap-6 max-w-5xl mx-auto">
+      
+      <!-- Option 1: Upload -->
+      <a href="/admin/upload" class="glass-panel p-8 rounded-3xl group hover:border-gold/30 hover:-translate-y-1 transition-all text-center">
+          <div class="w-16 h-16 mx-auto bg-gold/10 text-gold rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition">✍️</div>
+          <h3 class="text-xl font-bold text-white mb-2">Upload Story</h3>
+          <p class="text-sm text-gray-400">Add new regional folktales to the AI brain.</p>
+      </a>
+
+      <!-- Option 2: Database -->
+      <a href="/admin/database" class="glass-panel p-8 rounded-3xl group hover:border-purple-500/30 hover:-translate-y-1 transition-all text-center">
+          <div class="w-16 h-16 mx-auto bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition">📚</div>
+          <h3 class="text-xl font-bold text-white mb-2">Story Database</h3>
+          <p class="text-sm text-gray-400">View and manage {{ db_count }} existing stories.</p>
+      </a>
+
+      <!-- Option 3: Team (Super Admin Only) -->
+      {% if current_user.role == 'super_admin' %}
+      <a href="/admin/team" class="glass-panel p-8 rounded-3xl group hover:border-blue-500/30 hover:-translate-y-1 transition-all text-center">
+          <div class="w-16 h-16 mx-auto bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition">👥</div>
+          <h3 class="text-xl font-bold text-white mb-2">Manage Team</h3>
+          <p class="text-sm text-gray-400">Add or remove content editors.</p>
+      </a>
+      {% endif %}
+  </div>
+
+
+  <!-- ============================================== -->
+  <!-- ✍️ VIEW 2: UPLOAD STORY FORM -->
+  <!-- ============================================== -->
+  {% elif view == 'upload' %}
+  <div class="max-w-3xl mx-auto">
+      <a href="/admin" class="inline-flex items-center text-gray-400 hover:text-white font-semibold text-sm mb-6 transition">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          Back to Hub
+      </a>
+      
+      <div class="glass-panel p-6 md:p-10 rounded-3xl border-t-4 border-t-gold">
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-8">Upload New Story</h2>
         
-        <form action="/admin/add_editor" method="POST" class="flex flex-col gap-4">
-            <div>
-                <label class="mb-2 block text-sm font-semibold text-blue-300">Give Editor Access to Email</label>
-                <!-- 🚀 FIX: Dark inputs to prevent white-on-white text bug -->
-                <input type="email" name="email" required placeholder="team@example.com" class="w-full rounded-xl px-4 py-3.5 bg-[#0a0a14] border border-blue-500/30 text-white placeholder-gray-600 focus:outline-none focus:border-blue-400" />
+        <form action="/admin/upload" method="POST" class="space-y-6">
+          <!-- 1. Title -->
+          <div>
+            <label class="mb-2 block text-sm font-bold text-gold-soft">1. Story Title</label>
+            <input type="text" name="title" required placeholder="e.g. The Clever Rabbit" class="w-full rounded-xl px-4 py-3.5 bg-[#11111e] border border-white/10 text-white placeholder-gray-500 focus:border-gold outline-none" />
+          </div>
+
+          <!-- 2. Core Story -->
+          <div>
+            <label class="mb-2 block text-sm font-bold text-gold-soft">2. Core Story (The Original Folktale)</label>
+            <textarea name="core_story" required rows="6" placeholder="Type the full story here..." class="w-full rounded-xl px-4 py-3.5 bg-[#11111e] border border-white/10 text-white placeholder-gray-500 focus:border-gold outline-none resize-y"></textarea>
+          </div>
+
+          <!-- 🚀 3. Moral (Divided into Category & Specific) -->
+          <div class="bg-purple-900/10 border border-purple-500/20 p-5 rounded-2xl">
+              <label class="mb-4 block text-sm font-bold text-purple-300">3. Moral of the Story Configuration</label>
+              
+              <div class="mb-4">
+                  <label class="mb-2 block text-xs font-bold text-gray-400 uppercase tracking-wide">Category (For Parents Menu)</label>
+                  <select name="moral" required class="w-full rounded-xl px-4 py-3 bg-[#0a0a14] border border-white/10 text-white focus:border-purple-500 outline-none">
+                    <option value="Sharing & Empathy">Sharing & Empathy</option>
+                    <option value="Honesty & Truth">Honesty & Truth</option>
+                    <option value="Bravery & Courage">Bravery & Courage</option>
+                    <option value="Respect for Elders">Respect for Elders</option>
+                    <option value="Kindness to Animals">Kindness to Animals</option>
+                    <option value="Hard Work & Patience">Hard Work & Patience</option>
+                  </select>
+              </div>
+
+              <div>
+                  <label class="mb-2 block text-xs font-bold text-gray-400 uppercase tracking-wide">Actual Specific Lesson (For AI engine)</label>
+                  <textarea name="specific_moral" rows="2" placeholder="e.g. Bura kaam karne ka natija hamesha bura hota hai..." class="w-full rounded-xl px-4 py-3 bg-[#0a0a14] border border-white/10 text-white placeholder-gray-600 focus:border-purple-500 outline-none resize-y"></textarea>
+              </div>
+          </div>
+
+          <hr class="border-white/10 my-4">
+
+          <!-- 4. Other Details -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="mb-2 block text-sm font-bold text-gray-300">State / Region</label>
+                <input type="text" name="state" required placeholder="e.g. Rajasthan" class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white focus:border-gold outline-none" />
+              </div>
+              
+              <div>
+                  <label class="mb-2 block text-sm font-bold text-gray-300">Target Gender</label>
+                  <select name="target_gender" class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white focus:border-gold outline-none">
+                      <option value="Any">Any / Both</option>
+                      <option value="Boy">Boy</option>
+                      <option value="Girl">Girl</option>
+                  </select>
+              </div>
+              
+              <div>
+                  <label class="mb-2 block text-sm font-bold text-gray-300">Story Theme</label>
+                  <select name="theme" class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white focus:border-gold outline-none">
+                      <option value="General">General</option>
+                      <option value="Magic & Fairies">Magic & Fairies</option>
+                      <option value="Kings & Warriors">Kings & Warriors</option>
+                      <option value="Animals & Nature">Animals & Nature</option>
+                      <option value="Mystery & Adventure">Mystery & Adventure</option>
+                  </select>
+              </div>
+
+              <div>
+                  <label class="mb-2 block text-sm font-bold text-gray-300">Age Range (Years)</label>
+                  <div class="flex items-center space-x-2">
+                      <input type="number" name="min_age" value="3" min="1" max="15" class="w-1/2 rounded-xl px-3 py-3 bg-[#11111e] border border-white/10 text-white text-center focus:border-gold outline-none">
+                      <span class="text-gray-500 text-sm">to</span>
+                      <input type="number" name="max_age" value="10" min="1" max="15" class="w-1/2 rounded-xl px-3 py-3 bg-[#11111e] border border-white/10 text-white text-center focus:border-gold outline-none">
+                  </div>
+              </div>
+          </div>
+          
+          <button type="submit" class="w-full py-4 mt-4 rounded-xl bg-gold text-navy font-extrabold hover:brightness-110 transition shadow-[0_0_20px_rgba(244,201,93,0.3)] text-lg">
+            Save Story to Database 💾
+          </button>
+        </form>
+      </div>
+  </div>
+
+
+  <!-- ============================================== -->
+  <!-- 📚 VIEW 3: STORY DATABASE -->
+  <!-- ============================================== -->
+  {% elif view == 'database' %}
+  <div class="max-w-5xl mx-auto">
+      <a href="/admin" class="inline-flex items-center text-gray-400 hover:text-white font-semibold text-sm mb-6 transition">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          Back to Hub
+      </a>
+
+      <div class="glass-panel p-6 md:p-8 rounded-3xl h-fit border-t-4 border-t-purple-500">
+        <h2 class="text-2xl font-bold text-white mb-6">Database ({{ stories|length }})</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar">
+          {% if stories %}
+            {% for st in stories %}
+              <div class="bg-[#0a0a14] p-5 rounded-2xl border border-white/5 relative group hover:border-purple-500/30 transition-colors flex flex-col h-full">
+                
+                {% if current_user.role == 'super_admin' %}
+                <form action="/admin/delete_story/{{ st.id }}" method="POST" class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity" onsubmit="return confirm('Delete this story?');">
+                  <button type="submit" class="text-red-400 hover:text-red-300 bg-red-400/10 p-2 rounded-lg border border-red-400/20" title="Delete">🗑️</button>
+                </form>
+                {% endif %}
+
+                <h3 class="text-lg font-bold text-white mb-3 pr-10">{{ st.title }}</h3>
+
+                <div class="flex flex-wrap gap-2 items-start mb-4">
+                  <span class="bg-gold/10 text-gold border border-gold/20 text-[10px] px-2 py-0.5 rounded uppercase font-bold">{{ st.state }}</span>
+                  <span class="bg-blue-500/10 text-blue-300 border border-blue-500/20 text-[10px] px-2 py-0.5 rounded-full">{{ st.target_gender }}</span>
+                  <span class="bg-pink-500/10 text-pink-300 border border-pink-500/20 text-[10px] px-2 py-0.5 rounded-full">{{ st.theme }}</span>
+                </div>
+                
+                <div class="bg-white/5 border border-white/10 px-3 py-2 rounded-lg mb-3 flex-grow">
+                    <span class="text-purple-300 text-[10px] font-bold uppercase tracking-wider block mb-1">Menu Category: {{ st.moral }}</span>
+                    <span class="text-gray-200 text-xs font-medium italic block mb-2 border-b border-white/5 pb-2">"{{ st.specific_moral }}"</span>
+                    <p class="text-xs text-gray-400 line-clamp-3 leading-relaxed">{{ st.core_story }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="col-span-2 text-center py-12 text-gray-500 border border-dashed border-gray-700 rounded-xl bg-[#0a0a14]">
+              Database is empty.
             </div>
-            <button type="submit" class="w-full py-3.5 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/50 font-bold hover:bg-blue-500/40 transition shadow-lg">
+          {% endif %}
+        </div>
+      </div>
+  </div>
+
+
+  <!-- ============================================== -->
+  <!-- 👥 VIEW 4: MANAGE TEAM (SUPER ADMIN) -->
+  <!-- ============================================== -->
+  {% elif view == 'team' %}
+  <div class="max-w-3xl mx-auto">
+      <a href="/admin" class="inline-flex items-center text-gray-400 hover:text-white font-semibold text-sm mb-6 transition">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          Back to Hub
+      </a>
+
+      <div class="glass-panel p-6 md:p-8 rounded-3xl h-fit border-t-4 border-t-blue-500">
+        <h2 class="text-2xl font-bold text-white mb-6">👥 Manage Content Team</h2>
+        
+        <form action="/admin/add_editor" method="POST" class="flex flex-col sm:flex-row items-end gap-4 mb-10 pb-10 border-b border-white/5">
+            <div class="flex-grow w-full">
+                <label class="mb-2 block text-sm font-semibold text-blue-300">Give Editor Access</label>
+                <input type="email" name="email" required placeholder="User's registered email..." class="w-full rounded-xl px-4 py-3.5 bg-[#0a0a14] border border-blue-500/30 text-white placeholder-gray-600 focus:outline-none focus:border-blue-400" />
+            </div>
+            <button type="submit" class="w-full sm:w-auto py-3.5 px-6 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/50 font-bold hover:bg-blue-500/40 transition shadow-lg">
                 + Add Editor
             </button>
         </form>
 
         <div>
-            <label class="mb-2 block text-sm font-semibold text-blue-300">Active Editors</label>
-            <div class="space-y-3 max-h-[160px] overflow-y-auto custom-scrollbar pr-2">
+            <label class="mb-4 block text-sm font-semibold text-blue-300">Active Editors</label>
+            <div class="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                 {% if editors %}
                     {% for ed in editors %}
-                    <div class="flex justify-between items-center bg-[#0a0a14] px-4 py-3.5 rounded-xl border border-white/10">
-                        <span class="text-gray-200 text-sm font-medium">{{ ed.email }}</span>
+                    <div class="flex justify-between items-center bg-[#0a0a14] px-5 py-4 rounded-xl border border-white/10">
+                        <div>
+                          <span class="text-white font-bold block">{{ ed.name | title if ed.name else 'Editor' }}</span>
+                          <span class="text-gray-400 text-sm font-medium">{{ ed.email }}</span>
+                        </div>
                         <form action="/admin/remove_editor/{{ ed.id }}" method="POST" onsubmit="return confirm('Revoke access for this user?');">
-                            <button type="submit" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-400/10 px-3 py-1.5 rounded-lg border border-red-400/20 transition hover:bg-red-400/20">Revoke</button>
+                            <button type="submit" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-400/10 px-4 py-2 rounded-lg border border-red-400/20 transition hover:bg-red-400/20">Revoke</button>
                         </form>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="text-sm text-blue-200/50 italic py-6 text-center border border-dashed border-blue-500/20 rounded-xl bg-[#0a0a14]">No editors added yet.</div>
+                    <div class="text-sm text-blue-200/50 italic py-8 text-center border border-dashed border-blue-500/20 rounded-xl bg-[#0a0a14]">No editors added yet.</div>
                 {% endif %}
             </div>
         </div>
-    </div>
+      </div>
   </div>
   {% endif %}
 
-  <!-- 📝 UPLOAD & DATABASE GRID -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    
-    <!-- ✍️ FORM TO UPLOAD STORY -->
-    <div class="glass p-6 md:p-8 rounded-3xl h-fit border-t-4 border-t-gold bg-white/5">
-      <h2 class="text-2xl font-bold text-white mb-6">Upload New Story</h2>
-      
-      <form action="/admin/upload" method="POST" class="space-y-6">
-        
-        <!-- 🚀 1. Story Title -->
-        <div>
-          <label class="mb-2 block text-sm font-bold text-gold-soft">1. Story Title</label>
-          <input type="text" name="title" required placeholder="e.g. The Clever Rabbit" class="w-full rounded-xl px-4 py-3.5 bg-[#11111e] border border-white/10 text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition" />
-        </div>
-
-        <!-- 🚀 2. Core Story -->
-        <div>
-          <label class="mb-2 block text-sm font-bold text-gold-soft">2. Core Story (The Original Folktale)</label>
-          <textarea name="core_story" required rows="6" placeholder="Type the full story here..." class="w-full rounded-xl px-4 py-3.5 bg-[#11111e] border border-white/10 text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition resize-y"></textarea>
-        </div>
-
-        <!-- 🚀 3. Moral of the story -->
-        <div>
-          <label class="mb-2 block text-sm font-bold text-gold-soft">3. Moral of the Story</label>
-          <input type="text" name="moral" required placeholder="e.g. Always help your friends in need" class="w-full rounded-xl px-4 py-3.5 bg-[#11111e] border border-white/10 text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition" />
-        </div>
-
-        <hr class="border-white/10 my-4">
-
-        <!-- 4. Other Details (Grid) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="mb-2 block text-sm font-bold text-gray-300">State / Region</label>
-              <input type="text" name="state" required placeholder="e.g. Rajasthan" class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white placeholder-gray-500 focus:border-gold outline-none" />
-            </div>
-            
-            <div>
-                <label class="mb-2 block text-sm font-bold text-gray-300">Target Gender</label>
-                <select name="target_gender" class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white focus:border-gold outline-none">
-                    <option value="Any">Any / Both</option>
-                    <option value="Boy">Boy</option>
-                    <option value="Girl">Girl</option>
-                </select>
-            </div>
-            
-            <div>
-                <label class="mb-2 block text-sm font-bold text-gray-300">Story Theme</label>
-                <select name="theme" class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white focus:border-gold outline-none">
-                    <option value="General">General</option>
-                    <option value="Magic & Fairies">Magic & Fairies</option>
-                    <option value="Kings & Warriors">Kings & Warriors</option>
-                    <option value="Animals & Nature">Animals & Nature</option>
-                    <option value="Mystery & Adventure">Mystery & Adventure</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-bold text-gray-300">Age Range (Years)</label>
-                <div class="flex items-center space-x-2">
-                    <input type="number" name="min_age" value="3" min="1" max="15" class="w-1/2 rounded-xl px-3 py-3 bg-[#11111e] border border-white/10 text-white text-center focus:border-gold outline-none">
-                    <span class="text-gray-500 text-sm">to</span>
-                    <input type="number" name="max_age" value="10" min="1" max="15" class="w-1/2 rounded-xl px-3 py-3 bg-[#11111e] border border-white/10 text-white text-center focus:border-gold outline-none">
-                </div>
-            </div>
-        </div>
-        
-        <button type="submit" class="w-full py-4 mt-4 rounded-xl bg-gold text-navy font-extrabold hover:brightness-110 transition shadow-[0_0_20px_rgba(244,201,93,0.3)] text-lg">
-          Save Story to Database 💾
-        </button>
-      </form>
-    </div>
-
-    <!-- 📚 DATABASE LIST -->
-    <div class="glass p-6 md:p-8 rounded-3xl h-fit border border-purple-500/20 bg-white/5">
-      <h2 class="text-2xl font-bold text-white mb-6">Database ({{ stories|length }})</h2>
-      
-      <div class="space-y-4 max-h-[750px] overflow-y-auto pr-2 custom-scrollbar">
-        {% if stories %}
-          {% for st in stories %}
-            <div class="bg-[#0a0a14] p-5 rounded-2xl border border-white/5 relative group hover:border-gold/30 transition-colors">
-              
-              {% if session.get('role') == 'super_admin' %}
-              <form action="/admin/delete_story/{{ st.id }}" method="POST" class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity" onsubmit="return confirm('Are you sure you want to delete this story?');">
-                <button type="submit" class="text-red-400 hover:text-red-300 bg-red-400/10 p-2 rounded-lg border border-red-400/20" title="Delete">🗑️</button>
-              </form>
-              {% endif %}
-
-              <h3 class="text-lg font-bold text-white mb-2 pr-10">{{ st.title }}</h3>
-
-              <div class="flex flex-wrap gap-2 items-start mb-3">
-                <span class="bg-gold/10 text-gold border border-gold/20 text-[10px] px-2 py-0.5 rounded uppercase font-bold">{{ st.state }}</span>
-                <span class="bg-blue-500/10 text-blue-300 border border-blue-500/20 text-[10px] px-2 py-0.5 rounded-full">{{ st.target_gender }}</span>
-                <span class="bg-pink-500/10 text-pink-300 border border-pink-500/20 text-[10px] px-2 py-0.5 rounded-full">{{ st.theme }}</span>
-                <span class="bg-green-500/10 text-green-300 border border-green-500/20 text-[10px] px-2 py-0.5 rounded-full">{{ st.min_age }}-{{ st.max_age }} Yrs</span>
-              </div>
-              
-              <div class="bg-purple-500/10 border border-purple-500/20 px-3 py-2 rounded-lg mb-3">
-                  <span class="text-purple-300 text-xs font-bold uppercase tracking-wider block mb-1">Moral:</span>
-                  <span class="text-gray-200 text-sm font-medium">{{ st.moral }}</span>
-              </div>
-
-              <p class="text-sm text-gray-400 line-clamp-3 leading-relaxed">{{ st.core_story }}</p>
-            </div>
-          {% endfor %}
-        {% else %}
-          <div class="text-center py-12 text-gray-500 border border-dashed border-gray-700 rounded-xl bg-[#0a0a14]">
-            Database is empty. Upload the first smart story!
-          </div>
-        {% endif %}
-      </div>
-    </div>
-
-  </div>
 </section>
-
-<style>
-  .glass { background: rgba(5, 5, 16, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a14; border-radius: 10px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 201, 93, 0.5); }
-</style>
 {% endblock %}
