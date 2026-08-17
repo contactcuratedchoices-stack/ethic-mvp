@@ -10,7 +10,6 @@
 
 <section class="mx-auto max-w-6xl px-4 pb-12 pt-32 md:pt-36">
   
-  <!-- 🚀 DYNAMIC FLASH MESSAGES -->
   <div class="max-w-4xl mx-auto">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -37,21 +36,18 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 {% if current_user.role == 'super_admin' %}lg:grid-cols-3{% endif %} gap-6 max-w-5xl mx-auto">
       
-      <!-- Option 1: Upload -->
       <a href="/admin/upload" class="glass-panel p-8 rounded-3xl group hover:border-gold/30 hover:-translate-y-1 transition-all text-center">
           <div class="w-16 h-16 mx-auto bg-gold/10 text-gold rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition">✍️</div>
           <h3 class="text-xl font-bold text-white mb-2">Upload Story</h3>
           <p class="text-sm text-gray-400">Add new regional folktales to the AI brain.</p>
       </a>
 
-      <!-- Option 2: Database -->
       <a href="/admin/database" class="glass-panel p-8 rounded-3xl group hover:border-purple-500/30 hover:-translate-y-1 transition-all text-center">
           <div class="w-16 h-16 mx-auto bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition">📚</div>
           <h3 class="text-xl font-bold text-white mb-2">Story Database</h3>
           <p class="text-sm text-gray-400">View and manage {{ db_count }} existing stories.</p>
       </a>
 
-      <!-- Option 3: Team (Super Admin Only) -->
       {% if current_user.role == 'super_admin' %}
       <a href="/admin/team" class="glass-panel p-8 rounded-3xl group hover:border-blue-500/30 hover:-translate-y-1 transition-all text-center">
           <div class="w-16 h-16 mx-auto bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition">👥</div>
@@ -76,19 +72,17 @@
         <h2 class="text-2xl md:text-3xl font-bold text-white mb-8">Upload New Story</h2>
         
         <form action="/admin/upload" method="POST" class="space-y-6">
-          <!-- 1. Title -->
+          
           <div>
             <label class="mb-2 block text-sm font-bold text-gold-soft">1. Story Title</label>
             <input type="text" name="title" required placeholder="e.g. The Clever Rabbit" class="w-full rounded-xl px-4 py-3.5 bg-[#11111e] border border-white/10 text-white placeholder-gray-500 focus:border-gold outline-none" />
           </div>
 
-          <!-- 2. Core Story -->
           <div>
             <label class="mb-2 block text-sm font-bold text-gold-soft">2. Core Story (The Original Folktale)</label>
             <textarea name="core_story" required rows="6" placeholder="Type the full story here..." class="w-full rounded-xl px-4 py-3.5 bg-[#11111e] border border-white/10 text-white placeholder-gray-500 focus:border-gold outline-none resize-y"></textarea>
           </div>
 
-          <!-- 🚀 3. Moral (Divided into Category & Specific) -->
           <div class="bg-purple-900/10 border border-purple-500/20 p-5 rounded-2xl">
               <label class="mb-4 block text-sm font-bold text-purple-300">3. Moral of the Story Configuration</label>
               
@@ -112,11 +106,52 @@
 
           <hr class="border-white/10 my-4">
 
-          <!-- 4. Other Details -->
+          <!-- 🚀 4. OTHER DETAILS WITH STATE & REGION -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <!-- State Dropdown -->
               <div>
-                <label class="mb-2 block text-sm font-bold text-gray-300">State / Region</label>
-                <input type="text" name="state" required placeholder="e.g. Rajasthan" class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white focus:border-gold outline-none" />
+                  <label class="mb-2 block text-sm font-bold text-gray-300">State</label>
+                  <select name="state" required class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white focus:border-gold outline-none">
+                      <option value="" disabled selected>Select a State...</option>
+                      <option value="Andhra Pradesh">Andhra Pradesh</option>
+                      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                      <option value="Assam">Assam</option>
+                      <option value="Bihar">Bihar</option>
+                      <option value="Chhattisgarh">Chhattisgarh</option>
+                      <option value="Goa">Goa</option>
+                      <option value="Gujarat">Gujarat</option>
+                      <option value="Haryana">Haryana</option>
+                      <option value="Himachal Pradesh">Himachal Pradesh</option>
+                      <option value="Jharkhand">Jharkhand</option>
+                      <option value="Karnataka">Karnataka</option>
+                      <option value="Kerala">Kerala</option>
+                      <option value="Madhya Pradesh">Madhya Pradesh</option>
+                      <option value="Maharashtra">Maharashtra</option>
+                      <option value="Manipur">Manipur</option>
+                      <option value="Meghalaya">Meghalaya</option>
+                      <option value="Mizoram">Mizoram</option>
+                      <option value="Nagaland">Nagaland</option>
+                      <option value="Odisha">Odisha</option>
+                      <option value="Punjab">Punjab</option>
+                      <option value="Rajasthan">Rajasthan</option>
+                      <option value="Sikkim">Sikkim</option>
+                      <option value="Tamil Nadu">Tamil Nadu</option>
+                      <option value="Telangana">Telangana</option>
+                      <option value="Tripura">Tripura</option>
+                      <option value="Uttar Pradesh">Uttar Pradesh</option>
+                      <option value="Uttarakhand">Uttarakhand</option>
+                      <option value="West Bengal">West Bengal</option>
+                      <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+                      <option value="Delhi">Delhi</option>
+                      <option value="Other / General India">Other / General India</option>
+                  </select>
+              </div>
+
+              <!-- Region Input -->
+              <div>
+                <label class="mb-2 block text-sm font-bold text-gray-300">Specific Region/District <span class="text-xs text-gray-500 font-normal italic">(Optional)</span></label>
+                <input type="text" name="region" placeholder="e.g. Mewar, Jaipur, Ajmer..." class="w-full rounded-xl px-4 py-3 bg-[#11111e] border border-white/10 text-white placeholder-gray-600 focus:border-gold outline-none" />
               </div>
               
               <div>
@@ -139,12 +174,12 @@
                   </select>
               </div>
 
-              <div>
+              <div class="md:col-span-2">
                   <label class="mb-2 block text-sm font-bold text-gray-300">Age Range (Years)</label>
-                  <div class="flex items-center space-x-2">
-                      <input type="number" name="min_age" value="3" min="1" max="15" class="w-1/2 rounded-xl px-3 py-3 bg-[#11111e] border border-white/10 text-white text-center focus:border-gold outline-none">
+                  <div class="flex items-center space-x-2 w-1/2">
+                      <input type="number" name="min_age" value="3" min="1" max="15" class="w-full rounded-xl px-3 py-3 bg-[#11111e] border border-white/10 text-white text-center focus:border-gold outline-none">
                       <span class="text-gray-500 text-sm">to</span>
-                      <input type="number" name="max_age" value="10" min="1" max="15" class="w-1/2 rounded-xl px-3 py-3 bg-[#11111e] border border-white/10 text-white text-center focus:border-gold outline-none">
+                      <input type="number" name="max_age" value="10" min="1" max="15" class="w-full rounded-xl px-3 py-3 bg-[#11111e] border border-white/10 text-white text-center focus:border-gold outline-none">
                   </div>
               </div>
           </div>
@@ -184,7 +219,10 @@
                 <h3 class="text-lg font-bold text-white mb-3 pr-10">{{ st.title }}</h3>
 
                 <div class="flex flex-wrap gap-2 items-start mb-4">
-                  <span class="bg-gold/10 text-gold border border-gold/20 text-[10px] px-2 py-0.5 rounded uppercase font-bold">{{ st.state }}</span>
+                  <!-- 🚀 Showing State and Region -->
+                  <span class="bg-gold/10 text-gold border border-gold/20 text-[10px] px-2 py-0.5 rounded uppercase font-bold">
+                      {{ st.state }} {% if st.region %} • {{ st.region }}{% endif %}
+                  </span>
                   <span class="bg-blue-500/10 text-blue-300 border border-blue-500/20 text-[10px] px-2 py-0.5 rounded-full">{{ st.target_gender }}</span>
                   <span class="bg-pink-500/10 text-pink-300 border border-pink-500/20 text-[10px] px-2 py-0.5 rounded-full">{{ st.theme }}</span>
                 </div>
