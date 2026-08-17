@@ -22,13 +22,14 @@ def login():
                 return redirect(url_for('auth.login'))
                 
             hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
-            new_user = User(name=name, email=email, password=hashed_pw)
+            # 🚀 CLEANED: is_admin removed
+            new_user = User(name=name, email=email, password=hashed_pw, role='user')
             db.session.add(new_user)
             db.session.commit()
             
             session['user_id'] = new_user.id
-            session['user_name'] = new_user.name
-            session['is_admin'] = new_user.is_admin
+            session['user_name'] = new_user.name if new_user.name else "User"
+            session['role'] = new_user.role
             return redirect(url_for('main.dashboard'))
             
         elif action == 'login':
@@ -36,25 +37,26 @@ def login():
             password = request.form.get('password')
             
             user = User.query.filter_by(email=email).first()
-            if user and check_password_hash(user.password, password):
+            # 🚀 FIX: Handle users who signed up with Google (password might be null)
+            if user and user.password and check_password_hash(user.password, password):
                 session['user_id'] = user.id
-                session['user_name'] = user.name
-                session['is_admin'] = user.is_admin
+                session['user_name'] = user.name if user.name else "User"
+                session['role'] = user.role
                 
-                if user.is_admin:
+                # 🚀 CLEANED: Role checking instead of is_admin
+                if user.role in ['super_admin', 'editor']:
                     return redirect(url_for('admin.admin_upload'))
                 return redirect(url_for('main.dashboard'))
             else:
                 flash('Invalid email or password!', 'error')
                 return redirect(url_for('auth.login'))
 
-    # 🚀 SUPABASE KEYS FIX (Passing to HTML)
+    # 🚀 SUPABASE KEYS FIX
     supabase_url = os.getenv("SUPABASE_URL", "")
     supabase_key = os.getenv("SUPABASE_ANON_KEY", "")
     
     return render_template('login.html', supabase_url=supabase_url, supabase_key=supabase_key)
 
-# 🚀 NEW ROUTE: Bridging Supabase Frontend with Flask Backend
 @auth_bp.route('/sync_session', methods=['POST'])
 def sync_session():
     data = request.json
@@ -64,20 +66,22 @@ def sync_session():
     if not email:
         return jsonify({"success": False, "error": "No email provided"}), 400
 
-    # Check if user exists in local database
     user = User.query.filter_by(email=email).first()
     
     if not user:
-        # If logging in via Google for the first time, save to DB
-        dummy_pw = generate_password_hash(os.urandom(24).hex(), method='pbkdf2:sha256')
-        user = User(name=name, email=email, password=dummy_pw)
+        # 🚀 FIX: Since password is now nullable=True in DB, we don't need dummy hash
+        user = User(name=name, email=email, role='user')
         db.session.add(user)
         db.session.commit()
+    elif user and not user.name and name and name != "User":
+        # 🚀 FIX: If user logs in with Google and name was empty, update it
+        user.name = name
+        db.session.commit()
 
-    # Create the Flask session to allow access to /dashboard
+    # 🚀 CRITICAL BUG FIX: is_admin hata diya, ab 'role' use hoga
     session['user_id'] = user.id
-    session['user_name'] = user.name
-    session['is_admin'] = user.is_admin
+    session['user_name'] = user.name if user.name else "User"
+    session['role'] = user.role
 
     return jsonify({"success": True})
 
@@ -85,5 +89,6 @@ def sync_session():
 def logout():
     session.pop('user_id', None)
     session.pop('user_name', None)
-    session.pop('is_admin', None)
+    session.pop('role', None)
+    session.pop('is_admin', None) # Removing legacy key securely
     return redirect(url_for('main.home'))
