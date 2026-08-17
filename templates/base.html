@@ -43,7 +43,7 @@
 
     <style>
         body { 
-            background-color: #050510; 
+            background-color: #050510; /* CLEAN PREMIUM SOLID DARK BACKGROUND */
             color: #ffffff; 
             position: relative;
         }
@@ -63,6 +63,7 @@
             font-weight: 600;
             transition: color 0.3s ease;
             padding: 0.5rem 0;
+            white-space: nowrap; /* PREVENTS TEXT WRAPPING BUG */
         }
         .nav-link:hover { color: #ffffff; }
         .nav-link::after {
@@ -77,6 +78,7 @@
             color: #050510;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 0 0 0 rgba(255,255,255,0.2);
+            white-space: nowrap;
         }
         .btn-glow:hover {
             transform: translateY(-2px);
@@ -107,13 +109,14 @@
 <body class="font-sans min-h-screen antialiased flex flex-col selection:bg-gold/30">
 
     <header class="fixed w-full z-50 top-0 left-0 glass-header h-[72px] flex items-center">
-        <div class="w-full max-w-7xl mx-auto px-6 flex items-center justify-between">
+        <!-- 🚀 DESKTOP OVERLAP FIX: Responsive padding & gaps -->
+        <div class="w-full max-w-7xl mx-auto px-5 md:px-6 flex items-center justify-between">
             
-            <a href="/" aria-label="Ethic Home" class="font-magical text-2xl md:text-3xl font-extrabold text-white tracking-wider flex items-center hover:opacity-80 transition-opacity">
+            <a href="/" aria-label="Ethic Home" class="font-magical text-2xl md:text-3xl font-extrabold text-white tracking-wider flex items-center hover:opacity-80 transition-opacity flex-shrink-0">
                 ETHIC<span class="text-gold">.</span>
             </a>
             
-            <nav class="hidden md:flex items-center gap-10">
+            <nav class="hidden md:flex items-center gap-6 lg:gap-10 flex-shrink-1 overflow-hidden">
                 <a href="/" class="nav-link">Home</a>
                 <a href="/pricing" class="nav-link">Plans & Pricing</a>
                 {% if session.get('user_name') %}
@@ -121,7 +124,7 @@
                 {% endif %}
             </nav>
 
-            <div class="hidden md:flex items-center gap-6">
+            <div class="hidden md:flex items-center gap-4 lg:gap-6 flex-shrink-0">
                 {% if session.get('user_name') %}
                     {% if session.get('role') in ['super_admin', 'editor'] %}
                     <a href="/admin/upload" class="text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 rounded-md bg-red-500/10 transition hover:bg-red-500/20">
@@ -129,23 +132,23 @@
                     </a>
                     {% endif %}
 
-                    <div class="flex items-center gap-4">
-                        <span class="text-gold-soft text-sm font-semibold border-r border-white/10 pr-4">👋 {{ session.get('user_name') }}</span>
+                    <div class="flex items-center gap-3 lg:gap-4">
+                        <span class="text-gold-soft text-sm font-semibold border-r border-white/10 pr-3 lg:pr-4 truncate max-w-[150px]">👋 {{ session.get('user_name') }}</span>
                         <a href="/logout" class="text-sm font-semibold text-gray-400 hover:text-white transition">Logout</a>
                     </div>
                     
-                    <a href="/studio" class="btn-glow px-6 py-2.5 rounded-full text-sm font-bold flex items-center gap-2">
+                    <a href="/studio" class="btn-glow px-5 lg:px-6 py-2.5 rounded-full text-sm font-bold flex items-center gap-2">
                         Create Story ✨
                     </a>
                 {% else %}
                     <a href="/login" class="nav-link text-sm font-semibold">Log In</a>
-                    <a href="/login" class="btn-glow px-6 py-2.5 rounded-full text-sm font-bold">
+                    <a href="/login" class="btn-glow px-5 lg:px-6 py-2.5 rounded-full text-sm font-bold">
                         Get Started
                     </a>
                 {% endif %}
             </div>
 
-            <!-- 🚀 MOBILE DOTS FIX: Removed -mr-2 class -->
+            <!-- Mobile Hamburger Button -->
             <button id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" class="md:hidden text-white p-2 focus:outline-none hover:text-gold transition active:scale-90">
                 <svg id="icon-menu" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 <svg id="icon-close" aria-hidden="true" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -213,7 +216,8 @@
         {% endwith %}
     </div>
 
-    <main class="flex-grow pt-28 relative z-10">
+    <!-- 🚀 FIX: Removed pt-28. Ab background image navbar ke neeche edge-to-edge jayegi -->
+    <main class="flex-grow relative z-10 w-full">
         {% block content %}{% endblock %}
     </main>
 
@@ -224,7 +228,6 @@
         </div>
     </footer>
 
-    <!-- Initialize AOS Engine -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({
