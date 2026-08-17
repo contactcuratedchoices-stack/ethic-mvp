@@ -2,13 +2,15 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- 🚀 MOBILE ZOOM FIX: Page ko strict viewport par set kiya -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     
     <meta name="description" content="Generate highly personalized, 3D animated bedtime stories with cinematic audio. Build character, ignite imagination, and turn screen time into story time with Ethic." />
     <meta name="theme-color" content="#050510" />
     <title>ETHIC — Magical Bedtime Stories</title>
     
-    <!-- 🚀 PWA Manifest & Apple App Config (Mobile App Support) -->
+    <!-- 🚀 PWA Manifest & Apple App Config -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,9 +20,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" />
     
-    <!-- AOS (Animate On Scroll) Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
@@ -48,7 +48,6 @@
             position: relative;
         }
         
-        /* Edge-to-Edge Frosted Glass Navbar */
         .glass-header {
             background: rgba(5, 5, 16, 0.4);
             backdrop-filter: blur(24px);
@@ -73,7 +72,6 @@
         }
         .nav-link:hover::after { width: 100%; }
         
-        /* PREMIUM MICRO-INTERACTIONS (Spring Physics on buttons) */
         .btn-glow {
             background: #ffffff;
             color: #050510;
@@ -125,7 +123,7 @@
 
             <div class="hidden md:flex items-center gap-6">
                 {% if session.get('user_name') %}
-                    {% if session.get('is_admin') %}
+                    {% if session.get('role') in ['super_admin', 'editor'] %}
                     <a href="/admin/upload" class="text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 rounded-md bg-red-500/10 transition hover:bg-red-500/20">
                         ⚙️ Admin
                     </a>
@@ -147,7 +145,8 @@
                 {% endif %}
             </div>
 
-            <button id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" class="md:hidden text-white p-2 -mr-2 focus:outline-none hover:text-gold transition active:scale-90">
+            <!-- 🚀 MOBILE DOTS FIX: Removed -mr-2 class -->
+            <button id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" class="md:hidden text-white p-2 focus:outline-none hover:text-gold transition active:scale-90">
                 <svg id="icon-menu" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 <svg id="icon-close" aria-hidden="true" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
