@@ -5,7 +5,6 @@
     /* 🚀 PREMIUM, CLEAN & NATURAL AESTHETIC */
     html { scroll-behavior: smooth; }
     
-    /* 👇 FIX: Wapas original pure dark base laga diya hai */
     body { background-color: #050510; overflow-x: hidden; } 
     
     ::-webkit-scrollbar { width: 8px; }
@@ -106,13 +105,15 @@
     }
 </style>
 
-<div class="-mt-28 relative w-full min-h-[100vh] flex items-center justify-center overflow-hidden pb-16">
+<!-- 🚀 FIX 1: Removed -mt-28 so it aligns perfectly behind the sleek navbar -->
+<div class="relative w-full min-h-screen flex items-center justify-center overflow-hidden pb-16">
     
     <div class="hero-natural-bg"></div>
     <div class="fireflies"></div>
     <div class="hero-fade-bottom"></div>
 
-    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center pt-28 mt-8">
+    <!-- 🚀 FIX 2: Added pt-32 to push the text down below the navbar, creating premium breathing space -->
+    <div class="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto flex flex-col items-center pt-32 md:pt-40 lg:pt-48">
         
         <a data-aos="fade-down" data-aos-delay="100" href="#features" class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-gray-300 tracking-elite-badge font-bold hover:bg-white/10 hover:text-white transition-all cursor-pointer">
             <span class="w-1.5 h-1.5 rounded-full bg-gold animate-pulse"></span>
@@ -143,7 +144,6 @@
     </div>
 </div>
 
-<!-- 👇 FIX: Wapas bg-[#050510] laga diya hai -->
 <section id="features" class="py-24 relative z-10 bg-[#050510]">
     <div class="max-w-6xl mx-auto px-6">
         
@@ -220,7 +220,6 @@
     </div>
 </section>
 
-<!-- 👇 FIX: Wapas bg-[#050510] laga diya hai -->
 <section class="py-24 relative z-10 border-t border-white/5 bg-[#050510]">
     <div class="max-w-6xl mx-auto px-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-4 text-center">
@@ -244,7 +243,6 @@
     </div>
 </section>
 
-<!-- 👇 FIX: Wapas bg-[#050510] laga diya hai -->
 <section class="py-32 relative z-10 text-center px-6 bg-[#050510] border-t border-white/5">
     <div class="max-w-3xl mx-auto">
         <h2 data-aos="fade-up" class="text-5xl md:text-7xl font-extrabold text-white tracking-ultra-tight mb-6 leading-tight">
