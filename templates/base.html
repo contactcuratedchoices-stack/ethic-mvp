@@ -127,13 +127,13 @@
             <div class="hidden md:flex items-center gap-4 flex-shrink-0">
                 {% if session.get('user_name') %}
                     {% if session.get('role') in ['super_admin', 'editor'] %}
-                    <a href="/admin/upload" class="text-[10px] font-bold text-red-400 hover:text-red-300 uppercase tracking-widest border border-red-500/30 px-2 py-1 rounded bg-red-500/10 transition hover:bg-red-500/20">
+                    <!-- 🚀 FIX: Ab link seedha /admin par jayega, jahan Hub page khulega -->
+                    <a href="/admin" class="text-[10px] font-bold text-red-400 hover:text-red-300 uppercase tracking-widest border border-red-500/30 px-2 py-1 rounded bg-red-500/10 transition hover:bg-red-500/20">
                         Admin
                     </a>
                     {% endif %}
 
                     <div class="flex items-center gap-3">
-                        <!-- 🚀 FIX: Name Capitalization (ashok -> Ashok) -->
                         <span class="text-gold-soft text-sm font-semibold border-r border-white/10 pr-3 truncate max-w-[120px]">👋 {{ session.get('user_name') | title }}</span>
                         <a href="/logout" class="text-sm font-semibold text-gray-400 hover:text-white transition">Logout</a>
                     </div>
