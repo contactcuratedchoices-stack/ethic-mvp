@@ -1,78 +1,88 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="mx-auto max-w-6xl px-5 py-12 md:py-20">
-  <div class="text-center mb-16">
-    <h1 class="font-serif text-4xl font-bold md:text-5xl text-white">Invest in Their Future</h1>
-    <p class="mt-4 text-lg text-muted max-w-2xl mx-auto">More than just stories. We provide holistic pre-school development, IQ & EQ enhancement, and dedicated character building for your child.</p>
+<section class="mx-auto max-w-5xl px-5 py-16 md:py-24">
+  <div class="text-center mb-16 relative z-10">
+    <h1 class="font-magical text-5xl md:text-6xl font-bold text-white mb-4 tracking-wide drop-shadow-lg">Start the Magic.</h1>
+    <p class="text-lg text-gray-400 max-w-xl mx-auto font-medium">Zero screen-time. 100% imagination. Choose the plan that fits your child's bedtime routine.</p>
   </div>
   
-  <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+  <div class="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto relative z-10">
     
-    <!-- Tier 1: Basic (EQ Focus) -->
-    <div class="glass p-8 rounded-3xl flex flex-col hover:border-gold/30 transition duration-300">
-      <div class="text-3xl mb-3">🎧</div>
-      <h3 class="text-xl font-bold text-white">ETHIC Basic</h3>
-      <p class="text-sm text-gold-soft mt-1 font-semibold">EQ & Auditory Learning</p>
-      <div class="my-6">
-        <span class="text-4xl font-bold text-white">₹99</span><span class="text-muted">/mo</span>
+    <!-- 🌠 PLAN 1: FREE (Stardust) -->
+    <div class="bg-[#0a0a14] p-8 md:p-10 rounded-[32px] border border-white/10 flex flex-col hover:border-white/20 transition-all duration-300 relative overflow-hidden group">
+      <!-- Glow effect -->
+      <div class="absolute top-0 right-0 w-32 h-32 bg-gray-500/10 rounded-full blur-[50px] -z-10 group-hover:bg-gray-500/20 transition-colors"></div>
+      
+      <div class="text-4xl mb-4">✨</div>
+      <h3 class="text-2xl font-bold text-white">Stardust</h3>
+      <p class="text-sm text-gray-400 mt-1 font-medium mb-6">Perfect to experience the magic.</p>
+      
+      <div class="mb-8">
+        <span class="text-5xl font-extrabold text-white">₹0</span>
+        <span class="text-gray-500 font-medium">/forever</span>
       </div>
-      <ul class="space-y-3 mb-8 flex-1 text-sm text-gray-300">
-        <li class="flex items-start gap-2"><span class="text-gold">✦</span> Builds listening skills (Attention span)</li>
-        <li class="flex items-start gap-2"><span class="text-gold">✦</span> Emotional Intelligence (EQ) through moral values</li>
-        <li class="flex items-start gap-2"><span class="text-gold">✦</span> Zero-screen sleep routine</li>
+      
+      <ul class="space-y-4 mb-10 flex-1 text-sm text-gray-300 font-medium">
+        <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            2 Interactive Stories per month
+        </li>
+        <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Standard AI Voices
+        </li>
+        <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Basic Moral Lessons
+        </li>
       </ul>
-      <button class="w-full py-3 rounded-xl border border-gold text-gold font-bold hover:bg-gold/10 transition">Start Free Trial</button>
+      
+      <a href="/login" class="w-full py-4 rounded-2xl border-2 border-white/10 text-white font-bold text-center hover:bg-white/5 transition">
+        Get Started Free
+      </a>
     </div>
     
-    <!-- Tier 2: Pro (IQ Focus) -->
-    <div class="glass p-8 rounded-3xl flex flex-col border-gold/50 shadow-gold relative transform lg:-translate-y-4 bg-navy-light/40">
-      <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gold text-navy text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Most Popular</div>
-      <div class="text-3xl mb-3">🧠</div>
-      <h3 class="text-xl font-bold text-white">ETHIC Pro</h3>
-      <p class="text-sm text-gold-soft mt-1 font-semibold">Cognitive & IQ Development</p>
-      <div class="my-6">
-        <span class="text-4xl font-bold text-white">₹199</span><span class="text-muted">/mo</span>
+    <!-- 🌌 PLAN 2: PREMIUM (Galaxy) -->
+    <div class="bg-gradient-to-b from-[#11111e] to-[#0a0a14] p-8 md:p-10 rounded-[32px] border border-gold/30 shadow-[0_0_40px_rgba(244,201,93,0.1)] flex flex-col relative transform md:-translate-y-4 transition-all duration-300 group hover:shadow-[0_0_60px_rgba(244,201,93,0.15)]">
+      
+      <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-gold to-[#d4af37] text-navy text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
+        Recommended
       </div>
-      <ul class="space-y-3 mb-8 flex-1 text-sm text-gray-300">
-        <li class="flex items-start gap-2"><span class="text-gold">✦</span> Everything in Basic</li>
-        <li class="flex items-start gap-2"><span class="text-gold">✦</span> Read-Along text (Builds early vocabulary)</li>
-        <li class="flex items-start gap-2"><span class="text-gold">✦</span> Calm visual cues for cognitive mapping</li>
-        <li class="flex items-start gap-2"><span class="text-gold">✦</span> Save & organize favorite lessons</li>
-      </ul>
-      <button class="w-full py-3 rounded-xl bg-gold text-navy font-bold hover:brightness-105 transition shadow-gold">Choose Pro</button>
-    </div>
-    
-    <!-- Tier 3: Premium (Pre-school Readiness) -->
-    <div class="glass p-8 rounded-3xl flex flex-col hover:border-purple-soft/50 transition duration-300">
-      <div class="text-3xl mb-3">🎒</div>
-      <h3 class="text-xl font-bold text-white">Learning Kit</h3>
-      <p class="text-sm text-purple-soft mt-1 font-semibold">Pre-school Readiness</p>
-      <div class="my-6">
-        <span class="text-4xl font-bold text-white">₹1299</span><span class="text-muted">/kit</span>
-      </div>
-      <ul class="space-y-3 mb-8 flex-1 text-sm text-gray-300">
-        <li class="flex items-start gap-2"><span class="text-purple-soft">✦</span> Physical Personalized Book delivered home</li>
-        <li class="flex items-start gap-2"><span class="text-purple-soft">✦</span> Cultural Jigsaw Puzzles (Motor skills)</li>
-        <li class="flex items-start gap-2"><span class="text-purple-soft">✦</span> Tracing Worksheets (School readiness)</li>
-      </ul>
-      <button class="w-full py-3 rounded-xl border border-purple-soft text-purple-soft font-bold hover:bg-purple-soft/10 transition">Order Kit</button>
-    </div>
+      
+      <div class="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full blur-[60px] -z-10 group-hover:bg-gold/20 transition-colors"></div>
 
-    <!-- Tier 4: Elite (Holistic Mentorship) -->
-    <div class="glass p-8 rounded-3xl flex flex-col border-dashed border-gray-600 opacity-90 hover:opacity-100 transition duration-300">
-      <div class="text-3xl mb-3">🧘🏽‍♀️</div>
-      <h3 class="text-xl font-bold text-white">Gurukul Elite</h3>
-      <p class="text-sm text-gray-400 mt-1 font-semibold">1-on-1 Character Building</p>
-      <div class="my-6">
-        <span class="text-4xl font-bold text-white">₹5000</span><span class="text-muted">/mo</span>
+      <div class="text-4xl mb-4">🚀</div>
+      <h3 class="text-2xl font-bold text-white">Galaxy Pro</h3>
+      <p class="text-sm text-gold-soft mt-1 font-medium mb-6">Unlimited imagination & character building.</p>
+      
+      <div class="mb-8">
+        <span class="text-5xl font-extrabold text-white">₹99</span>
+        <span class="text-gray-400 font-medium">/month</span>
       </div>
-      <ul class="space-y-3 mb-8 flex-1 text-sm text-gray-300">
-        <li class="flex items-start gap-2"><span class="text-gray-400">✦</span> Dedicated human child-psychologist / mentor</li>
-        <li class="flex items-start gap-2"><span class="text-gray-400">✦</span> Weekly 1-on-1 virtual sessions</li>
-        <li class="flex items-start gap-2"><span class="text-gray-400">✦</span> Behavioral analysis reports for parents</li>
+      
+      <ul class="space-y-4 mb-10 flex-1 text-sm text-gray-200 font-medium">
+        <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span class="font-bold text-white">Unlimited</span> Interactive Stories
+        </li>
+        <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Ultra-Realistic Neural TTS Voices
+        </li>
+        <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Unlimited Interactive Voice Choices
+        </li>
+        <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Save to personal Audio Library
+        </li>
       </ul>
-      <button class="w-full py-3 rounded-xl border border-gray-600 text-gray-300 font-bold hover:bg-gray-800 transition">Apply Now</button>
+      
+      <button class="w-full py-4 rounded-2xl bg-gold text-navy text-lg font-extrabold shadow-[0_0_20px_rgba(244,201,93,0.3)] hover:brightness-110 hover:scale-[1.02] transition-all">
+        Upgrade to Galaxy
+      </button>
     </div>
 
   </div>
