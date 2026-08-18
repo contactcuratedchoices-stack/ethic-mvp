@@ -1,6 +1,5 @@
 Flask
-groq
-gTTS
+openai
 Flask-SQLAlchemy
 Werkzeug
 gunicorn
