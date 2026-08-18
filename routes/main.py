@@ -4,7 +4,6 @@ import os
 import base64
 import wave
 import io
-import json
 import urllib.parse
 import random
 import requests
@@ -100,7 +99,6 @@ def generate_story():
     else:
         language_instruction = "CRITICAL RULE: WRITE THE ENTIRE STORY IN ENGLISH."
 
-    # 🚀 NEW: Fetching Regional Data properly with the new CMS Architecture
     regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, theme=theme, target_gender=gender).first()
     if not regional_base:
         regional_base = RegionalStory.query.filter_by(state=native_place, moral=moral_value, target_gender=gender).first()
@@ -110,9 +108,8 @@ def generate_story():
     regional_context = ""
     if regional_base:
         regional_context = f"""
-        CRITICAL INSTRUCTION: I am providing you an authentic regional folktale from {native_place} (Specific Region: {regional_base.region}). 
-        You MUST base your entire response strictly on this core story: '{regional_base.core_story}'.
-        The Deep Specific Moral/Lesson to subtly teach is: '{regional_base.specific_moral}'.
+        CRITICAL INSTRUCTION: I am providing you an authentic regional folktale from {native_place}. 
+        You MUST base your entire response strictly on this story: '{regional_base.core_story}'.
         Do not invent a completely new plot, BUT you must adapt and bend this core story to perfectly fit the requested '{theme}' theme and make the main character a '{gender}'.
         """
     else:
@@ -120,12 +117,7 @@ def generate_story():
 
     gender_role = "heroine (like a brave princess, smart girl, or fairy)" if gender == "Girl" else "hero (like a brave prince, smart boy, or warrior)"
     
-    # 🚀 NEW: Enforcing JSON Format for Interactivity
-    system_prompt = """You are an expert, affectionate Indian Grandparent (Dadi/Nani) and a master storyteller.
-    You MUST output your response STRICTLY as a JSON object. Do not include any markdown formatting or extra text.
-    The JSON must contain exactly these two keys:
-    1. "story_text": The complete, engaging bedtime story.
-    2. "interactive_question": A single, exciting question asked at the very end to let the child choose what the hero should do next."""
+    system_prompt = "You are an expert, affectionate Indian Grandparent (Dadi/Nani) and a master storyteller."
     
     user_prompt = f"""
     Write a highly personalized, emotional bedtime story.
@@ -137,6 +129,7 @@ def generate_story():
     
     ✨ STORY SETTINGS:
     - Theme: "{theme}". The story MUST heavily revolve around this theme.
+    - Core Moral to teach: "{moral_value}". 
     - Native Place: "{native_place}".
     
     {language_instruction}
@@ -146,38 +139,27 @@ def generate_story():
     1. Add cultural depth from {native_place}. 
     2. Tone must perfectly match a {age}-year-old. 
     3. Add a warm grandparent greeting. 
-    4. Length: 350-400 words.
-    5. Ensure the 'interactive_question' leaves the story on a cliffhanger.
+    4. End with a real-world task. 
+    5. Length: 350-400 words.
     """
     
     try:
-        # 🚀 FIX: Using a stable Groq model and enforcing JSON mode
+        # 🚀 UPDATE 1: Groq API ka latest stable model use kiya gaya hai (Error 400 Fixed)
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            model="llama3-8b-8192", 
-            response_format={"type": "json_object"},
-            temperature=0.7,
+            model="llama-3.3-70b-versatile",
         )
-        
-        # 🚀 NEW: Parsing the JSON response
-        raw_content = response.choices[0].message.content
-        parsed_data = json.loads(raw_content)
-        
-        story_text = parsed_data.get("story_text", "")
-        interactive_question = parsed_data.get("interactive_question", "")
-        
-        # Combine text for the database and UI
-        full_content = story_text + "\n\n" + interactive_question
+        story_text = response.choices[0].message.content
         title = f"{child_name}'s Tale of {moral_value}"
         
-        # 🚀 REMOVED: Video/Image generation completely deleted for speed and focus.
-        # We use a default ambient background image so the DB doesn't throw errors.
+        # 🚀 UPDATE 2: Pollinations AI Image generation logic hata diya gaya hai.
+        # Sirf ek default beautiful background image add ki hai taki UI break na ho.
         cover_image_url = "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop"
 
-        new_story = Story(user_id=session['user_id'], title=title, content=full_content, moral=moral_value, image_url=cover_image_url)
+        new_story = Story(user_id=session['user_id'], title=title, content=story_text, moral=moral_value, image_url=cover_image_url)
         db.session.add(new_story)
         db.session.commit()
         
@@ -191,15 +173,11 @@ def generate_story():
                     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
                     speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Raw16Khz16BitMonoPcm)
                     
-                    # 🚀 INTACT: Azure Voice Configuration (Untouched as requested)
+                    # 🚀 NO CHANGE: Azure Voice configuration is untouched
                     voice_name = "en-IN-NeerjaNeural" if language == 'English' else "hi-IN-SwaraNeural"
                     synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
                     
-                    # We will synthesize the story, and add the interactive question at the end!
                     paragraphs = [p.strip() for p in story_text.split('\n') if p.strip()]
-                    if interactive_question:
-                        paragraphs.append(interactive_question.strip())
-                        
                     combined_pcm_bytes = b""
                     
                     for para in paragraphs:
